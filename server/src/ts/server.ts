@@ -1,5 +1,6 @@
-import { ODataServer, ODataController, Edm, odata, ODataQuery, result } from "odata-v4-server";
+import { ODataServer, Edm, odata } from "odata-v4-server";
 import { CandleController } from "./controllers/Candle";
+import { StrategyController } from "./controllers/Strategy";
 import connect from "./connect";
 
 const request = require('request');
@@ -10,6 +11,7 @@ const BASE_URL = 'https://api.hitbtc.com/api/2/';
 @odata.cors
 @odata.namespace("Crypto.OData")
 @odata.controller(CandleController, true)
+@odata.controller(StrategyController, true)
 export class CryptoServer extends ODataServer{
   @Edm.ActionImport
   async Update(): Promise<void>{

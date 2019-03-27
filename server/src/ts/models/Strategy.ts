@@ -1,7 +1,7 @@
 import { ObjectID } from "mongodb";
 import { Edm } from "odata-v4-server";
 
-export class Candle {
+export class Strategy {
   @Edm.Key
   @Edm.Computed
   @Edm.String
@@ -10,20 +10,8 @@ export class Candle {
   @Edm.String
   public name: string;
 
-  @Edm.DateTimeOffset
-  public moment: number;
-
-  @Edm.Double
-  public open: number;
-
-  @Edm.Double
-  public high: number;
-
-  @Edm.Double
-  public low: number;
-
-  @Edm.Double
-  public close: number;
+  @Edm.String
+  public code: string;
 
   constructor(jsonData: any) {
     Object.assign(this, jsonData);

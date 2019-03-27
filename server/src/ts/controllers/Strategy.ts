@@ -2,15 +2,15 @@ import { ObjectID } from "mongodb";
 import { createQuery } from "odata-v4-mongodb";
 import { Edm, odata, ODataController, ODataQuery } from "odata-v4-server";
 import connect from "../connect";
-import { Candle } from "../models/Candle";
+import { Strategy } from "../models/Strategy";
 
-const collectionName = "candle";
+const collectionName = "strategy";
 
-@odata.type(Candle)
-@Edm.EntitySet("Candles")
-export class CandleController extends ODataController {
+@odata.type(Strategy)
+@Edm.EntitySet("Strategies")
+export class StrategyController extends ODataController {
   @odata.GET
-  public async find(@odata.query query: ODataQuery): Promise<Candle[]> {
+  public async find(@odata.query query: ODataQuery): Promise<Strategy[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
 
@@ -36,13 +36,22 @@ export class CandleController extends ODataController {
   }
 
   @odata.GET
-  public async findOne(@odata.key key: string, @odata.query query: ODataQuery): Promise<Candle> {
+  public async findOne(@odata.key key: string, @odata.query query: ODataQuery): Promise<Strategy> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
     let keyId;
     try { keyId = new ObjectID(key); } catch (err) { keyId = key; }
     return db.collection(collectionName).findOne({ _id: keyId }, {
       fields: mongodbQuery.projection,
+    });
+  }
+
+  @odata.POST
+  async insert(@odata.body data: any): Promise<Strategy> {
+    const db = await connect();
+    return await db.collection(collectionName).insertOne(data).then((result) => {
+      data._id = result.insertedId;
+      return data;
     });
   }
 }
