@@ -1,26 +1,6 @@
 <mvc:View controllerName="fokin.crypto.controller.App"
 	xmlns:mvc="sap.ui.core.mvc"
 	displayBlock="true"
-	xmlns:tnt="sap.tnt"
 	xmlns="sap.m">
-	<App id="app">
-		<Page>
-			<content>
-				<List items="{data>/Strategies}">
-					<headerToolbar>
-						<Toolbar>
-							<content>
-								<Title text="Strategies"/>
-								<ToolbarSpacer/>
-								<Button icon="sap-icon://add" press="onAdd"/>
-							</content>
-						</Toolbar>
-					</headerToolbar>
-					<items>
-						<StandardListItem title="{data>name}"/>
-					</items>
-				</List>
-			</content>
-		</Page>
-	</App>
+	<App id="app"/>
 </mvc:View>

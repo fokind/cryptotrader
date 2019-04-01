@@ -41,6 +41,29 @@
 			"view": {
 				"type": "sap.ui.model.json.JSONModel"
 			}
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"controlId": "app",
+				"viewType": "XML",
+				"controlAggregation": "pages",
+				"viewPath": "fokin.crypto.view"
+			},
+			"routes": [
+				{
+					"pattern": "strategies",
+					"name": "strategies",
+					"target": "strategies"
+				}
+			],
+			"targets": {
+				"strategies": {
+					"viewId": "strategies",
+					"viewName": "Strategies",
+					"viewLevel": 1
+				}
+			}
 		}
 	}
 }

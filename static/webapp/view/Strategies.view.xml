@@ -1,0 +1,23 @@
+<mvc:View controllerName="fokin.crypto.controller.Strategies"
+	xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true"
+	xmlns="sap.m">
+	<Page>
+		<content>
+			<List items="{data>/Strategies}">
+				<headerToolbar>
+					<Toolbar>
+						<content>
+							<Title text="Strategies"/>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://add" press="onAdd"/>
+						</content>
+					</Toolbar>
+				</headerToolbar>
+				<items>
+					<StandardListItem title="{data>name}"/>
+				</items>
+			</List>
+		</content>
+	</Page>
+</mvc:View>
