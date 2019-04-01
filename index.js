@@ -9,7 +9,7 @@ var CookieStrategy = require('passport-cookie').Strategy;
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 
-app.use(express.static('/static/webapp'));
+app.use(express.static('static/webapp'));
 
 app.use(cookieParser());
 

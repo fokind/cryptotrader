@@ -1,0 +1,46 @@
+{
+	"sap.app": {
+		"id": "fokin.crypto",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"dataSources": {
+			"default": {
+				"uri": "/odata/",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "4.0"
+				}
+			}
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5"
+	},
+	"sap.ui5": {
+		"rootView": {
+			"viewName": "fokin.crypto.view.App",
+			"type": "XML",
+			"id": "app"
+		},
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "fokin.crypto.i18n.i18n"
+				}
+			},
+			"data": {
+				"dataSource": "default",
+				"settings": {
+					"autoExpandSelect": true,
+					"groupId": "$direct",
+					"synchronizationMode": "None",
+					"operationMode": "Server"
+				}
+			},
+			"view": {
+				"type": "sap.ui.model.json.JSONModel"
+			}
+		}
+	}
+}
