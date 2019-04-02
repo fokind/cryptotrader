@@ -4,7 +4,7 @@
 	xmlns="sap.m">
 	<Page>
 		<content>
-			<List items="{data>/Strategies}">
+			<List items="{data>/Strategies}" itemPress="onItemPress">
 				<headerToolbar>
 					<Toolbar>
 						<content>
@@ -15,7 +15,7 @@
 					</Toolbar>
 				</headerToolbar>
 				<items>
-					<StandardListItem title="{data>name}"/>
+					<StandardListItem title="{data>name}" type="Active"/>
 				</items>
 			</List>
 		</content>

@@ -55,6 +55,11 @@
 					"pattern": "strategies",
 					"name": "strategies",
 					"target": "strategies"
+				},
+				{
+					"pattern": "strategy/{id}",
+					"name": "strategy",
+					"target": "strategy"
 				}
 			],
 			"targets": {
@@ -62,6 +67,11 @@
 					"viewId": "strategies",
 					"viewName": "Strategies",
 					"viewLevel": 1
+				},
+				"strategy": {
+					"viewId": "strategy",
+					"viewName": "Strategy",
+					"viewLevel": 2
 				}
 			}
 		}

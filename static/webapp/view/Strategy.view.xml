@@ -1,0 +1,36 @@
+<mvc:View controllerName="fokin.crypto.controller.Strategy"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:uxap="sap.uxap"
+	xmlns="sap.m">
+	<uxap:ObjectPageLayout>
+		<uxap:headerTitle>
+			<uxap:ObjectPageHeader objectTitle="{data>name}"/>
+		</uxap:headerTitle>
+		<uxap:sections>
+			<uxap:ObjectPageSection title="Code">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection title="Code">
+						<uxap:blocks>
+							<Text renderWhitespace="true"
+								wrapping="true"
+								text="function(candles, tulind, callback) \{&#xA;{data>code}&#xA;\};"/>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+			<uxap:ObjectPageSection title="Backtests">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection title="Backtests">
+						<uxap:blocks>
+							<List items="{data>Backtests}">
+								<items>
+									<StandardListItem title="{data>_id}"/>
+								</items>
+							</List>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+		</uxap:sections>
+	</uxap:ObjectPageLayout>
+</mvc:View>

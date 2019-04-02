@@ -5,12 +5,10 @@ sap.ui.define([
 	"use strict";
 
 	return Controller.extend("fokin.crypto.controller.Strategies", {
-		onInit: function() {
-			UIComponent.getRouterFor(this).getRoute("strategies").attachPatternMatched(this.onRouteMatched, this);
-		},
-
-		onRouteMatched: function(oEvent) {
-			console.log(oEvent);
+		onItemPress: function(oEvent) {
+			UIComponent.getRouterFor(this).navTo("strategy", {
+				id: oEvent.getParameters().listItem.getBindingContext("data").getProperty("_id")
+			});
 		}
 	});
 });
