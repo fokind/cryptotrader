@@ -22,9 +22,9 @@
 				<uxap:subSections>
 					<uxap:ObjectPageSubSection title="Backtests">
 						<uxap:blocks>
-							<List items="{data>Backtests}">
+							<List items="{data>Backtests}" itemPress=".onBacktestPress">
 								<items>
-									<StandardListItem title="{data>_id}"/>
+									<StandardListItem title="{data>_id}" type="Active"/>
 								</items>
 							</List>
 						</uxap:blocks>

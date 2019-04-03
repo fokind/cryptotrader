@@ -1,11 +1,7 @@
 import { ObjectID } from "mongodb";
 import { Edm } from "odata-v4-server";
-// import { BacktestItem } from "./BacktestItem";
+import { BacktestItem } from "./BacktestItem";
 
-// @Edm.Annotate({
-//   term: "UI.DisplayName",
-//   string: "Backtests"
-// })
 export class Backtest {
   constructor (jsonData: any) {
     Object.assign(this, jsonData);
@@ -22,7 +18,7 @@ export class Backtest {
   @Edm.String
   public strategyId: ObjectID
 
-  // @Edm.ForeignKey("backtestId")
-  // @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BacktestItem)))
-  // Items: BacktestItem[]
+  @Edm.ForeignKey("backtestId")
+  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BacktestItem)))
+  Items: BacktestItem[]
 }

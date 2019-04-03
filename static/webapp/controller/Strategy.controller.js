@@ -13,6 +13,12 @@ sap.ui.define([
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
 			this.getView().bindElement("data>/Strategies(\'" + sId + "\')");
+		},
+
+		onBacktestPress: function(oEvent) {
+			UIComponent.getRouterFor(this).navTo("backtest", {
+				id: oEvent.getParameters().listItem.getBindingContext("data").getProperty("_id")
+			});
 		}
 	});
 });

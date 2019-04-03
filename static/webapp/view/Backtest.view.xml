@@ -1,0 +1,39 @@
+<mvc:View controllerName="fokin.crypto.controller.Backtest"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:uxap="sap.uxap"
+	xmlns="sap.m">
+	<uxap:ObjectPageLayout>
+		<uxap:headerTitle>
+			<uxap:ObjectPageHeader objectTitle="{data>_id}">
+				<!-- <uxap:actions>
+					<uxap:ObjectPageHeaderActionButton icon="sap-icon://pull-down" text="show section" type="Emphasized" tooltip="pull-down"/>
+					<uxap:ObjectPageHeaderActionButton icon="sap-icon://show" text="show state" type="Emphasized" tooltip="show"/>
+				</uxap:actions> -->
+			</uxap:ObjectPageHeader>
+		</uxap:headerTitle>
+		<uxap:sections>
+			<uxap:ObjectPageSection title="Info">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection title="Info">
+						<uxap:blocks>
+							<Text text="..."/>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+			<uxap:ObjectPageSection title="Items">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection title="Items">
+						<uxap:blocks>
+							<List items="{data>Items}">
+								<items>
+									<StandardListItem title="{data>_id}"/>
+								</items>
+							</List>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+		</uxap:sections>
+	</uxap:ObjectPageLayout>
+</mvc:View>

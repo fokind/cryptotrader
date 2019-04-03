@@ -1,5 +1,6 @@
 import { ODataServer, Edm, odata } from "odata-v4-server";
 import { BacktestController } from "./controllers/Backtest";
+import { BacktestItemController } from "./controllers/BacktestItem";
 import { CandleController } from "./controllers/Candle";
 import { StrategyController } from "./controllers/Strategy";
 import connect from "./connect";
@@ -12,6 +13,7 @@ const BASE_URL = 'https://api.hitbtc.com/api/2/';
 @odata.cors
 @odata.namespace("Crypto.OData")
 @odata.controller(BacktestController, true)
+@odata.controller(BacktestItemController, true)
 @odata.controller(CandleController, true)
 @odata.controller(StrategyController, true)
 export class CryptoServer extends ODataServer{
