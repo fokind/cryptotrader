@@ -16,11 +16,33 @@
 				<uxap:subSections>
 					<uxap:ObjectPageSubSection title="Rows">
 						<uxap:blocks>
-							<List items="{data>Rows}">
+							<Table items="{
+									model: 'data',
+									path: 'Rows',
+									parameters: {
+										$select: 'candleId'
+									}
+								}"
+								inset="false"
+								growingThreshold="100"
+								growing="true">
+								<columns>
+									<Column>
+										<Text text="ID"/>
+									</Column>
+									<Column hAlign="End">
+										<Text text="Close"/>
+									</Column>
+								</columns>
 								<items>
-									<StandardListItem title="{data>_id}"/>
+									<ColumnListItem>
+										<cells>
+											<ObjectIdentifier title="{data>_id}"/>
+											<ObjectNumber number="{data>Candle/close}"/>
+										</cells>
+									</ColumnListItem>
 								</items>
-							</List>
+							</Table>
 						</uxap:blocks>
 					</uxap:ObjectPageSubSection>
 				</uxap:subSections>

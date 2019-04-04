@@ -87,7 +87,6 @@ export class BacktestController extends ODataController {
 
   @odata.GET("Rows")
   async getRows(@odata.result result: Backtest, @odata.query query: ODataQuery): Promise<BacktestRow[]> {
-    console.log(1);
     const db = await connect();
     const mongodbQuery = createQuery(query);
     if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
@@ -106,20 +105,5 @@ export class BacktestController extends ODataController {
         .count(false);
     }
     return backtestRows;
-  }
-
-  @odata.GET("Rows")
-  async getRow(@odata.key key: string, @odata.result result: Backtest, @odata.query query: ODataQuery): Promise<BacktestRow> {
-    const db = await connect();
-    const mongodbQuery = createQuery(query);
-    if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
-    if (typeof mongodbQuery.query.backtestId === "string") mongodbQuery.query.backtestId = new ObjectID(mongodbQuery.query.backtestId);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return db.collection("backtestRow").findOne({
-      $and: [{ _id: keyId, backtestId: result._id }, mongodbQuery.query]
-    }, {
-      fields: mongodbQuery.projection
-    });
   }
 }

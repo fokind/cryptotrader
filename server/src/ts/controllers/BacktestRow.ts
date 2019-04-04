@@ -2,6 +2,7 @@ import { ObjectID } from "mongodb";
 import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { BacktestRow } from "../models/BacktestRow";
+import { Candle } from "../models/Candle";
 
 import connect from "../connect";
 
@@ -37,7 +38,7 @@ export class BacktestRowController extends ODataController {
     const mongodbQuery = createQuery(query);
     let keyId;
     try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return db.collection(collectionName).findOne({_id: keyId}, {
+    return await db.collection(collectionName).findOne({_id: keyId}, {
       fields: mongodbQuery.projection
     });
   }
@@ -82,5 +83,17 @@ export class BacktestRowController extends ODataController {
     let keyId;
     try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
+  }
+
+  @odata.GET("Candle")
+  async getCandle(@odata.result result: BacktestRow, @odata.query query: ODataQuery): Promise<Candle> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    let key = result.candleId;
+    let keyId;
+    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+    return await db.collection("candle").findOne({_id: keyId}, {
+      fields: mongodbQuery.projection
+    });
   }
 }
