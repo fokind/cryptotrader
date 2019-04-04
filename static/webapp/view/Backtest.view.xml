@@ -16,7 +16,7 @@
 				<uxap:subSections>
 					<uxap:ObjectPageSubSection title="Rows">
 						<uxap:blocks>
-							<List items="{data>Items}">
+							<List items="{data>Rows}">
 								<items>
 									<StandardListItem title="{data>_id}"/>
 								</items>

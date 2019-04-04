@@ -1,11 +1,7 @@
 import { ObjectID } from "mongodb";
 import { Edm } from "odata-v4-server";
 
-export class BacktestItem {
-  constructor (jsonData: any) {
-    Object.assign(this, jsonData);
-  }
-
+export class BacktestRow {
   @Edm.Key
   @Edm.Computed
   @Edm.String
@@ -16,4 +12,11 @@ export class BacktestItem {
 
   @Edm.String
   public backtestId: ObjectID
+
+  @Edm.String
+  public candleId: ObjectID
+
+  constructor (jsonData: any) {
+    Object.assign(this, jsonData);
+  }
 }

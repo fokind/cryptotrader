@@ -2,7 +2,7 @@ import { ObjectID } from "mongodb";
 import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Backtest } from "../models/Backtest";
-import { BacktestItem } from "../models/BacktestItem";
+import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
 
 const collectionName = "backtest";
@@ -85,13 +85,14 @@ export class BacktestController extends ODataController {
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
   }
 
-  @odata.GET("Items")
-  async getItems(@odata.result result: Backtest, @odata.query query: ODataQuery): Promise<BacktestItem[]> {
+  @odata.GET("Rows")
+  async getRows(@odata.result result: Backtest, @odata.query query: ODataQuery): Promise<BacktestRow[]> {
+    console.log(1);
     const db = await connect();
     const mongodbQuery = createQuery(query);
     if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
     if (typeof mongodbQuery.query.backtestId === "string") mongodbQuery.query.backtestId = new ObjectID(mongodbQuery.query.backtestId);
-    let backtestItems = typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0 ? [] : await db.collection("backtestItem")
+    let backtestRows = typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0 ? [] : await db.collection("backtestRow")
       .find({ $and: [{ backtestId: result._id }, mongodbQuery.query] })
       .project(mongodbQuery.projection)
       .skip(mongodbQuery.skip || 0)
@@ -99,23 +100,23 @@ export class BacktestController extends ODataController {
       .sort(mongodbQuery.sort)
       .toArray();
     if (mongodbQuery.inlinecount) {
-      (<any>backtestItems).inlinecount = await db.collection("backtestItem")
+      (<any>backtestRows).inlinecount = await db.collection("backtestRow")
         .find({ $and: [{ backtestId: result._id }, mongodbQuery.query] })
         .project(mongodbQuery.projection)
         .count(false);
     }
-    return backtestItems;
+    return backtestRows;
   }
 
-  @odata.GET("Items")
-  async getItem(@odata.key key: string, @odata.result result: Backtest, @odata.query query: ODataQuery): Promise<BacktestItem> {
+  @odata.GET("Rows")
+  async getRow(@odata.key key: string, @odata.result result: Backtest, @odata.query query: ODataQuery): Promise<BacktestRow> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
     if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
     if (typeof mongodbQuery.query.backtestId === "string") mongodbQuery.query.backtestId = new ObjectID(mongodbQuery.query.backtestId);
     let keyId;
     try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return db.collection("backtestItem").findOne({
+    return db.collection("backtestRow").findOne({
       $and: [{ _id: keyId, backtestId: result._id }, mongodbQuery.query]
     }, {
       fields: mongodbQuery.projection

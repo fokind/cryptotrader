@@ -1,10 +1,9 @@
-<mvc:View controllerName="fokin.crypto.controller.Candles"
-	xmlns:mvc="sap.ui.core.mvc"
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
 	displayBlock="true"
 	xmlns="sap.m">
 	<Page>
 		<content>
-			<Table items="{data>Candles}"
+			<Table items="{data>/Candles}"
 				inset="false"
 				growingScrollToLoad="false"
 				growingThreshold="100"

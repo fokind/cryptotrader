@@ -1,17 +1,17 @@
 import { ObjectID } from "mongodb";
 import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
-import { BacktestItem } from "../models/BacktestItem";
+import { BacktestRow } from "../models/BacktestRow";
 
 import connect from "../connect";
 
-const collectionName = "backtestItem";
+const collectionName = "backtestRow";
 
-@odata.type(BacktestItem)
-@Edm.EntitySet("BacktestItems")
-export class BacktestItemController extends ODataController {
+@odata.type(BacktestRow)
+@Edm.EntitySet("BacktestRows")
+export class BacktestRowController extends ODataController {
   @odata.GET
-  async find(@odata.query query: ODataQuery): Promise<BacktestItem[]> {
+  async find(@odata.query query: ODataQuery): Promise<BacktestRow[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
     if (typeof mongodbQuery.query._id == "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
@@ -32,7 +32,7 @@ export class BacktestItemController extends ODataController {
   }
 
   @odata.GET
-  async findOne(@odata.key key: string, @odata.query query: ODataQuery): Promise<BacktestItem> {
+  async findOne(@odata.key key: string, @odata.query query: ODataQuery): Promise<BacktestRow> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
     let keyId;
@@ -43,7 +43,7 @@ export class BacktestItemController extends ODataController {
   }
 
   @odata.POST
-  async insert(@odata.body data: any): Promise<BacktestItem> {
+  async insert(@odata.body data: any): Promise<BacktestRow> {
     const db = await connect();
     // срабатывает только если в body содержится хотя бы одно значение
     if (typeof data.backtestId === "string") data.backtestId = new ObjectID(data.backtestId);
@@ -54,7 +54,7 @@ export class BacktestItemController extends ODataController {
   }
 
   @odata.PUT
-  async upsert(@odata.key key: string, @odata.body data: any, @odata.context context: any): Promise<BacktestItem> {
+  async upsert(@odata.key key: string, @odata.body data: any, @odata.context context: any): Promise<BacktestRow> {
     const db = await connect();
     if (data._id) delete data._id;
     let keyId;

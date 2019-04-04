@@ -1,11 +1,9 @@
 import { ODataServer, Edm, odata } from "odata-v4-server";
 import { BacktestController } from "./controllers/Backtest";
-import { BacktestItemController } from "./controllers/BacktestItem";
+import { BacktestRowController } from "./controllers/BacktestRow";
 import { CandleController } from "./controllers/Candle";
-import { HistoryController } from "./controllers/History";
 import { StrategyController } from "./controllers/Strategy";
 import connect from "./connect";
-import { ObjectID } from "mongodb";
 
 const request = require('request');
 const moment = require('moment');
@@ -15,9 +13,8 @@ const BASE_URL = 'https://api.hitbtc.com/api/2/';
 @odata.cors
 @odata.namespace("Crypto.OData")
 @odata.controller(BacktestController, true)
-@odata.controller(BacktestItemController, true)
+@odata.controller(BacktestRowController, true)
 @odata.controller(CandleController, true)
-@odata.controller(HistoryController, true)
 @odata.controller(StrategyController, true)
 export class CryptoServer extends ODataServer {
   @Edm.ActionImport
@@ -36,7 +33,6 @@ export class CryptoServer extends ODataServer {
         high: +e.max,
         low: +e.min,
         close: +e.close,
-        historyId: new ObjectID('5ca64b119c56d015c8827169'), // UNDONE метод перенести в другое место
       }));
 
       const collectionName = "candle";

@@ -1,12 +1,8 @@
 import { ObjectID } from "mongodb";
 import { Edm } from "odata-v4-server";
-import { BacktestItem } from "./BacktestItem";
+import { BacktestRow } from "./BacktestRow";
 
 export class Backtest {
-  constructor (jsonData: any) {
-    Object.assign(this, jsonData);
-  }
-
   @Edm.Key
   @Edm.Computed
   @Edm.String
@@ -19,6 +15,10 @@ export class Backtest {
   public strategyId: ObjectID
 
   @Edm.ForeignKey("backtestId")
-  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BacktestItem)))
-  Items: BacktestItem[]
+  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BacktestRow)))
+  Rows: BacktestRow[]
+
+  constructor (jsonData: any) {
+    Object.assign(this, jsonData);
+  }
 }
