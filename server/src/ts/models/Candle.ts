@@ -25,6 +25,9 @@ export class Candle {
   @Edm.Double
   public close: number;
 
+  @Edm.String
+  public historyId: ObjectID
+
   constructor(jsonData: any) {
     Object.assign(this, jsonData);
   }
