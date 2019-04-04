@@ -62,6 +62,11 @@
 					"target": "strategies"
 				},
 				{
+					"pattern": "candles",
+					"name": "candles",
+					"target": "candles"
+				},
+				{
 					"pattern": "strategy/{id}",
 					"name": "strategy",
 					"target": "strategy"
@@ -76,6 +81,11 @@
 				"strategies": {
 					"viewId": "strategies",
 					"viewName": "Strategies",
+					"viewLevel": 1
+				},
+				"candles": {
+					"viewId": "candles",
+					"viewName": "Candles",
 					"viewLevel": 1
 				},
 				"strategy": {

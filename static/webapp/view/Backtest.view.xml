@@ -12,18 +12,9 @@
 			</uxap:ObjectPageHeader>
 		</uxap:headerTitle>
 		<uxap:sections>
-			<uxap:ObjectPageSection title="Info">
+			<uxap:ObjectPageSection title="Rows">
 				<uxap:subSections>
-					<uxap:ObjectPageSubSection title="Info">
-						<uxap:blocks>
-							<Text text="..."/>
-						</uxap:blocks>
-					</uxap:ObjectPageSubSection>
-				</uxap:subSections>
-			</uxap:ObjectPageSection>
-			<uxap:ObjectPageSection title="Items">
-				<uxap:subSections>
-					<uxap:ObjectPageSubSection title="Items">
+					<uxap:ObjectPageSubSection title="Rows">
 						<uxap:blocks>
 							<List items="{data>Items}">
 								<items>
