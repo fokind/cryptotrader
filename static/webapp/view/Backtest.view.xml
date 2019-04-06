@@ -5,10 +5,13 @@
 	<uxap:ObjectPageLayout>
 		<uxap:headerTitle>
 			<uxap:ObjectPageHeader objectTitle="{data>_id}">
-				<!-- <uxap:actions>
-					<uxap:ObjectPageHeaderActionButton icon="sap-icon://pull-down" text="show section" type="Emphasized" tooltip="pull-down"/>
-					<uxap:ObjectPageHeaderActionButton icon="sap-icon://show" text="show state" type="Emphasized" tooltip="show"/>
-				</uxap:actions> -->
+				<uxap:actions>
+					<uxap:ObjectPageHeaderActionButton text="Update"
+						press=".onUpdatePress"
+						hideText="false"
+						hideIcon="true"
+						type="Transparent"/>
+				</uxap:actions>
 			</uxap:ObjectPageHeader>
 		</uxap:headerTitle>
 		<uxap:sections>

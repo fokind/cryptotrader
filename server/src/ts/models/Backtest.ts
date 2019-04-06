@@ -1,5 +1,5 @@
 import { ObjectID } from "mongodb";
-import { Edm } from "odata-v4-server";
+import { Edm, odata } from "odata-v4-server";
 import { BacktestRow } from "./BacktestRow";
 
 export class Backtest {
@@ -17,6 +17,11 @@ export class Backtest {
   @Edm.ForeignKey("backtestId")
   @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BacktestRow)))
   Rows: BacktestRow[]
+
+  @Edm.Action
+  async update(@odata.result result: Backtest) {
+    console.log(result);
+  }
 
   constructor (jsonData: any) {
     Object.assign(this, jsonData);

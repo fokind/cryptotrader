@@ -13,6 +13,13 @@ sap.ui.define([
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
 			this.getView().bindElement("data>/Backtests(\'" + sId + "\')");
+		},
+
+		onUpdatePress: function(oEvent) {
+			var oView = this.getView();
+			oView.getModel("data")
+				.bindContext(oView.getBindingContext("data") + "/Crypto.update(...)")
+				.execute(); // .then(...
 		}
 	});
 });
