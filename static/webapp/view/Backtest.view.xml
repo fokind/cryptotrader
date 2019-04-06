@@ -31,7 +31,10 @@
 								growing="true">
 								<columns>
 									<Column>
-										<Text text="ID"/>
+										<Text text="Time"/>
+									</Column>
+									<Column hAlign="End">
+										<Text text="Estimate"/>
 									</Column>
 									<Column hAlign="End">
 										<Text text="Close"/>
@@ -40,7 +43,8 @@
 								<items>
 									<ColumnListItem>
 										<cells>
-											<ObjectIdentifier title="{data>_id}"/>
+											<ObjectIdentifier title="{data>Candle/moment}"/>
+											<ObjectNumber number="{data>balanceEstimate}"/>
 											<ObjectNumber number="{data>Candle/close}"/>
 										</cells>
 									</ColumnListItem>

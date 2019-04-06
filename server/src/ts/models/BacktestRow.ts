@@ -8,8 +8,17 @@ export class BacktestRow {
   @Edm.String
   public _id: ObjectID
 
-  @Edm.String
-  public name: string
+  @Edm.Int32
+  public advice: number
+
+  @Edm.Double
+  public balanceFrom: number
+
+  @Edm.Double
+  public balanceTo: number
+
+  @Edm.Double
+  public balanceEstimate: number
 
   @Edm.String
   public backtestId: ObjectID
