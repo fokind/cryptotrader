@@ -76,13 +76,15 @@ export class Backtest {
             balanceTo = 0;
           }
   
-          backtestRows.push(Object.assign({
+          backtestRows.push({
             backtestId,
             advice,
             balanceFrom,
             balanceTo,
             balanceEstimate: balanceFrom + balanceTo * price,
-          }, candle));
+            close: candle.close,
+            time: candle.time,
+          });
         }
   
         db.collection("backtestRow", null, (err, backtestRowCollection) => {

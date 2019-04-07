@@ -26,6 +26,7 @@
 								model: 'data',
 								path: 'Backtests'
 							}"
+							itemPress=".onBacktestPress"
 							inset="false">
 							<columns>
 								<Column>
@@ -36,7 +37,7 @@
 								</Column>
 							</columns>
 							<items>
-								<ColumnListItem>
+								<ColumnListItem type="Active">
 									<cells>
 										<ObjectIdentifier title="{data>symbolFrom}{data>symbolTo}"/>
 										<ObjectNumber number="{data>result}"/>
