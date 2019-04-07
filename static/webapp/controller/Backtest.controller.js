@@ -12,7 +12,13 @@ sap.ui.define([
 		onRouteMatched: function(oEvent) {
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
-			this.getView().bindElement("data>/Backtests(\'" + sId + "\')");
+			this.getView().bindElement({
+				model: "data",
+				path: "/Backtests(\'" + sId + "\')",
+				parameters: {
+					"$select": "strategyId"
+				}
+			});
 		},
 
 		onUpdatePress: function(oEvent) {

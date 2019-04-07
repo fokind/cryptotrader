@@ -11,13 +11,13 @@ export class BacktestRow {
   @Edm.Int32
   public advice: number
 
-  @Edm.Double
+  @Edm.Decimal
   public balanceFrom: number
 
-  @Edm.Double
+  @Edm.Decimal
   public balanceTo: number
 
-  @Edm.Double
+  @Edm.Decimal
   public balanceEstimate: number
 
   @Edm.String

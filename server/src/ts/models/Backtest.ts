@@ -23,13 +23,24 @@ export class Backtest {
   @Edm.Action
   async update(@odata.result result: Backtest) {
     const backtestId = (typeof result._id === "string") ? new ObjectID(result._id) : result._id;
+    const strategyId = (typeof result.strategyId === "string") ? new ObjectID(result.strategyId) : result.strategyId;
     const db = await connect();
     const candles = await db.collection("candle").find({}, {
       limit: 10,
       sort: { moment: 1 }
     }).toArray();
 
-    const backtestRows = candles.map(candle => {
+    // подключить стратегию
+    // предварительно узнать идентификатор стратегии
+    // можно брать из селекта, но неправильно, т.к. понадобятся и другие свойства, не обязательно относящиеся к UI
+    const strategy = await db.collection("candle").findOne({ _id: strategyId });
+    console.log(strategy);
+
+    // использовать при расчете
+
+    const balanceInitial = 1;
+
+    const backtestRows = candles.map((candle, index, array) => {
       return {
         backtestId,
         candleId: (typeof candle._id === "string") ? new ObjectID(candle._id) : candle._id,

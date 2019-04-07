@@ -4,13 +4,16 @@ import { Edm, odata, ODataController, ODataQuery } from "odata-v4-server";
 import connect from "../connect";
 import { Candle } from "../models/Candle";
 
+const request = require('request');
+const moment = require('moment');
+const BASE_URL = 'https://api.hitbtc.com/api/2/';
 const collectionName = "candle";
 
 @odata.type(Candle)
 @Edm.EntitySet("Candles")
 export class CandleController extends ODataController {
   @odata.GET
-  public async find(@odata.query query: ODataQuery): Promise<Candle[]> {
+  public async get(@odata.query query: ODataQuery): Promise<Candle[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
 
@@ -35,14 +38,33 @@ export class CandleController extends ODataController {
     return result;
   }
 
-  @odata.GET
-  public async findOne(@odata.key key: string, @odata.query query: ODataQuery): Promise<Candle> {
+  @Edm.Action
+  async remove(): Promise<void> {
     const db = await connect();
-    const mongodbQuery = createQuery(query);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch (err) { keyId = key; }
-    return db.collection(collectionName).findOne({ _id: keyId }, {
-      fields: mongodbQuery.projection,
+    db.collection(collectionName).deleteMany({});
+  }
+
+  @Edm.Action
+  async update(): Promise<void> {
+    request.get({
+      baseUrl: BASE_URL,
+      url: 'public/candles/XMRBTC',
+      qs: {
+        limit: 1000,
+        period: 'M1'
+      }
+    }, (err, res, body) => {
+      let candles = JSON.parse(body).map(e => ({
+        moment: moment(e.timestamp).toDate(),
+        open: +e.open,
+        high: +e.max,
+        low: +e.min,
+        close: +e.close,
+      }));
+
+      connect().then(db => {
+        db.collection(collectionName).insertMany(candles);
+      });
     });
   }
 }
