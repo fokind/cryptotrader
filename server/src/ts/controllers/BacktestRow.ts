@@ -84,16 +84,4 @@ export class BacktestRowController extends ODataController {
     try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
   }
-
-  @odata.GET("Candle")
-  async getCandle(@odata.result result: BacktestRow, @odata.query query: ODataQuery): Promise<Candle> {
-    const db = await connect();
-    const mongodbQuery = createQuery(query);
-    let key = result.candleId;
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return await db.collection("candle").findOne({_id: keyId}, {
-      fields: mongodbQuery.projection
-    });
-  }
 }

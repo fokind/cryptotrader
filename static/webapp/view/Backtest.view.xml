@@ -22,8 +22,9 @@
 							<Table items="{
 									model: 'data',
 									path: 'Rows',
-									parameters: {
-										$select: 'candleId'
+									sorter: {
+										path: 'time',
+										descending: true
 									}
 								}"
 								inset="false"
@@ -34,18 +35,30 @@
 										<Text text="Time"/>
 									</Column>
 									<Column hAlign="End">
-										<Text text="Estimate"/>
+										<Text text="Close"/>
+									</Column>
+									<Column>
+										<Text text="Advice"/>
 									</Column>
 									<Column hAlign="End">
-										<Text text="Close"/>
+										<Text text="Balance From"/>
+									</Column>
+									<Column hAlign="End">
+										<Text text="Balance To"/>
+									</Column>
+									<Column hAlign="End">
+										<Text text="Estimate"/>
 									</Column>
 								</columns>
 								<items>
 									<ColumnListItem>
 										<cells>
-											<ObjectIdentifier title="{data>Candle/moment}"/>
+											<ObjectIdentifier title="{data>time}"/>
+											<ObjectNumber number="{data>close}"/>
+											<ObjectNumber number="{data>advice}"/>
+											<ObjectNumber number="{data>balanceFrom}"/>
+											<ObjectNumber number="{data>balanceTo}"/>
 											<ObjectNumber number="{data>balanceEstimate}"/>
-											<ObjectNumber number="{data>Candle/close}"/>
 										</cells>
 									</ColumnListItem>
 								</items>

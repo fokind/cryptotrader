@@ -8,27 +8,35 @@ export class BacktestRow {
   @Edm.String
   public _id: ObjectID
 
+  @Edm.DateTimeOffset
+  public time: number;
+
+  @Edm.Double
+  public open: number;
+
+  @Edm.Double
+  public high: number;
+
+  @Edm.Double
+  public low: number;
+
+  @Edm.Double
+  public close: number;
+
   @Edm.Int32
   public advice: number
 
-  @Edm.Decimal
+  @Edm.Double
   public balanceFrom: number
 
-  @Edm.Decimal
+  @Edm.Double
   public balanceTo: number
 
-  @Edm.Decimal
+  @Edm.Double
   public balanceEstimate: number
 
   @Edm.String
   public backtestId: ObjectID
-
-  @Edm.String
-  public candleId: ObjectID
-
-  @Edm.ForeignKey("candleId")
-  @Edm.EntityType(Edm.ForwardRef(() => Candle))
-  Candle: Candle
 
   constructor (jsonData: any) {
     Object.assign(this, jsonData);

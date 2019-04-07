@@ -55,7 +55,7 @@ export class CandleController extends ODataController {
       }
     }, (err, res, body) => {
       let candles = JSON.parse(body).map(e => ({
-        moment: moment(e.timestamp).toDate(),
+        time: moment(e.timestamp).toDate(),
         open: +e.open,
         high: +e.max,
         low: +e.min,

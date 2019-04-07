@@ -4,6 +4,9 @@ import { BacktestRow } from "./BacktestRow";
 
 import connect from "../connect";
 
+const tulind = require('tulind');
+const async = require('async');
+
 export class Backtest {
   @Edm.Key
   @Edm.Computed
@@ -22,36 +25,59 @@ export class Backtest {
 
   @Edm.Action
   async update(@odata.result result: Backtest) {
-    const backtestId = (typeof result._id === "string") ? new ObjectID(result._id) : result._id;
-    const strategyId = (typeof result.strategyId === "string") ? new ObjectID(result.strategyId) : result.strategyId;
     const db = await connect();
-    const candles = await db.collection("candle").find({}, {
-      limit: 10,
-      sort: { moment: 1 }
-    }).toArray();
+    // получить бэктест из базы данных
+
+    const backtestId = result._id;
+    const strategyId = result.strategyId;
+    const candles = await db.collection("candle").find({}).sort({ time: 1 }).toArray();
 
     // подключить стратегию
     // предварительно узнать идентификатор стратегии
     // можно брать из селекта, но неправильно, т.к. понадобятся и другие свойства, не обязательно относящиеся к UI
-    const strategy = await db.collection("candle").findOne({ _id: strategyId });
-    console.log(strategy);
-
+    const strategy = await db.collection("strategy").findOne({ _id: strategyId });
+    const strategyFunction = new Function(
+      'candles, tulind, callback',
+      strategy.code,
+    );
     // использовать при расчете
 
-    const balanceInitial = 1;
+    const balanceInitial = 1000;
 
-    const backtestRows = candles.map((candle, index, array) => {
-      return {
-        backtestId,
-        candleId: (typeof candle._id === "string") ? new ObjectID(candle._id) : candle._id,
-        advice: 0, // применить стратегию
-        balanceFrom: 0,
-        balanceTo: 0,
-        balanceEstimate: 0,
+    async.map(candles,
+      (candle, cb) => strategyFunction(candles.slice(0, candles.indexOf(candle) + 1), tulind, cb),
+      (err, results) => {
+        const backtestRows = [];
+        for (let i = 0; i < candles.length; i++) {
+          const advice = results[i];
+          const candle = candles[i];
+          const price = candle.close;
+          const prev = i > 0 ? backtestRows[i - 1] : null;
+          let balanceFrom = i > 0 ? prev.balanceFrom : balanceInitial;
+          let balanceTo = i > 0 ? prev.balanceTo : 0;
+  
+          if (advice === 1) {
+            balanceFrom = 0;
+            balanceTo += prev.balanceFrom / price;
+          } else if (advice === -1) {
+            balanceFrom += prev.balanceTo * price;
+            balanceTo = 0;
+          }
+  
+          backtestRows.push(Object.assign({
+            backtestId,
+            advice,
+            balanceFrom,
+            balanceTo,
+            balanceEstimate: balanceFrom + balanceTo * price,
+          }, candle));
+        }
+  
+        db.collection("backtestRow", null, (err, backtestRowCollection) => {
+          backtestRowCollection.insertMany(backtestRows);
+        });
       }
-    });
-    const backtestRowCollection = await db.collection("backtestRow");
-    backtestRowCollection.insertMany(backtestRows);
+    );
   }
 
   constructor (jsonData: any) {

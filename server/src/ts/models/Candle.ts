@@ -11,18 +11,18 @@ export class Candle {
   public name: string;
 
   @Edm.DateTimeOffset
-  public moment: number;
+  public time: number;
 
-  @Edm.Decimal
+  @Edm.Double
   public open: number;
 
-  @Edm.Decimal
+  @Edm.Double
   public high: number;
 
-  @Edm.Decimal
+  @Edm.Double
   public low: number;
 
-  @Edm.Decimal
+  @Edm.Double
   public close: number;
 
   @Edm.String
