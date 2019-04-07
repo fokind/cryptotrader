@@ -1,36 +1,25 @@
 <mvc:View controllerName="fokin.crypto.controller.Strategy"
 	xmlns:mvc="sap.ui.core.mvc"
-	xmlns:uxap="sap.uxap"
-	xmlns="sap.m">
-	<uxap:ObjectPageLayout>
-		<uxap:headerTitle>
-			<uxap:ObjectPageHeader objectTitle="{data>name}"/>
-		</uxap:headerTitle>
-		<uxap:sections>
-			<uxap:ObjectPageSection title="Code">
-				<uxap:subSections>
-					<uxap:ObjectPageSubSection title="Code">
-						<uxap:blocks>
-							<Text renderWhitespace="true"
-								wrapping="true"
-								text="function(candles, tulind, callback) \{&#xA;{data>code}&#xA;\};"/>
-						</uxap:blocks>
-					</uxap:ObjectPageSubSection>
-				</uxap:subSections>
-			</uxap:ObjectPageSection>
-			<uxap:ObjectPageSection title="Backtests">
-				<uxap:subSections>
-					<uxap:ObjectPageSubSection title="Backtests">
-						<uxap:blocks>
-							<List items="{data>Backtests}" itemPress=".onBacktestPress">
-								<items>
-									<StandardListItem title="{data>_id}" type="Active"/>
-								</items>
-							</List>
-						</uxap:blocks>
-					</uxap:ObjectPageSubSection>
-				</uxap:subSections>
-			</uxap:ObjectPageSection>
-		</uxap:sections>
-	</uxap:ObjectPageLayout>
+	xmlns:l="sap.ui.layout"
+	xmlns="sap.m"
+	xmlns:codeeditor="sap.ui.codeeditor"
+	height="100%">
+	<l:ResponsiveSplitter defaultPane="default">
+		<l:PaneContainer>
+			<l:SplitPane id="default">
+				<Panel headerText="CodeEditor" height="100%">
+					<codeeditor:CodeEditor editable="false" value="function(candles, tulind, callback) \{&#xA;{data>code}&#xA;\};"/>
+				</Panel>
+			</l:SplitPane>
+			<l:SplitPane>
+				<Panel headerText="Backtest" height="100%">
+					<List items="{data>Backtests}" itemPress=".onBacktestPress">
+						<items>
+							<StandardListItem title="{data>_id}" type="Active"/>
+						</items>
+					</List>
+				</Panel>
+			</l:SplitPane>
+		</l:PaneContainer>
+	</l:ResponsiveSplitter>
 </mvc:View>
