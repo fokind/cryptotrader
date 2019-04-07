@@ -11,7 +11,7 @@ export class Candle {
   public name: string;
 
   @Edm.DateTimeOffset
-  public time: number;
+  public time: Date;
 
   @Edm.Double
   public open: number;

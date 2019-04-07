@@ -14,7 +14,19 @@ export class Backtest {
   public _id: ObjectID
 
   @Edm.String
-  public name: string
+  public symbolFrom: string
+
+  @Edm.String
+  public symbolTo: string
+
+  @Edm.String
+  public period: string
+
+  @Edm.Int32
+  public length: number
+
+  @Edm.Double
+  public result: number
 
   @Edm.String
   public strategyId: ObjectID

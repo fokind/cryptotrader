@@ -12,12 +12,39 @@
 				</Panel>
 			</l:SplitPane>
 			<l:SplitPane>
-				<Panel headerText="Backtest" height="100%">
-					<List items="{data>Backtests}" itemPress=".onBacktestPress">
-						<items>
-							<StandardListItem title="{data>_id}" type="Active"/>
-						</items>
-					</List>
+				<Panel height="100%">
+					<headerToolbar>
+						<Toolbar>
+							<Title text="Backtest"/>
+							<ToolbarSpacer />
+							<Button icon="sap-icon://add" press=".onAddBacktestPress"/>
+						</Toolbar>
+					</headerToolbar>
+					<content>
+						<Table id="backtests"
+							items="{
+								model: 'data',
+								path: 'Backtests'
+							}"
+							inset="false">
+							<columns>
+								<Column>
+									<Text text="Symbol"/>
+								</Column>
+								<Column hAlign="End">
+									<Text text="Result"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<ObjectIdentifier title="{data>symbolFrom}{data>symbolTo}"/>
+										<ObjectNumber number="{data>result}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</content>
 				</Panel>
 			</l:SplitPane>
 		</l:PaneContainer>
