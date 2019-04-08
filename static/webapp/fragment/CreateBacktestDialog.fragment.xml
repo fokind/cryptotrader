@@ -17,6 +17,8 @@
           <Input value="{view>/Draft/period}"/>
           <Label text="Length"/>
           <Input value="{view>/Draft/length}"/>
+          <Label text="Balance initial"/>
+          <Input value="{view>/Draft/balanceInitial}"/>
         </form:content>
       </form:SimpleForm>
     </content>

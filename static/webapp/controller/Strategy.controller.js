@@ -21,6 +21,7 @@ sap.ui.define([
 				symbolTo: "XRP",
 				period: "M1",
 				length: 1000,
+				balanceInitial: 100
 			});
 		},
 
@@ -55,6 +56,7 @@ sap.ui.define([
 			var oDraft = oView.getModel("view").getProperty("/Draft");
 			
 			oView.byId("backtests").getBinding("items").create({
+				balanceInitial: oDraft.balanceInitial,
 				symbolFrom: oDraft.symbolFrom,
 				symbolTo: oDraft.symbolTo,
 				period: oDraft.period,

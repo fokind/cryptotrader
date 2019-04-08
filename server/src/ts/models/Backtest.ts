@@ -26,6 +26,12 @@ export class Backtest {
   public length: number
 
   @Edm.Double
+  public balanceInitial: number
+
+  @Edm.Double
+  public balanceEstimate: number
+
+  @Edm.Double
   public result: number
 
   @Edm.String
