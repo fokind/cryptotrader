@@ -10,7 +10,7 @@
 				<l:PaneContainer>
 					<l:SplitPane id="default">
 						<Panel headerText="CodeEditor" height="100%">
-							<codeeditor:CodeEditor editable="false" value="function(candles, tulind, callback) \{&#xA;{data>code}&#xA;\};"/>
+							<codeeditor:CodeEditor editable="true" value="{data>code}"/>
 						</Panel>
 					</l:SplitPane>
 					<l:SplitPane>
@@ -41,7 +41,7 @@
 									<items>
 										<ColumnListItem type="Active">
 											<cells>
-												<ObjectIdentifier title="{data>symbolFrom}{data>symbolTo}"/>
+												<ObjectIdentifier title="{data>symbolTo}{data>symbolFrom}"/>
 												<ObjectNumber number="{data>result}"/>
 											</cells>
 										</ColumnListItem>

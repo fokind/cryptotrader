@@ -56,6 +56,15 @@ export class StrategyController extends ODataController {
     });
   }
 
+  @odata.PATCH
+  async update(@odata.key key: string, @odata.body delta: any): Promise<number> {
+    const db = await connect();
+    if (delta._id) delete delta._id;
+    let keyId;
+    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+    return await db.collection(collectionName).updateOne({_id: keyId}, {$set: delta}).then(result => result.modifiedCount);
+  }
+
   @odata.GET("Backtests")
   async getBacktests(@odata.result result: Strategy, @odata.query query: ODataQuery): Promise<Backtest[]> {
     const db = await connect();

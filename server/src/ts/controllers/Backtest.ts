@@ -5,6 +5,7 @@ import { Backtest } from "../models/Backtest";
 import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
 import { backtest } from "../../../backtest";
+// import _eval from "eval";
 
 const collectionName = "backtest";
 
@@ -52,6 +53,9 @@ export class BacktestController extends ODataController {
         const strategyPromise = db.collection("strategy").findOne({ _id: data.strategyId });
         Promise.all([candlesPromise, strategyPromise]).then((result) => {
           const candles = result[0];
+          // console.log(result[1].code);
+          // const strategyFunction = _eval(result[1].code);
+          // console.log(strategyFunction);
           const strategyFunction = new Function(
             'candles, tulind, callback',
             result[1].code,
