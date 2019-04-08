@@ -4,50 +4,54 @@
 	xmlns="sap.m"
 	xmlns:codeeditor="sap.ui.codeeditor"
 	height="100%">
-	<l:ResponsiveSplitter defaultPane="default">
-		<l:PaneContainer>
-			<l:SplitPane id="default">
-				<Panel headerText="CodeEditor" height="100%">
-					<codeeditor:CodeEditor editable="false" value="function(candles, tulind, callback) \{&#xA;{data>code}&#xA;\};"/>
-				</Panel>
-			</l:SplitPane>
-			<l:SplitPane>
-				<Panel height="100%">
-					<headerToolbar>
-						<Toolbar>
-							<Title text="Backtest"/>
-							<ToolbarSpacer />
-							<Button icon="sap-icon://add" press=".onAddBacktestPress"/>
-						</Toolbar>
-					</headerToolbar>
-					<content>
-						<Table id="backtests"
-							items="{
-								model: 'data',
-								path: 'Backtests'
-							}"
-							itemPress=".onBacktestPress"
-							inset="false">
-							<columns>
-								<Column>
-									<Text text="Symbol"/>
-								</Column>
-								<Column hAlign="End">
-									<Text text="Result"/>
-								</Column>
-							</columns>
-							<items>
-								<ColumnListItem type="Active">
-									<cells>
-										<ObjectIdentifier title="{data>symbolFrom}{data>symbolTo}"/>
-										<ObjectNumber number="{data>result}"/>
-									</cells>
-								</ColumnListItem>
-							</items>
-						</Table>
-					</content>
-				</Panel>
-			</l:SplitPane>
-		</l:PaneContainer>
-	</l:ResponsiveSplitter>
+	<Page title="Strategy" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<l:ResponsiveSplitter defaultPane="default">
+				<l:PaneContainer>
+					<l:SplitPane id="default">
+						<Panel headerText="CodeEditor" height="100%">
+							<codeeditor:CodeEditor editable="false" value="function(candles, tulind, callback) \{&#xA;{data>code}&#xA;\};"/>
+						</Panel>
+					</l:SplitPane>
+					<l:SplitPane>
+						<Panel height="100%">
+							<headerToolbar>
+								<Toolbar>
+									<Title text="Backtest"/>
+									<ToolbarSpacer />
+									<Button icon="sap-icon://add" press=".onAddBacktestPress"/>
+								</Toolbar>
+							</headerToolbar>
+							<content>
+								<Table id="backtests"
+									items="{
+										model: 'data',
+										path: 'Backtests'
+									}"
+									itemPress=".onBacktestPress"
+									inset="false">
+									<columns>
+										<Column>
+											<Text text="Symbol"/>
+										</Column>
+										<Column hAlign="End">
+											<Text text="Result"/>
+										</Column>
+									</columns>
+									<items>
+										<ColumnListItem type="Active">
+											<cells>
+												<ObjectIdentifier title="{data>symbolFrom}{data>symbolTo}"/>
+												<ObjectNumber number="{data>result}"/>
+											</cells>
+										</ColumnListItem>
+									</items>
+								</Table>
+							</content>
+						</Panel>
+					</l:SplitPane>
+				</l:PaneContainer>
+			</l:ResponsiveSplitter>
+		</content>
+	</Page>
 </mvc:View>

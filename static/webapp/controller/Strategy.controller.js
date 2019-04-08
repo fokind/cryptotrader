@@ -25,7 +25,7 @@ sap.ui.define([
 			});
 		},
 
-		onAddBacktestPress: function(oEvent) {
+		onAddBacktestPress: function() {
 			var oView = this.getView();
 
 			// create dialog lazily
@@ -74,6 +74,10 @@ sap.ui.define([
 			UIComponent.getRouterFor(this).navTo("backtest", {
 				id: oEvent.getParameters().listItem.getBindingContext("data").getProperty("_id")
 			});
+		},
+
+		onNavBack: function() {
+			window.history.go(-1);
 		}
 	});
 });

@@ -9,6 +9,10 @@ sap.ui.define([
 			UIComponent.getRouterFor(this).navTo("strategy", {
 				id: oEvent.getParameters().listItem.getBindingContext("data").getProperty("_id")
 			});
+		},
+
+		onNavBack: function() {
+			window.history.go(-1);
 		}
 	});
 });

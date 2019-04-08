@@ -5,7 +5,6 @@ import { Backtest } from "../models/Backtest";
 import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
 import { backtest } from "../../../backtest";
-import { resolve } from "path";
 
 const collectionName = "backtest";
 

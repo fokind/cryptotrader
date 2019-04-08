@@ -2,71 +2,52 @@
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:uxap="sap.uxap"
 	xmlns="sap.m">
-	<uxap:ObjectPageLayout>
-		<uxap:headerTitle>
-			<uxap:ObjectPageHeader objectTitle="{data>_id}">
-				<uxap:actions>
-					<uxap:ObjectPageHeaderActionButton text="Update"
-						press=".onUpdatePress"
-						hideText="false"
-						hideIcon="true"
-						type="Transparent"/>
-				</uxap:actions>
-			</uxap:ObjectPageHeader>
-		</uxap:headerTitle>
-		<uxap:sections>
-			<uxap:ObjectPageSection title="Rows">
-				<uxap:subSections>
-					<uxap:ObjectPageSubSection title="Rows">
-						<uxap:blocks>
-							<Table items="{
-									model: 'data',
-									path: 'Rows',
-									sorter: {
-										path: 'time',
-										descending: true
-									}
-								}"
-								inset="false"
-								growingThreshold="100"
-								growing="true">
-								<columns>
-									<Column>
-										<Text text="Time"/>
-									</Column>
-									<Column hAlign="End">
-										<Text text="Close"/>
-									</Column>
-									<Column>
-										<Text text="Advice"/>
-									</Column>
-									<Column hAlign="End">
-										<Text text="Balance From"/>
-									</Column>
-									<Column hAlign="End">
-										<Text text="Balance To"/>
-									</Column>
-									<Column hAlign="End">
-										<Text text="Estimate"/>
-									</Column>
-								</columns>
-								<items>
-									<ColumnListItem>
-										<cells>
-											<ObjectIdentifier title="{data>time}"/>
-											<ObjectNumber number="{data>close}"/>
-											<ObjectNumber number="{data>advice}"/>
-											<ObjectNumber number="{data>balanceFrom}"/>
-											<ObjectNumber number="{data>balanceTo}"/>
-											<ObjectNumber number="{data>balanceEstimate}"/>
-										</cells>
-									</ColumnListItem>
-								</items>
-							</Table>
-						</uxap:blocks>
-					</uxap:ObjectPageSubSection>
-				</uxap:subSections>
-			</uxap:ObjectPageSection>
-		</uxap:sections>
-	</uxap:ObjectPageLayout>
+	<Page title="Backtest" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table items="{
+					model: 'data',
+					path: 'Rows',
+					sorter: {
+						path: 'time',
+						descending: true
+					}
+				}"
+				inset="false"
+				growingThreshold="100"
+				growing="true">
+				<columns>
+					<Column>
+						<Text text="Time"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Close"/>
+					</Column>
+					<Column>
+						<Text text="Advice"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Balance From"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Balance To"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Estimate"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<ObjectIdentifier title="{data>time}"/>
+							<ObjectNumber number="{data>close}"/>
+							<ObjectNumber number="{data>advice}"/>
+							<ObjectNumber number="{data>balanceFrom}"/>
+							<ObjectNumber number="{data>balanceTo}"/>
+							<ObjectNumber number="{data>balanceEstimate}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
 </mvc:View>

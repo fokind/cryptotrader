@@ -21,11 +21,15 @@ sap.ui.define([
 			});
 		},
 
-		onUpdatePress: function(oEvent) {
+		onUpdatePress: function() {
 			var oView = this.getView();
 			oView.getModel("data")
 				.bindContext(oView.getBindingContext("data") + "/Crypto.update(...)")
 				.execute(); // .then(...
+		},
+
+		onNavBack: function() {
+			window.history.go(-1);
 		}
 	});
 });
