@@ -5,6 +5,7 @@ import { Backtest } from "../models/Backtest";
 import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
 import { backtest } from "../../../backtest";
+import * as market from "../../../market";
 // import _eval from "eval";
 
 const collectionName = "backtest";
@@ -45,11 +46,21 @@ export class BacktestController extends ODataController {
   }
 
   @odata.POST
-  insert(@odata.body data: any): Promise<Backtest> {
+  insert(@odata.body data: Backtest): Promise<Backtest> {
     return new Promise<Backtest>(resolve => {
       connect().then(db => {
         // срабатывает только если в body содержится хотя бы одно значение
-        const candlesPromise = db.collection("candle").find({}).sort({ time: 1 }).toArray(); // TODO выбирать нужные свечи
+        // const candlesPromise = db.collection("candle").find({}).sort({ time: 1 }).toArray(); // TODO выбирать нужные свечи
+        const candlesPromise = new Promise(resolve => {
+          market.getCandles({
+            fsym: data.symbolFrom,
+            tsym: data.symbolTo,
+            period: data.period,
+            limit: data.length
+          }, (err, candles) => {
+            resolve(candles);
+          });
+        });
         const strategyPromise = db.collection("strategy").findOne({ _id: data.strategyId });
         Promise.all([candlesPromise, strategyPromise]).then((result) => {
           const candles = result[0];
