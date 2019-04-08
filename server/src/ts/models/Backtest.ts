@@ -42,7 +42,11 @@ export class Backtest {
 
     const backtestId = result._id;
     const strategyId = result.strategyId;
-    const candles = await db.collection("candle").find({}).sort({ time: 1 }).toArray();
+    const candles = await db.collection("candle").find({}).sort({ time: 1 }).toArray(); // TODO выбирать нужны свечи
+
+    // есть запрос с символом, таймфреймом и заданным периодом
+    // необходимо у другого класса запросить эту статистику
+    // этот класс сам получит и сохранит нужным образом, но вернет то, что нужно
 
     // подключить стратегию
     // предварительно узнать идентификатор стратегии
@@ -89,6 +93,14 @@ export class Backtest {
   
         db.collection("backtestRow", null, (err, backtestRowCollection) => {
           backtestRowCollection.insertMany(backtestRows);
+        });
+
+        db.collection("backtest").updateOne({
+          _id: backtestId
+        }, {
+          $set: {
+            result: backtestRows[backtestRows.length - 1].balanceEstimate / balanceInitial
+          }
         });
       }
     );
