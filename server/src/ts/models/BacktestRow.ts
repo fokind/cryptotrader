@@ -1,6 +1,5 @@
 import { ObjectID } from "mongodb";
 import { Edm } from "odata-v4-server";
-import { Candle } from "./Candle";
 
 export class BacktestRow {
   @Edm.Key
@@ -9,7 +8,7 @@ export class BacktestRow {
   public _id: ObjectID
 
   @Edm.DateTimeOffset
-  public time: number;
+  public time: Date;
 
   @Edm.Double
   public open: number;

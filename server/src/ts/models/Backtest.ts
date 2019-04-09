@@ -13,6 +13,15 @@ export class Backtest {
   @Edm.String
   public _id: ObjectID
 
+  @Edm.DateTimeOffset
+  public time: Date;
+
+  @Edm.DateTimeOffset
+  public timeFrom: Date;
+
+  @Edm.DateTimeOffset
+  public timeTo: Date;
+
   @Edm.String
   public symbolFrom: string
 
@@ -20,19 +29,43 @@ export class Backtest {
   public symbolTo: string
 
   @Edm.String
-  public period: string
+  public period: string // подумать заменить на frequency
+
+  // @Edm.Int32
+  // public length: number // упразднить
 
   @Edm.Int32
-  public length: number
+  public trades: number
 
   @Edm.Double
-  public balanceInitial: number
+  public balanceInitial: number // подумать заменить на balanceStart
+
+  // @Edm.Double
+  // public balanceEstimate: number // подумать заменить на balanceFinal
 
   @Edm.Double
-  public balanceEstimate: number
+  public priceInitial: number
 
   @Edm.Double
-  public result: number
+  public priceFinal: number
+
+  @Edm.Double
+  public priceChange: number
+
+  // @Edm.Double
+  // public balanceStart: number
+
+  @Edm.Double
+  public balanceFinal: number
+
+  @Edm.Double
+  public balanceChange: number
+
+  // @Edm.Double
+  // public profit: number // можно вычислением
+
+  // @Edm.Double
+  // public result: number // упразднить
 
   @Edm.String
   public strategyId: ObjectID
@@ -41,78 +74,36 @@ export class Backtest {
   @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BacktestRow)))
   Rows: BacktestRow[]
 
-  @Edm.Action
-  async update(@odata.result result: Backtest) {
-    const db = await connect();
-    // получить бэктест из базы данных
-
-    const backtestId = result._id;
-    const strategyId = result.strategyId;
-    const candles = await db.collection("candle").find({}).sort({ time: 1 }).toArray(); // TODO выбирать нужны свечи
-
-    // есть запрос с символом, таймфреймом и заданным периодом
-    // необходимо у другого класса запросить эту статистику
-    // этот класс сам получит и сохранит нужным образом, но вернет то, что нужно
-
-    // подключить стратегию
-    // предварительно узнать идентификатор стратегии
-    // можно брать из селекта, но неправильно, т.к. понадобятся и другие свойства, не обязательно относящиеся к UI
-    const strategy = await db.collection("strategy").findOne({ _id: strategyId });
-    const strategyFunction = new Function(
-      'candles, tulind, callback',
-      strategy.code,
-    );
-    // использовать при расчете
-
-    const balanceInitial = 1000;
-
-    async.map(candles,
-      (candle, cb) => strategyFunction(candles.slice(0, candles.indexOf(candle) + 1), tulind, cb),
-      (err, results) => {
-        const backtestRows = [];
-        for (let i = 0; i < candles.length; i++) {
-          const advice = results[i];
-          const candle = candles[i];
-          const price = candle.close;
-          const prev = i > 0 ? backtestRows[i - 1] : null;
-          let balanceFrom = i > 0 ? prev.balanceFrom : balanceInitial;
-          let balanceTo = i > 0 ? prev.balanceTo : 0;
-  
-          if (advice === 1) {
-            balanceFrom = 0;
-            balanceTo += prev.balanceFrom / price;
-          } else if (advice === -1) {
-            balanceFrom += prev.balanceTo * price;
-            balanceTo = 0;
-          }
-  
-          backtestRows.push({
-            backtestId,
-            advice,
-            balanceFrom,
-            balanceTo,
-            balanceEstimate: balanceFrom + balanceTo * price,
-            close: candle.close,
-            time: candle.time,
-          });
-        }
-  
-        db.collection("backtestRow", null, (err, backtestRowCollection) => {
-          backtestRowCollection.insertMany(backtestRows);
-        });
-
-        db.collection("backtest").updateOne({
-          _id: backtestId
-        }, {
-          $set: {
-            result: backtestRows[backtestRows.length - 1].balanceEstimate / balanceInitial
-          }
-        });
-      }
-    );
-  }
-
   constructor (jsonData: any) {
     Object.assign(this, jsonData);
   }
 }
+
+// start time
+// end time
+// timespan
+// start price
+// end price
+// market
+// amount of trades
+// start balance
+// final balance
+// simulated profit
+
+// "trades": [
+//   {
+//       "id": "trade-1",
+//       "adviceId": "advice-1", // backtestRowId
+//       "action": "buy",
+//       "cost": 0.30000000000000027, // нет
+//       "amount": 1.01420229,
+//       "price": 7019.99,
+//       "portfolio": { // balance
+//           "asset": 1.08661475,
+//           "currency": 0
+//       },
+//       "balance": 7119.6899337771, // estimate
+//       "date": 1522685280 // time
+//   },
+//   // and more
+// ]

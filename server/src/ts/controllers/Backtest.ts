@@ -56,7 +56,7 @@ export class BacktestController extends ODataController {
             fsym: data.symbolFrom,
             tsym: data.symbolTo,
             period: data.period,
-            limit: data.length
+            limit: 1000
           }, (err, candles) => {
             resolve(candles);
           });
@@ -83,8 +83,20 @@ export class BacktestController extends ODataController {
             });
           });
         }).then((backtestRows) => {
-          data.balanceEstimate = backtestRows[(<Array<any>>backtestRows).length - 1].balanceEstimate;
-          data.result = data.balanceEstimate / data.balanceInitial;
+          const backtestRowFirst = <BacktestRow>backtestRows[0];
+          const backtestRowLast = <BacktestRow>backtestRows[(<Array<any>>backtestRows).length - 1];
+
+          data.timeFrom = backtestRowFirst.time;
+          data.timeTo = backtestRowLast.time;
+          data.priceInitial = backtestRowFirst.close;
+          data.priceFinal = backtestRowLast.close;
+          data.priceChange = data.priceFinal / data.priceInitial - 1;
+          data.balanceFinal = backtestRowLast.balanceEstimate;
+          data.balanceChange = data.balanceFinal / data.balanceInitial - 1;
+          
+          // data.balanceEstimate = backtestRowLast.balanceEstimate;
+          // data.result = data.balanceEstimate / data.balanceInitial;
+
           db.collection(collectionName).insertOne(data).then(result => {
             // присвоить backtestId
             return db.collection("backtestRow").insertMany((<Array<any>>backtestRows).map(e => {

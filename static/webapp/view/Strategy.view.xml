@@ -34,15 +34,47 @@
 										<Column>
 											<Text text="Symbol"/>
 										</Column>
-										<Column hAlign="End">
-											<Text text="Result"/>
+										<Column>
+											<Text text="Frequency"/>
+										</Column>
+										<Column>
+											<Text text="From"/>
+										</Column>
+										<Column>
+											<Text text="To"/>
+										</Column>
+										<Column>
+											<Text text="Initial price"/>
+										</Column>
+										<Column>
+											<Text text="Final price"/>
+										</Column>
+										<Column>
+											<Text text="Initial balance"/>
+										</Column>
+										<Column>
+											<Text text="Final balance"/>
+										</Column>
+										<Column>
+											<Text text="Price change"/>
+										</Column>
+										<Column>
+											<Text text="Profit"/>
 										</Column>
 									</columns>
 									<items>
 										<ColumnListItem type="Active">
 											<cells>
-												<ObjectIdentifier title="{data>symbolTo}{data>symbolFrom}"/>
-												<ObjectNumber number="{data>result}"/>
+												<Text text="{data>symbolTo}{data>symbolFrom}"/>
+												<Text text="{data>period}"/>
+												<Text text="{data>timeFrom}"/>
+												<Text text="{data>timeTo}"/>
+												<ObjectNumber number="{data>priceInitial}"/>
+												<ObjectNumber number="{data>priceFinal}"/>
+												<ObjectNumber number="{data>balanceInitial}"/>
+												<ObjectNumber number="{data>balanceFinal}"/>
+												<ObjectNumber number="{data>priceChange}"/>
+												<ObjectNumber number="{data>balanceChange}"/>
 											</cells>
 										</ColumnListItem>
 									</items>
