@@ -16,17 +16,23 @@ export class Backtest {
   @Edm.DateTimeOffset
   public time: Date;
 
-  @Edm.DateTimeOffset
-  public timeFrom: Date;
+  // @Edm.DateTimeOffset
+  // public timeFrom: Date;
+
+  // @Edm.DateTimeOffset
+  // public timeTo: Date;
 
   @Edm.DateTimeOffset
-  public timeTo: Date;
+  public begin: Date;
+
+  @Edm.DateTimeOffset
+  public end: Date;
 
   @Edm.String
-  public symbolFrom: string
+  public currency: string
 
   @Edm.String
-  public symbolTo: string
+  public asset: string
 
   @Edm.String
   public period: string // подумать заменить на frequency
@@ -36,6 +42,9 @@ export class Backtest {
 
   @Edm.Int32
   public trades: number
+
+  @Edm.Int32
+  public duration: number // должен быть вычисляемым
 
   @Edm.Double
   public balanceInitial: number // подумать заменить на balanceStart

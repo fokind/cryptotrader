@@ -9,14 +9,18 @@
         editable="true"
         layout="ResponsiveGridLayout">
         <form:content>
-          <Label text="Symbol from"/>
-          <Input value="{view>/Draft/symbolFrom}"/>
-          <Label text="Symbol to"/>
-          <Input value="{view>/Draft/symbolTo}"/>
+          <Label text="Currency"/>
+          <Input value="{view>/Draft/currency}"/>
+          <Label text="Asset"/>
+          <Input value="{view>/Draft/asset}"/>
           <Label text="Period"/>
           <Input value="{view>/Draft/period}"/>
-          <Label text="Length"/>
-          <Input value="{view>/Draft/length}"/>
+          <Label text="Date Range"/>
+          <DateRangeSelection
+            dateValue="{view>/Draft/begin}"
+            secondDateValue="{view>/Draft/end}"
+            change=".onDateRangeChange"
+          />
           <Label text="Balance initial"/>
           <Input value="{view>/Draft/balanceInitial}"/>
         </form:content>

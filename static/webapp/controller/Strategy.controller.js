@@ -17,8 +17,8 @@ sap.ui.define([
 			// добавить draft
 
 			this.getView().getModel("view").setProperty("/Draft", {
-				symbolFrom: "BTC",
-				symbolTo: "XRP",
+				currency: "BTC",
+				asset: "XRP",
 				period: "M1",
 				length: 1000,
 				balanceInitial: 100
@@ -57,10 +57,11 @@ sap.ui.define([
 			
 			oView.byId("backtests").getBinding("items").create({
 				balanceInitial: oDraft.balanceInitial,
-				symbolFrom: oDraft.symbolFrom,
-				symbolTo: oDraft.symbolTo,
+				currency: oDraft.currency,
+				asset: oDraft.asset,
 				period: oDraft.period,
-				length: oDraft.length,
+				begin: oDraft.begin,
+				end: oDraft.end,
 			}).created().then(function() {
 				oView.getBindingContext("data").refresh();
 			});
@@ -74,6 +75,10 @@ sap.ui.define([
 			UIComponent.getRouterFor(this).navTo("backtest", {
 				id: oEvent.getParameters().listItem.getBindingContext("data").getProperty("_id")
 			});
+		},
+
+		onDateRangeChange: function(oEvent) {
+			console.log(oEvent.getSource());
 		},
 
 		onNavBack: function() {

@@ -35,13 +35,10 @@
 											<Text text="Symbol"/>
 										</Column>
 										<Column>
-											<Text text="Frequency"/>
+											<Text text="Period"/>
 										</Column>
 										<Column>
-											<Text text="From"/>
-										</Column>
-										<Column>
-											<Text text="To"/>
+											<Text text="Duration"/>
 										</Column>
 										<Column>
 											<Text text="Initial price"/>
@@ -65,10 +62,9 @@
 									<items>
 										<ColumnListItem type="Active">
 											<cells>
-												<Text text="{data>symbolTo}{data>symbolFrom}"/>
+												<Text text="{data>asset}{data>currency}"/>
 												<Text text="{data>period}"/>
-												<Text text="{data>timeFrom}"/>
-												<Text text="{data>timeTo}"/>
+												<Text text="{data>duration}"/>
 												<ObjectNumber number="{data>priceInitial}"/>
 												<ObjectNumber number="{data>priceFinal}"/>
 												<ObjectNumber number="{data>balanceInitial}"/>
