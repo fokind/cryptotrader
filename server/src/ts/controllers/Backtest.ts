@@ -48,6 +48,7 @@ export class BacktestController extends ODataController {
 
   @odata.POST
   insert(@odata.body data: Backtest): Promise<Backtest> {
+    data.duration = moment.duration(moment(data.end).diff(data.begin)).days() + 1;
     return new Promise<Backtest>(resolve => {
       connect().then(db => {
         // срабатывает только если в body содержится хотя бы одно значение
@@ -57,9 +58,8 @@ export class BacktestController extends ODataController {
             currency: data.currency,
             asset: data.asset,
             period: data.period,
-            begin: data.begin,
             end: data.end,
-            limit: 1000 // TODO здесь задается период с по какое число получить статистику, а этот параметр упразднить
+            duration: data.duration, // TODO здесь задается период с по какое число получить статистику, а этот параметр упразднить
           }, (err, candles) => {
             resolve(candles);
           });
@@ -91,7 +91,6 @@ export class BacktestController extends ODataController {
 
           // data.timeFrom = backtestRowFirst.time;
           // data.timeTo = backtestRowLast.time;
-          data.duration = moment.duration(moment(data.end).diff(data.begin)).days() + 1;
           data.priceInitial = backtestRowFirst.close;
           data.priceFinal = backtestRowLast.close;
           data.priceChange = data.priceFinal / data.priceInitial - 1;

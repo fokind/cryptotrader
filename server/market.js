@@ -55,12 +55,13 @@ const API_KEY = process.env.API_KEY;
 
 // TODO добавить обработку да с по какой даты получать данные
 // TODO в первой версии добавить выбор биржи для анализа
-function getCandles({ source, exchange, currency, asset, period, limit, begin, end }, callback) { // TODO этот метод вынести в коннектор к бирже или др. поставщику статистики
+function getCandles({ source, exchange, currency, asset, period, duration, end }, callback) { // TODO этот метод вынести в коннектор к бирже или др. поставщику статистики
   // source на случай, если источников будет много
   // внутри одного источника может быть ссылка на несколько самостоятельных бирж
   // биржа может являться источником
 
   const url = period === 'M1' ? 'histominute' : (period === 'H1' ? 'histohour' : 'histoday');
+  const limit = duration * (period === 'M1' ? 60 * 24 : (period === 'H1' ? 24 : 1));
 
   request.get({
     baseUrl: 'https://min-api.cryptocompare.com/data/',
@@ -75,6 +76,7 @@ function getCandles({ source, exchange, currency, asset, period, limit, begin, e
     qs: {
       fsym: currency,
       tsym: asset,
+      toTs: moment(end).add(1, 'm').unix(),
       limit,
     },
   }, (err, res, body) => {
