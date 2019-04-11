@@ -1,0 +1,53 @@
+<mvc:View controllerName="fokin.crypto.controller.Backtest"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:uxap="sap.uxap"
+	xmlns="sap.m">
+	<Page title="Backtest" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table items="{
+					model: 'data',
+					path: 'Rows',
+					sorter: {
+						path: 'time',
+						descending: true
+					}
+				}"
+				inset="false"
+				growingThreshold="1000"
+				growing="true">
+				<columns>
+					<Column>
+						<Text text="Time"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Close"/>
+					</Column>
+					<Column>
+						<Text text="Advice"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Balance {data>currency}"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Balance {data>asset}"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Estimate"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<ObjectIdentifier title="{data>time}"/>
+							<ObjectNumber number="{data>close}"/>
+							<ObjectNumber number="{data>advice}"/>
+							<ObjectNumber number="{data>balance}"/>
+							<ObjectNumber number="{data>balanceAsset}"/>
+							<ObjectNumber number="{data>balanceEstimate}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

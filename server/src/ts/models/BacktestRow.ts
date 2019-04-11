@@ -1,17 +1,14 @@
 import { ObjectID } from "mongodb";
 import { Edm } from "odata-v4-server";
 
-export class Candle {
+export class BacktestRow {
   @Edm.Key
   @Edm.Computed
   @Edm.String
-  public _id: ObjectID;
-
-  @Edm.String
-  public name: string;
+  public _id: ObjectID
 
   @Edm.DateTimeOffset
-  public moment: number;
+  public time: Date;
 
   @Edm.Double
   public open: number;
@@ -25,7 +22,22 @@ export class Candle {
   @Edm.Double
   public close: number;
 
-  constructor(jsonData: any) {
+  @Edm.Int32
+  public advice: number
+
+  @Edm.Double
+  public balance: number
+
+  @Edm.Double
+  public balanceAsset: number
+
+  @Edm.Double
+  public balanceEstimate: number
+
+  @Edm.String
+  public backtestId: ObjectID
+
+  constructor (jsonData: any) {
     Object.assign(this, jsonData);
   }
 }

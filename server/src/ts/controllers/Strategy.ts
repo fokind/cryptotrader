@@ -11,7 +11,7 @@ const collectionName = "strategy";
 @Edm.EntitySet("Strategies")
 export class StrategyController extends ODataController {
   @odata.GET
-  public async find(@odata.query query: ODataQuery): Promise<Strategy[]> {
+  public async get(@odata.query query: ODataQuery): Promise<Strategy[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
 
@@ -37,7 +37,7 @@ export class StrategyController extends ODataController {
   }
 
   @odata.GET
-  public async findOne(@odata.key key: string, @odata.query query: ODataQuery): Promise<Strategy> {
+  public async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Strategy> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
     let keyId;
@@ -48,12 +48,22 @@ export class StrategyController extends ODataController {
   }
 
   @odata.POST
-  async insert(@odata.body data: any): Promise<Strategy> {
+  async post(@odata.body data: Strategy): Promise<Strategy> {
     const db = await connect();
+    data.version = 0;
     return await db.collection(collectionName).insertOne(data).then((result) => {
       data._id = result.insertedId;
       return data;
     });
+  }
+
+  @odata.PATCH
+  async patch(@odata.key key: string, @odata.body delta: any): Promise<number> {
+    const db = await connect();
+    if (delta._id) delete delta._id;
+    let keyId;
+    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+    return await db.collection(collectionName).updateOne({_id: keyId}, {$set: delta}).then(result => result.modifiedCount);
   }
 
   @odata.GET("Backtests")
@@ -78,20 +88,20 @@ export class StrategyController extends ODataController {
     return backtests;
   }
 
-  @odata.GET("Backtests")
-  async getBacktest(@odata.key key: string, @odata.result result: Strategy, @odata.query query: ODataQuery): Promise<Backtest> {
-    const db = await connect();
-    const mongodbQuery = createQuery(query);
-    if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
-    if (typeof mongodbQuery.query.strategyId === "string") mongodbQuery.query.strategyId = new ObjectID(mongodbQuery.query.strategyId);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return db.collection("backtest").findOne({
-      $and: [{ _id: keyId, strategyId: result._id }, mongodbQuery.query]
-    }, {
-      fields: mongodbQuery.projection
-    });
-  }
+  // @odata.GET("Backtests")
+  // async getBacktest(@odata.key key: string, @odata.result result: Strategy, @odata.query query: ODataQuery): Promise<Backtest> {
+  //   const db = await connect();
+  //   const mongodbQuery = createQuery(query);
+  //   if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
+  //   if (typeof mongodbQuery.query.strategyId === "string") mongodbQuery.query.strategyId = new ObjectID(mongodbQuery.query.strategyId);
+  //   let keyId;
+  //   try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+  //   return db.collection("backtest").findOne({
+  //     $and: [{ _id: keyId, strategyId: result._id }, mongodbQuery.query]
+  //   }, {
+  //     fields: mongodbQuery.projection
+  //   });
+  // }
 
   @odata.POST("Backtests").$ref
   @odata.PUT("Backtests").$ref

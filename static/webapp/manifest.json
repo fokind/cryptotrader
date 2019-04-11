@@ -52,9 +52,24 @@
 			},
 			"routes": [
 				{
+					"pattern": "",
+					"name": "",
+					"target": "strategies"
+				},
+				{
 					"pattern": "strategies",
 					"name": "strategies",
 					"target": "strategies"
+				},
+				{
+					"pattern": "strategy/{id}",
+					"name": "strategy",
+					"target": "strategy"
+				},
+				{
+					"pattern": "backtest/{id}",
+					"name": "backtest",
+					"target": "backtest"
 				}
 			],
 			"targets": {
@@ -62,6 +77,16 @@
 					"viewId": "strategies",
 					"viewName": "Strategies",
 					"viewLevel": 1
+				},
+				"strategy": {
+					"viewId": "strategy",
+					"viewName": "Strategy",
+					"viewLevel": 2
+				},
+				"backtest": {
+					"viewId": "backtest",
+					"viewName": "Backtest",
+					"viewLevel": 3
 				}
 			}
 		}

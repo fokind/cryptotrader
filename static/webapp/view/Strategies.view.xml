@@ -2,20 +2,20 @@
 	xmlns:mvc="sap.ui.core.mvc"
 	displayBlock="true"
 	xmlns="sap.m">
-	<Page>
+	<Page title="Strategies" showNavButton="true" navButtonPress=".onNavBack">
 		<content>
-			<List items="{data>/Strategies}">
+			<List id="strategies" items="{data>/Strategies}" itemPress="onItemPress">
 				<headerToolbar>
 					<Toolbar>
 						<content>
 							<Title text="Strategies"/>
 							<ToolbarSpacer/>
-							<Button icon="sap-icon://add" press="onAdd"/>
+							<Button icon="sap-icon://add" press=".onAddStrategyPress"/>
 						</content>
 					</Toolbar>
 				</headerToolbar>
 				<items>
-					<StandardListItem title="{data>name}"/>
+					<StandardListItem title="{data>name}" type="Active"/>
 				</items>
 			</List>
 		</content>
