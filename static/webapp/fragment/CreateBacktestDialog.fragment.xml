@@ -19,7 +19,6 @@
           <DateRangeSelection
             dateValue="{view>/Draft/begin}"
             secondDateValue="{view>/Draft/end}"
-            change=".onDateRangeChange"
           />
           <Label text="Balance initial"/>
           <Input value="{view>/Draft/balanceInitial}"/>

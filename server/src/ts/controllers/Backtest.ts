@@ -49,6 +49,7 @@ export class BacktestController extends ODataController {
   @odata.POST
   insert(@odata.body data: Backtest): Promise<Backtest> {
     data.duration = moment.duration(moment(data.end).diff(data.begin)).days() + 1;
+    // FIXME выполнить явное преобразование data в backtest с валидацией, т.к. в data значения числовые
     return new Promise<Backtest>(resolve => {
       connect().then(db => {
         // срабатывает только если в body содержится хотя бы одно значение
@@ -93,9 +94,9 @@ export class BacktestController extends ODataController {
           // data.timeTo = backtestRowLast.time;
           data.priceInitial = backtestRowFirst.close;
           data.priceFinal = backtestRowLast.close;
-          data.priceChange = data.priceFinal / data.priceInitial - 1;
+          data.priceChange = (data.priceFinal / data.priceInitial - 1) * 100;
           data.balanceFinal = backtestRowLast.balanceEstimate;
-          data.balanceChange = data.balanceFinal / data.balanceInitial - 1;
+          data.balanceChange = (data.balanceFinal / data.balanceInitial - 1) * 100;
           
           // data.balanceEstimate = backtestRowLast.balanceEstimate;
           // data.result = data.balanceEstimate / data.balanceInitial;

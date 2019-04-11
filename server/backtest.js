@@ -15,22 +15,22 @@ function backtest({
         const candle = candles[i];
         const price = candle.close;
         const prev = i > 0 ? backtestRows[i - 1] : null;
-        let balanceFrom = i > 0 ? prev.balanceFrom : balanceInitial;
-        let balanceTo = i > 0 ? prev.balanceTo : 0;
+        let balance = i > 0 ? prev.balance : +balanceInitial;
+        let balanceAsset = i > 0 ? prev.balanceAsset : 0;
 
         if (advice === 1) {
-          balanceFrom = 0;
-          balanceTo += prev.balanceFrom / price;
+          balanceAsset += balance / price;
+          balance = 0;
         } else if (advice === -1) {
-          balanceFrom += prev.balanceTo * price;
-          balanceTo = 0;
+          balance += balanceAsset * price;
+          balanceAsset = 0;
         }
 
         backtestRows.push({
           advice,
-          balanceFrom,
-          balanceTo,
-          balanceEstimate: balanceFrom + balanceTo * price,
+          balance,
+          balanceAsset,
+          balanceEstimate: balance + balanceAsset * price,
           close: candle.close,
           time: candle.time,
         });

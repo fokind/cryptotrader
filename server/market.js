@@ -74,13 +74,13 @@ function getCandles({ source, exchange, currency, asset, period, duration, end }
       // типа блокировать отдельный запрос на изменение, каждому выполнять свой, а когда разблокируется выполнять дедупликацию и слияние в один большой массив данных
     },
     qs: {
-      fsym: currency,
-      tsym: asset,
-      toTs: moment(end).add(1, 'm').unix(),
+      tsym: currency,
+      fsym: asset,
+      toTs: moment(end).unix(),
       limit,
     },
   }, (err, res, body) => {
-    callback(err, JSON.parse(body).Data.slice(0, -1).map(e => ({
+    callback(err, JSON.parse(body).Data.map(e => ({
       time: moment.unix(e.time).toDate(),
       open: +e.open,
       high: +e.high,

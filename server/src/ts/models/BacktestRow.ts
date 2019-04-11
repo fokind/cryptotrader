@@ -26,10 +26,10 @@ export class BacktestRow {
   public advice: number
 
   @Edm.Double
-  public balanceFrom: number
+  public balance: number
 
   @Edm.Double
-  public balanceTo: number
+  public balanceAsset: number
 
   @Edm.Double
   public balanceEstimate: number

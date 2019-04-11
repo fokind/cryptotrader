@@ -77,10 +77,6 @@ sap.ui.define([
 			});
 		},
 
-		onDateRangeChange: function(oEvent) {
-			console.log(oEvent.getSource());
-		},
-
 		onNavBack: function() {
 			window.history.go(-1);
 		}

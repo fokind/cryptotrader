@@ -69,8 +69,24 @@
 												<ObjectNumber number="{data>priceFinal}"/>
 												<ObjectNumber number="{data>balanceInitial}"/>
 												<ObjectNumber number="{data>balanceFinal}"/>
-												<ObjectNumber number="{data>priceChange}"/>
-												<ObjectNumber number="{data>balanceChange}"/>
+												<ObjectNumber
+													number="{ path: 'data>priceChange',
+														type: 'sap.ui.model.type.Float',
+														formatOptions: {
+															minFractionDigits: 3,
+															maxFractionDigits: 3
+														}
+													}"
+													unit="%"/>
+												<ObjectNumber
+													number="{ path: 'data>balanceChange',
+														type: 'sap.ui.model.type.Float',
+														formatOptions: {
+															minFractionDigits: 3,
+															maxFractionDigits: 3
+														}
+													}"
+													unit="%"/>
 											</cells>
 										</ColumnListItem>
 									</items>
