@@ -9,9 +9,21 @@ sap.ui.define([
 			UIComponent.getRouterFor(this).getRoute("ticker").attachPatternMatched(this.onRouteMatched, this);
 		},
 
+		_bindTicker: function() {
+			var sCurrency = this.getView().getModel("view").getProperty("/tickerCurrency");
+			var sAsset = this.getView().getModel("view").getProperty("/tickerAsset");
+			this.getView().bindElement("data>/Tickers(currency=\'" + sCurrency + "\',asset=\'" + sAsset + "\')");
+		},
+
 		onRouteMatched: function(oEvent) {
 			this.getView().getModel("view").setProperty("/tab", "ticker");
-			this.getView().bindElement("data>/Tickers(currency=\'BTC\',asset=\'XMR\')");
+			this.getView().getModel("view").setProperty("/tickerCurrency", "BTC"); // временно, только для примера
+			this.getView().getModel("view").setProperty("/tickerAsset", "ETH"); // временно, только для примера
+			this._bindTicker();
+		},
+
+		onTickerChange: function() {
+			this._bindTicker();
 		},
 
 		onRefreshPress: function() {
