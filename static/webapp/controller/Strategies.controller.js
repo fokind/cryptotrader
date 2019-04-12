@@ -11,6 +11,7 @@ sap.ui.define([
 		},
 
 		onRouteMatched: function(oEvent) {
+			this.getView().getModel("view").setProperty("/tab", "strategies");
 			this.getView().getModel("view").setProperty("/StrategyDraft", {
 				name: "",
 			});

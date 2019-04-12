@@ -17,6 +17,8 @@ export class TickerController extends ODataController {
         currency,
         asset
       }, (err, ticker) => {
+        ticker.currency = currency;
+        ticker.asset = asset;
         resolve(<Ticker>ticker);
       });
     });
