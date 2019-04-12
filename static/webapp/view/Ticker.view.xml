@@ -17,13 +17,13 @@
 		</customHeader>
 		<content>
 			<form:SimpleForm
-        editable="false"
+        editable="true"
         layout="ResponsiveGridLayout">
         <form:content>
           <Label text="Currency"/>
-          <Text text="{data>currency}"/>
+          <Input value="{view>/tickerCurrency}" change=".onTickerChange"/>
           <Label text="Asset"/>
-          <Text text="{data>asset}"/>
+          <Input value="{view>/tickerAsset}" change=".onTickerChange"/>
           <Label text="Ask"/>
           <Text text="{data>ask}"/>
           <Label text="Bid"/>
