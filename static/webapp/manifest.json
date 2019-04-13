@@ -77,6 +77,11 @@
 					"pattern": "ticker",
 					"name": "ticker",
 					"target": "ticker"
+				},
+				{
+					"pattern": "expert",
+					"name": "expert",
+					"target": "expert"
 				}
 			],
 			"targets": {
@@ -99,6 +104,11 @@
 					"viewId": "ticker",
 					"viewName": "Ticker",
 					"viewLevel": 4
+				},
+				"expert": {
+					"viewId": "expert",
+					"viewName": "Expert",
+					"viewLevel": 5
 				}
 			}
 		}

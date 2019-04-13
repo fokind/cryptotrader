@@ -10,6 +10,7 @@
 					<items>
 						<IconTabFilter key="strategies" text="Strategy"/>
 						<IconTabFilter key="ticker" text="Ticker"/>
+						<IconTabFilter key="expert" text="Expert"/>
 					</items>
 				</IconTabHeader>
 			</tnt:ToolHeader>

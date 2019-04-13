@@ -1,6 +1,7 @@
-<mvc:View controllerName="fokin.crypto.controller.Ticker"
+<mvc:View controllerName="fokin.crypto.controller.Expert"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:form="sap.ui.layout.form"
+	xmlns:tnt="sap.tnt"
 	xmlns="sap.m"
 	height="100%">
 	<Page>
@@ -9,7 +10,7 @@
 				<Button
 					icon="sap-icon://nav-back" press=".onNavBack"/>
 				<ToolbarSpacer/>
-				<Title text="Ticker"/>
+				<Title text="Expert"/>
 				<ToolbarSpacer/>
 				<Button
 					icon="sap-icon://refresh" press=".refresh"/>
@@ -24,10 +25,14 @@
           <Input value="{view>/currency}" change=".onCurrencyChange"/>
           <Label text="Asset"/>
           <Input value="{view>/asset}" change=".onAssetChange"/>
-          <Label text="Ask"/>
-          <Text text="{data>ask}"/>
-          <Label text="Bid"/>
-          <Text text="{data>bid}"/>
+          <Label text="Period"/>
+          <Input value="{view>/period}" change=".onPeriodChange"/>
+          <Label text="Advice"/>
+					<tnt:InfoLabel text="{= ${data>advice} === '1' ? 'buy' : (${data>advice} === '-1' ? 'sell' : 'hold')}"
+						colorScheme="{= ${data>advice} === 1 ? 8 : (${data>advice} === -1 ? 3 : 9)}"
+						displayOnly="true"/>
+          <Label text="Last candle time"/>
+          <Text text="{data>lastCandleTime}"/>
         </form:content>
       </form:SimpleForm>
 		</content>

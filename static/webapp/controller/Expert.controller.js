@@ -4,20 +4,21 @@ sap.ui.define([
 ], function (Controller, UIComponent) {
 	"use strict";
 
-	return Controller.extend("fokin.crypto.controller.Ticker", {
+	return Controller.extend("fokin.crypto.controller.Expert", {
 		onInit: function() {
-			UIComponent.getRouterFor(this).getRoute("ticker").attachPatternMatched(this.onRouteMatched, this);
+			UIComponent.getRouterFor(this).getRoute("expert").attachPatternMatched(this.onRouteMatched, this);
 		},
 
 		_bindElement: function() {
 			var oViewModel = this.getView().getModel("view");
 			var sCurrency = oViewModel.getProperty("/currency");
 			var sAsset = oViewModel.getProperty("/asset");
-			this.getView().bindElement(`data>/Tickers(currency=\'${sCurrency}\',asset=\'${sAsset}\')`);
+			var sPeriod = oViewModel.getProperty("/period");
+			this.getView().bindElement(`data>/Experts(currency=\'${sCurrency}\',asset=\'${sAsset}\',period=\'${sPeriod}\')`);
 		},
 
 		onRouteMatched: function() {
-			this.getView().getModel("view").setProperty("/tab", "ticker");
+			this.getView().getModel("view").setProperty("/tab", "expert");
 			this._bindElement();
 		},
 
@@ -30,6 +31,10 @@ sap.ui.define([
 		},
 
 		onAssetChange: function() {
+			this._bindElement();
+		},
+
+		onPeriodChange: function() {
 			this._bindElement();
 		},
 
