@@ -31,12 +31,24 @@
 					<Column>
 						<Text text="Period"/>
 					</Column>
+					<Column>
+						<Text text="Strategy"/>
+					</Column>
+					<Column>
+						<Text text="Last update"/>
+					</Column>
+					<Column>
+						<Text text="Advice"/>
+					</Column>
 				</columns>
 				<items>
 					<ColumnListItem type="Active">
 						<cells>
 							<Text text="{data>History/asset}{data>History/currency}"/>
 							<Text text="{data>History/period}"/>
+							<Text text="{data>Strategy/name}"/>
+							<Text text="{data>lastUpdate}"/>
+							<Text text="{= ${data>advice} === '1' ? 'Buy' : (${data>advice} === '-1' ? 'Sell' : 'Hold')}"/>
 						</cells>
 					</ColumnListItem>
 				</items>

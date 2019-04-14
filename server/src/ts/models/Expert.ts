@@ -44,7 +44,7 @@ export class Expert {
   public historyId: ObjectID
 
   @Edm.DateTimeOffset
-  public lastCandleTime: Date;
+  public lastUpdate: Date;
 
   @Edm.EntityType(Edm.ForwardRef(() => Strategy))
   Strategy: Strategy
@@ -84,31 +84,34 @@ export class Expert {
     // сначала обновить рыночные данные
     // дождаться результата и при наличии обновлений выполнить перерасчет стратегии
     const expert = this;
-    const { historyId, _id, strategyId } = this;
+    const { historyId, _id, strategyId, lastUpdate } = this;
 
     // const historyId = new ObjectID(this.historyId);
     const db = await connect();
 
     // создать экземпляр маркета
-    console.log(typeof historyId);
-    const historyData = await db.collection("history").findOne({ _id: historyId });
-    console.log(historyData);
+    // console.log(typeof historyId);
+    // const historyData = await db.collection("history").findOne({ _id: historyId });
+    // console.log(historyData);
 
     const history = new History(await db.collection("history").findOne({ _id: historyId }));
-    console.log(await db.collection("history").findOne({ _id: historyId }));
+    // console.log(await db.collection("history").findOne({ _id: historyId }));
 
     // вызвать метод для обновления данных
     // если не ноль, тогда продолжить, если ноль, тогда вернуть ноль
-    if (await history.update(history)) {
+    // console.log(lastUpdate, history.end, lastUpdate !== history.end);
+
+    if (await history.update(history) || lastUpdate !== history.end) {
       const candles = await db.collection("candle").find({ historyId }).toArray();
       const { code } = await db.collection("strategy").findOne({ _id: strategyId });
       const strategyFunction = new Function('candles, tulind, callback', code);
 
       return await new Promise<number>(resolve => {
         strategyFunction(candles, tulind, (err, advice) => {
-          if (expert.advice !== advice) {
-            const delta = { advice };
+          if (lastUpdate !== history.end || expert.advice !== advice) {
+            const delta = { advice, lastUpdate: history.end };
             db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
+              Object.assign(expert, delta);
               resolve(result.modifiedCount);
             });
           }

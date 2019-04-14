@@ -31,8 +31,8 @@
           <Text text="{data>Strategy/name}"/>
           <Label text="Advice"/>
 					<Text text="{= ${data>advice} === '1' ? 'Buy' : (${data>advice} === '-1' ? 'Sell' : 'Hold')}"/>
-          <Label text="Last"/>
-          <Text text="{data>History/end}"/>
+          <Label text="Last update"/>
+          <Text text="{data>lastUpdate}"/>
         </form:content>
       </form:SimpleForm>
 		</content>
