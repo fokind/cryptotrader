@@ -3,6 +3,7 @@ import { BacktestController } from "./controllers/Backtest";
 import { StrategyController } from "./controllers/Strategy";
 import { TickerController } from "./controllers/Ticker";
 import { ExpertController } from "./controllers/Expert";
+import { HistoryController } from "./controllers/History";
 
 @odata.cors
 @odata.namespace("Crypto")
@@ -10,6 +11,7 @@ import { ExpertController } from "./controllers/Expert";
 @odata.controller(StrategyController, true)
 @odata.controller(TickerController, true)
 @odata.controller(ExpertController, true)
+@odata.controller(HistoryController, true)
 export class CryptoServer extends ODataServer {}
 
 // expert связан со стратегией

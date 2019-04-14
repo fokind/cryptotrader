@@ -1,4 +1,5 @@
 import { Edm } from "odata-v4-server";
+import { ObjectID } from "mongodb";
 
 export class Candle {
   @Edm.DateTimeOffset
@@ -15,6 +16,9 @@ export class Candle {
 
   @Edm.Double
   public close: number;
+
+  @Edm.String
+  public historyId: ObjectID;
 
   constructor(jsonData: any) {
     Object.assign(this, jsonData);

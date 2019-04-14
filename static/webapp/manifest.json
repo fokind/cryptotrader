@@ -82,6 +82,16 @@
 					"pattern": "expert",
 					"name": "expert",
 					"target": "expert"
+				},
+				{
+					"pattern": "histories",
+					"name": "histories",
+					"target": "histories"
+				},
+				{
+					"pattern": "history/{id}",
+					"name": "history",
+					"target": "history"
 				}
 			],
 			"targets": {
@@ -109,6 +119,16 @@
 					"viewId": "expert",
 					"viewName": "Expert",
 					"viewLevel": 5
+				},
+				"histories": {
+					"viewId": "histories",
+					"viewName": "Histories",
+					"viewLevel": 6
+				},
+				"history": {
+					"viewId": "history",
+					"viewName": "History",
+					"viewLevel": 7
 				}
 			}
 		}

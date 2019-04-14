@@ -1,0 +1,51 @@
+<mvc:View controllerName="fokin.crypto.controller.Histories"
+	xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true"
+	xmlns="sap.m">
+	<Page title="Histories" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table id="histories"
+				items="{
+					model: 'data',
+					path: '/Histories'
+				}"
+				growingThreshold="100"
+				itemPress=".onItemPress"
+				inset="false">
+				<headerToolbar>
+					<Toolbar>
+						<content>
+							<Title text="Histories"/>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://add" press=".onAddPress"/>
+						</content>
+					</Toolbar>
+				</headerToolbar>
+				<columns>
+					<Column>
+						<Text text="Symbol"/>
+					</Column>
+					<Column>
+						<Text text="Period"/>
+					</Column>
+					<Column>
+						<Text text="Begin"/>
+					</Column>
+					<Column>
+						<Text text="End"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Active">
+						<cells>
+							<Text text="{data>asset}{data>currency}"/>
+							<Text text="{data>period}"/>
+							<Text text="{data>begin}"/>
+							<Text text="{data>end}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>			
+		</content>
+	</Page>
+</mvc:View>
