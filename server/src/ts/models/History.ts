@@ -42,11 +42,11 @@ export class History extends EventEmitter {
   public Candles: Candle[]
 
   @Edm.Action
-  async update(@odata.result result: any) {
+  async update(@odata.result result: any): Promise<number> {
     const history = this;
     const { currency, asset, period, _id, end, begin } = this;
     // const candles = await historyController.getCandles(this, null); // TODO получить из контроллера не свечи, а дату последнего обновления, это можно и без контроллера сделать
-    await new Promise(resolve => {
+    return await new Promise<number>(resolve => {
       market.getCandles({
         currency,
         asset,
@@ -55,7 +55,8 @@ export class History extends EventEmitter {
         // исключить неполные свечи
         // заменить через дату, максимальная дата в первой и второй коллекции
         const diff = end ? candles.filter(e => moment(e.time).isAfter(end)) : candles;
-        if (diff.length) {
+        const { length } = diff;
+        if (length) {
           const delta = {
             end: candles[candles.length - 1].time
           };
@@ -72,10 +73,10 @@ export class History extends EventEmitter {
             ]);
           }).then(() => {
             // FIXME history.emit("newCandle"); // вопрос, нужно ли здесь делать асинхронную обработку событий?
-            resolve();
+            resolve(length);
           });
         } else {
-          resolve();
+          resolve(0);
         }
       });
     });
