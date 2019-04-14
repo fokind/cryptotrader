@@ -9,12 +9,17 @@
 			<l:ResponsiveSplitter defaultPane="default">
 				<l:PaneContainer>
 					<l:SplitPane id="default">
-						<Panel headerText="CodeEditor" height="100%">
-							<codeeditor:CodeEditor editable="true" value="{data>code}"/>
-						</Panel>
+						<codeeditor:CodeEditor editable="true" value="{data>code}" height="100%"/>
 					</l:SplitPane>
 					<l:SplitPane>
-						<Panel height="100%">
+						<Table id="backtests"
+							height="100%"
+							items="{
+								model: 'data',
+								path: 'Backtests'
+							}"
+							itemPress=".onBacktestPress"
+							inset="false">
 							<headerToolbar>
 								<Toolbar>
 									<Title text="Backtest"/>
@@ -22,77 +27,51 @@
 									<Button icon="sap-icon://add" press=".onAddBacktestPress"/>
 								</Toolbar>
 							</headerToolbar>
-							<content>
-								<Table id="backtests"
-									items="{
-										model: 'data',
-										path: 'Backtests'
-									}"
-									itemPress=".onBacktestPress"
-									inset="false">
-									<columns>
-										<Column>
-											<Text text="Symbol"/>
-										</Column>
-										<Column>
-											<Text text="Period"/>
-										</Column>
-										<Column>
-											<Text text="Duration"/>
-										</Column>
-										<Column>
-											<Text text="Initial price"/>
-										</Column>
-										<Column>
-											<Text text="Final price"/>
-										</Column>
-										<Column>
-											<Text text="Initial balance"/>
-										</Column>
-										<Column>
-											<Text text="Final balance"/>
-										</Column>
-										<Column>
-											<Text text="Price change"/>
-										</Column>
-										<Column>
-											<Text text="Profit"/>
-										</Column>
-									</columns>
-									<items>
-										<ColumnListItem type="Active">
-											<cells>
-												<Text text="{data>asset}{data>currency}"/>
-												<Text text="{data>period}"/>
-												<Text text="{data>duration}"/>
-												<ObjectNumber number="{data>priceInitial}"/>
-												<ObjectNumber number="{data>priceFinal}"/>
-												<ObjectNumber number="{data>balanceInitial}"/>
-												<ObjectNumber number="{data>balanceFinal}"/>
-												<ObjectNumber
-													number="{ path: 'data>priceChange',
-														type: 'sap.ui.model.type.Float',
-														formatOptions: {
-															minFractionDigits: 3,
-															maxFractionDigits: 3
-														}
-													}"
-													unit="%"/>
-												<ObjectNumber
-													number="{ path: 'data>balanceChange',
-														type: 'sap.ui.model.type.Float',
-														formatOptions: {
-															minFractionDigits: 3,
-															maxFractionDigits: 3
-														}
-													}"
-													unit="%"/>
-											</cells>
-										</ColumnListItem>
-									</items>
-								</Table>
-							</content>
-						</Panel>
+							<columns>
+								<Column>
+									<Text text="Symbol"/>
+								</Column>
+								<Column>
+									<Text text="Period"/>
+								</Column>
+								<Column>
+									<Text text="Duration"/>
+								</Column>
+								<Column>
+									<Text text="Price change"/>
+								</Column>
+								<Column>
+									<Text text="Profit"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem type="Active">
+									<cells>
+										<Text text="{data>asset}{data>currency}"/>
+										<Text text="{data>period}"/>
+										<Text text="{data>duration}"/>
+										<ObjectNumber
+											number="{ path: 'data>priceChange',
+												type: 'sap.ui.model.type.Float',
+												formatOptions: {
+													minFractionDigits: 3,
+													maxFractionDigits: 3
+												}
+											}"
+											unit="%"/>
+										<ObjectNumber
+											number="{ path: 'data>balanceChange',
+												type: 'sap.ui.model.type.Float',
+												formatOptions: {
+													minFractionDigits: 3,
+													maxFractionDigits: 3
+												}
+											}"
+											unit="%"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
 					</l:SplitPane>
 				</l:PaneContainer>
 			</l:ResponsiveSplitter>
