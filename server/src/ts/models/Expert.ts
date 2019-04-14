@@ -84,21 +84,40 @@ export class Expert {
     // сначала обновить рыночные данные
     // дождаться результата и при наличии обновлений выполнить перерасчет стратегии
     const expert = this;
-    const { historyId } = this;
-    const db = await connect();
-    const { code } = await db.collection("strategy").findOne({ _id: expert.strategyId });
-    const strategyFunction = new Function('candles, tulind, callback', code);
-    const candles = await db.collection("candle").find({ historyId }).toArray();
+    const { historyId, _id, strategyId } = this;
 
-    return await new Promise<number>(resolve => {
-      strategyFunction(candles, tulind, (err, advice) => {
-        if (expert.advice !== advice) {
-          expert.advice = advice; // сохранить в базу данных
-          resolve(1);
-        }
-        resolve(0);
+    // const historyId = new ObjectID(this.historyId);
+    const db = await connect();
+
+    // создать экземпляр маркета
+    console.log(typeof historyId);
+    const historyData = await db.collection("history").findOne({ _id: historyId });
+    console.log(historyData);
+
+    const history = new History(await db.collection("history").findOne({ _id: historyId }));
+    console.log(await db.collection("history").findOne({ _id: historyId }));
+
+    // вызвать метод для обновления данных
+    // если не ноль, тогда продолжить, если ноль, тогда вернуть ноль
+    if (await history.update(history)) {
+      const candles = await db.collection("candle").find({ historyId }).toArray();
+      const { code } = await db.collection("strategy").findOne({ _id: strategyId });
+      const strategyFunction = new Function('candles, tulind, callback', code);
+
+      return await new Promise<number>(resolve => {
+        strategyFunction(candles, tulind, (err, advice) => {
+          if (expert.advice !== advice) {
+            const delta = { advice };
+            db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
+              resolve(result.modifiedCount);
+            });
+          }
+          resolve(0);
+        });
       });
-    });
+    } else {
+      return 0;
+    }
   }
 
   @Edm.Action

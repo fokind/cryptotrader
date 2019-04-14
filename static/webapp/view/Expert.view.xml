@@ -13,7 +13,7 @@
 				<Title text="Expert"/>
 				<ToolbarSpacer/>
 				<Button
-					icon="sap-icon://refresh" press=".refresh"/>
+					icon="sap-icon://refresh" press=".onRefreshPress"/>
 			</Toolbar>
 		</customHeader>
 		<content>

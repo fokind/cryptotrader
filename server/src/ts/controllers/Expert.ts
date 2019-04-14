@@ -52,8 +52,12 @@ export class ExpertController extends ODataController {
   @odata.POST
   async post(@odata.body data: any): Promise<Expert> {
     const db = await connect();
-    const expert = new Expert(data);
-    console.log(data);
+    const expert = new Expert(data); // добавить проверку входящих данных на соответствие типам
+    // никогда не доверяй внешним входящим данным!!!
+    expert.historyId = new ObjectID(data.historyId);
+    expert.strategyId = new ObjectID(data.strategyId);
+  
+    // console.log(data);
     return await db.collection(collectionName).insertOne(expert).then((result) => {
       expert._id = result.insertedId;
       return expert;

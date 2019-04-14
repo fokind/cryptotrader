@@ -14,15 +14,21 @@ sap.ui.define([
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
 			this.getView().bindElement({
-				path: "data>/Experts(\'" + sId + "\')",
+				model: "data",
+				path: "/Experts(\'" + sId + "\')",
 				parameters: {
 					"$select": "historyId,strategyId"
 				}
 			});
 		},
 
-		refresh: function() {
-			this.getView().getElementBinding("data").refresh();
+		onRefreshPress: function() {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+			var oOperation = oModel.bindContext(sPath + "/Crypto.update(...)");
+			oOperation.execute().then(function() {
+				oModel.refresh(); // заменить на обновление только связанных элементов
+			}.bind(this));
 		},
 
 		onNavBack: function() {

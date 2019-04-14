@@ -1,13 +1,12 @@
 import { ObjectID } from "mongodb";
-import { Edm, odata, ODataQuery } from "odata-v4-server";
+import { Edm, odata } from "odata-v4-server";
 import { Candle } from "./Candle";
 import connect from "../connect";
-import * as EventEmitter from "events";
 import * as market from "../../../market";
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-export class History extends EventEmitter {
+export class History {
   @Edm.Key
   @Edm.Computed
   @Edm.String
@@ -43,10 +42,12 @@ export class History extends EventEmitter {
 
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
+    console.log(this);
     const history = this;
     const { currency, asset, period, _id, end, begin } = this;
     // const candles = await historyController.getCandles(this, null); // TODO получить из контроллера не свечи, а дату последнего обновления, это можно и без контроллера сделать
     return await new Promise<number>(resolve => {
+      // console.log(currency, asset, period);
       market.getCandles({
         currency,
         asset,
@@ -91,12 +92,11 @@ export class History extends EventEmitter {
   }
 
   constructor(jsonData: any) {
-    super();
-
+    console.log(jsonData);
     this.active = false;
     this.delay = 60000; // должна зависеть от периода
 
-    Object.assign(this, <History>jsonData);
+    Object.assign(this, jsonData);
   }
 }
 
