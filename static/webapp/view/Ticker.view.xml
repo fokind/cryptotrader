@@ -1,0 +1,35 @@
+<mvc:View controllerName="fokin.crypto.controller.Ticker"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:form="sap.ui.layout.form"
+	xmlns="sap.m"
+	height="100%">
+	<Page>
+		<customHeader>
+			<Toolbar>
+				<Button
+					icon="sap-icon://nav-back" press=".onNavBack"/>
+				<ToolbarSpacer/>
+				<Title text="Ticker"/>
+				<ToolbarSpacer/>
+				<Button
+					icon="sap-icon://refresh" press=".onRefreshPress"/>
+			</Toolbar>
+		</customHeader>
+		<content>
+			<form:SimpleForm
+        editable="true"
+        layout="ResponsiveGridLayout">
+        <form:content>
+          <Label text="Currency"/>
+          <Input value="{view>/tickerCurrency}" change=".onTickerChange"/>
+          <Label text="Asset"/>
+          <Input value="{view>/tickerAsset}" change=".onTickerChange"/>
+          <Label text="Ask"/>
+          <Text text="{data>ask}"/>
+          <Label text="Bid"/>
+          <Text text="{data>bid}"/>
+        </form:content>
+      </form:SimpleForm>
+		</content>
+	</Page>
+</mvc:View>

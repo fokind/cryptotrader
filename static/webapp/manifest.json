@@ -20,6 +20,7 @@
 		"rootView": {
 			"viewName": "fokin.crypto.view.App",
 			"type": "XML",
+			"async": true,
 			"id": "app"
 		},
 		"models": {
@@ -48,7 +49,8 @@
 				"controlId": "app",
 				"viewType": "XML",
 				"controlAggregation": "pages",
-				"viewPath": "fokin.crypto.view"
+				"viewPath": "fokin.crypto.view",
+				"async": true
 			},
 			"routes": [
 				{
@@ -70,6 +72,11 @@
 					"pattern": "backtest/{id}",
 					"name": "backtest",
 					"target": "backtest"
+				},
+				{
+					"pattern": "ticker",
+					"name": "ticker",
+					"target": "ticker"
 				}
 			],
 			"targets": {
@@ -87,6 +94,11 @@
 					"viewId": "backtest",
 					"viewName": "Backtest",
 					"viewLevel": 3
+				},
+				"ticker": {
+					"viewId": "ticker",
+					"viewName": "Ticker",
+					"viewLevel": 4
 				}
 			}
 		}

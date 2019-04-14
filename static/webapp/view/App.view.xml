@@ -1,5 +1,21 @@
-<mvc:View xmlns:mvc="sap.ui.core.mvc"
+<mvc:View controllerName="fokin.crypto.controller.App"
+	xmlns:mvc="sap.ui.core.mvc"
 	displayBlock="true"
+	xmlns:tnt="sap.tnt"
 	xmlns="sap.m">
-	<App id="app"/>
+	<tnt:ToolPage id="toolPage">
+		<tnt:header>
+			<tnt:ToolHeader>
+				<IconTabHeader select=".onTabSelect" selectedKey="{view>/tab}">
+					<items>
+						<IconTabFilter key="strategies" text="Strategy"/>
+						<IconTabFilter key="ticker" text="Ticker"/>
+					</items>
+				</IconTabHeader>
+			</tnt:ToolHeader>
+		</tnt:header>
+		<tnt:mainContents>
+			<App id="app"/>
+		</tnt:mainContents>
+	</tnt:ToolPage>
 </mvc:View>
