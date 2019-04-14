@@ -12,7 +12,7 @@
 				<Title text="Ticker"/>
 				<ToolbarSpacer/>
 				<Button
-					icon="sap-icon://refresh" press=".onRefreshPress"/>
+					icon="sap-icon://refresh" press=".refresh"/>
 			</Toolbar>
 		</customHeader>
 		<content>
@@ -21,9 +21,9 @@
         layout="ResponsiveGridLayout">
         <form:content>
           <Label text="Currency"/>
-          <Input value="{view>/tickerCurrency}" change=".onTickerChange"/>
+          <Input value="{view>/currency}" change=".onCurrencyChange"/>
           <Label text="Asset"/>
-          <Input value="{view>/tickerAsset}" change=".onTickerChange"/>
+          <Input value="{view>/asset}" change=".onAssetChange"/>
           <Label text="Ask"/>
           <Text text="{data>ask}"/>
           <Label text="Bid"/>

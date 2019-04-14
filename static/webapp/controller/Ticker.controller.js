@@ -9,25 +9,28 @@ sap.ui.define([
 			UIComponent.getRouterFor(this).getRoute("ticker").attachPatternMatched(this.onRouteMatched, this);
 		},
 
-		_bindTicker: function() {
-			var sCurrency = this.getView().getModel("view").getProperty("/tickerCurrency");
-			var sAsset = this.getView().getModel("view").getProperty("/tickerAsset");
-			this.getView().bindElement("data>/Tickers(currency=\'" + sCurrency + "\',asset=\'" + sAsset + "\')");
+		_bindElement: function() {
+			var oViewModel = this.getView().getModel("view");
+			var sCurrency = oViewModel.getProperty("/currency");
+			var sAsset = oViewModel.getProperty("/asset");
+			this.getView().bindElement(`data>/Tickers(currency=\'${sCurrency}\',asset=\'${sAsset}\')`);
 		},
 
-		onRouteMatched: function(oEvent) {
+		onRouteMatched: function() {
 			this.getView().getModel("view").setProperty("/tab", "ticker");
-			this.getView().getModel("view").setProperty("/tickerCurrency", "BTC"); // временно, только для примера
-			this.getView().getModel("view").setProperty("/tickerAsset", "ETH"); // временно, только для примера
-			this._bindTicker();
+			this._bindElement();
 		},
 
-		onTickerChange: function() {
-			this._bindTicker();
-		},
-
-		onRefreshPress: function() {
+		refresh: function() {
 			this.getView().getElementBinding("data").refresh();
+		},
+
+		onCurrencyChange: function() {
+			this._bindElement();
+		},
+
+		onAssetChange: function() {
+			this._bindElement();
 		},
 
 		onNavBack: function() {

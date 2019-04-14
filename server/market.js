@@ -61,7 +61,18 @@ function getCandles({ source, exchange, currency, asset, period, duration, end }
   // биржа может являться источником
 
   const url = period === 'M1' ? 'histominute' : (period === 'H1' ? 'histohour' : 'histoday');
-  const limit = duration * (period === 'M1' ? 60 * 24 : (period === 'H1' ? 24 : 1));
+  const qs = {
+    tsym: currency,
+    fsym: asset,
+  };
+
+  if (duration) {
+    qs.limit = duration * (period === 'M1' ? 60 * 24 : (period === 'H1' ? 24 : 1));
+  }
+
+  if (end) {
+    qs.toTs = moment(end).unix();
+  }
 
   request.get({
     baseUrl: 'https://min-api.cryptocompare.com/data/',
@@ -73,14 +84,9 @@ function getCandles({ source, exchange, currency, asset, period, duration, end }
       // подумать как избержать конфликты при параллельном обращении к данным
       // типа блокировать отдельный запрос на изменение, каждому выполнять свой, а когда разблокируется выполнять дедупликацию и слияние в один большой массив данных
     },
-    qs: {
-      tsym: currency,
-      fsym: asset,
-      toTs: moment(end).unix(),
-      limit,
-    },
+    qs,
   }, (err, res, body) => {
-    callback(err, JSON.parse(body).Data.map(e => ({
+    callback(err, JSON.parse(body).Data.slice(0, -1).map(e => ({
       time: moment.unix(e.time).toDate(),
       open: +e.open,
       high: +e.high,

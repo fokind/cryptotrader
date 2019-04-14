@@ -77,6 +77,26 @@
 					"pattern": "ticker",
 					"name": "ticker",
 					"target": "ticker"
+				},
+				{
+					"pattern": "experts",
+					"name": "experts",
+					"target": "experts"
+				},
+				{
+					"pattern": "expert/{id}",
+					"name": "expert",
+					"target": "expert"
+				},
+				{
+					"pattern": "histories",
+					"name": "histories",
+					"target": "histories"
+				},
+				{
+					"pattern": "history/{id}",
+					"name": "history",
+					"target": "history"
 				}
 			],
 			"targets": {
@@ -99,6 +119,26 @@
 					"viewId": "ticker",
 					"viewName": "Ticker",
 					"viewLevel": 4
+				},
+				"experts": {
+					"viewId": "experts",
+					"viewName": "Experts",
+					"viewLevel": 5
+				},
+				"expert": {
+					"viewId": "expert",
+					"viewName": "Expert",
+					"viewLevel": 6
+				},
+				"histories": {
+					"viewId": "histories",
+					"viewName": "Histories",
+					"viewLevel": 6
+				},
+				"history": {
+					"viewId": "history",
+					"viewName": "History",
+					"viewLevel": 7
 				}
 			}
 		}
