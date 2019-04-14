@@ -1,33 +1,30 @@
 import { ObjectID } from "mongodb";
 import { Edm, odata } from "odata-v4-server";
 // import { ExpertController } from "./../controllers/Expert";
-import { Candle } from "./Candle";
-// import { Strategy } from "./Strategy";
+// import { Candle } from "./Candle";
+import { Strategy } from "./Strategy";
+import { History } from "./History";
 
-import * as EventEmitter from "events";
-import * as market from "../../../market";
+// import * as EventEmitter from "events";
+// import * as market from "../../../market";
 import * as _ from 'lodash';
 // import * as async from 'async';
 
 const tulind = require('tulind');
 import connect from "../connect";
 
-
-export class Expert extends EventEmitter {
-  // @Edm.Key
-  // @Edm.Computed
-  // @Edm.String
-  // public _id: ObjectID
-
+export class Expert {
   @Edm.Key
+  @Edm.Computed
+  @Edm.String
+  public _id: ObjectID
+
   @Edm.String
   public currency: string
 
-  @Edm.Key
   @Edm.String
   public asset: string
 
-  @Edm.Key
   @Edm.String
   public period: string
 
@@ -43,53 +40,63 @@ export class Expert extends EventEmitter {
   @Edm.String
   public strategyId: ObjectID
 
+  @Edm.String
+  public historyId: ObjectID
+
   @Edm.DateTimeOffset
   public lastCandleTime: Date;
 
-  // @Edm.EntityType(Edm.ForwardRef(() => Strategy))
-  // Strategy: Strategy
+  @Edm.EntityType(Edm.ForwardRef(() => Strategy))
+  Strategy: Strategy
 
-  // @Edm.EntityType(Edm.ForwardRef(() => Ticker))
-  // Ticker: Ticker
+  @Edm.EntityType(Edm.ForwardRef(() => History))
+  History: History
 
-  public Candles: Candle[]
+  // public Candles: Candle[]
+
+  // @Edm.Action
+  // async update(@odata.result result: any): Promise<void> {
+  //   const { currency, asset, period, Candles } = this;
+  //   const expert = this;
+  //   return new Promise(resolve => {
+  //     market.getCandles({
+  //       currency,
+  //       asset,
+  //       period,
+  //     }, (err, newCandles) => {
+  //       const diff = _.differenceWith(newCandles, Candles, _.isEqual);
+  //       if (diff.length) {
+  //         _.forEach(diff, e => Candles.push(e));
+  //         // console.log(Candles, Candles[-1]);
+  //         expert.lastCandleTime = Candles[Candles.length -1].time;
+  //         expert.updateAdvice(result).then(() => {
+  //           resolve();
+  //         });
+  //       } else {
+  //         resolve();
+  //       }
+  //     });
+  //   });
+  // }
 
   @Edm.Action
-  async update(@odata.result result: any): Promise<void> {
-    const { currency, asset, period, Candles } = this;
+  async update(@odata.result result: any): Promise<number> {
+    // сначала обновить рыночные данные
+    // дождаться результата и при наличии обновлений выполнить перерасчет стратегии
     const expert = this;
-    return new Promise(resolve => {
-      market.getCandles({
-        currency,
-        asset,
-        period,
-      }, (err, newCandles) => {
-        const diff = _.differenceWith(newCandles, Candles, _.isEqual);
-        if (diff.length) {
-          _.forEach(diff, e => Candles.push(e));
-          // console.log(Candles, Candles[-1]);
-          expert.lastCandleTime = Candles[Candles.length -1].time;
-          expert.updateAdvice(result).then(() => {
-            resolve();
-          });
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
-  @Edm.Action
-  async updateAdvice(@odata.result result: any): Promise<void> {
-    const expert = this;
+    const { historyId } = this;
     const db = await connect();
     const { code } = await db.collection("strategy").findOne({ _id: expert.strategyId });
     const strategyFunction = new Function('candles, tulind, callback', code);
-    const { Candles } = this;
-    return new Promise(resolve => {
-      strategyFunction(Candles, tulind, (err, advice) => {
-        expert.advice = advice;
-        resolve();
+    const candles = await db.collection("candle").find({ historyId }).toArray();
+
+    return await new Promise<number>(resolve => {
+      strategyFunction(candles, tulind, (err, advice) => {
+        if (expert.advice !== advice) {
+          expert.advice = advice; // сохранить в базу данных
+          resolve(1);
+        }
+        resolve(0);
       });
     });
   }
@@ -103,17 +110,20 @@ export class Expert extends EventEmitter {
   }
 
   constructor(jsonData: any) {
-    super();
+    // super();
+
+    // FIXME так делать неправильно
 
     this.active = false;
-    this.Candles = [];
+    // this.Candles = [];
     this.delay = 60000; // должна зависеть от периода
     this.advice = 0;
-    this.strategyId = new ObjectID("5c9bc2455b900921f05a8c2a"); // FIXME временно для примера!!! исправить только это
+    // this.strategyId = new ObjectID("5c9bc2455b900921f05a8c2a"); // FIXME временно для примера!!! исправить только это
+    // this.historyId = new ObjectID("5cb30494e4277f20c4dab8f8");
 
-    Object.assign(this, <Expert>jsonData);
+    Object.assign(this, jsonData);
 
-    this.on('newCandle', this.updateAdvice.bind(this));
+    // this.on('newCandle', this.updateAdvice.bind(this));
   }
 }
 
@@ -122,4 +132,11 @@ export class Expert extends EventEmitter {
 эксперты подключаются к рынкам, следят за появлением новых свечей
 у эксперта нельзя просто так поменять символ или период, для этого его нужно связать с другим рынком
 точно так же нужно связать с другой стратегией, или поменять параметры стратегии
+
+рынки добавлены
+эксперт именно создается
+пока условия изменить нельзя
+можно создать другого эксперта
+при создании эксперта задается ссылка на массив данных
+при обновлении эксперта сначала обновляется этот массив и при наличии новых данных выполняется расчет по стратегии
 */

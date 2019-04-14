@@ -11,7 +11,7 @@ const collectionName = "history";
 @Edm.EntitySet("Histories")
 export class HistoryController extends ODataController {
   @odata.GET
-  async find(@odata.query query: ODataQuery): Promise<History[]> {
+  async get(@odata.query query: ODataQuery): Promise<History[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
     if (typeof mongodbQuery.query._id == "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
@@ -45,10 +45,10 @@ export class HistoryController extends ODataController {
   @odata.POST
   async post(@odata.body data: any): Promise<History> {
     const db = await connect();
-    data.version = 0;
-    return await db.collection(collectionName).insertOne(data).then((result) => {
-      data._id = result.insertedId;
-      return data;
+    const history = new History(data);
+    return await db.collection(collectionName).insertOne(history).then((result) => {
+      history._id = result.insertedId;
+      return history;
     });
   }
 

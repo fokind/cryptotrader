@@ -22,15 +22,17 @@
         layout="ResponsiveGridLayout">
         <form:content>
           <Label text="Currency"/>
-          <Input value="{view>/currency}" change=".onCurrencyChange"/>
+          <Text text="{data>History/currency}"/>
           <Label text="Asset"/>
-          <Input value="{view>/asset}" change=".onAssetChange"/>
+          <Text text="{data>History/asset}"/>
           <Label text="Period"/>
-          <Input value="{view>/period}" change=".onPeriodChange"/>
+          <Text text="{data>History/period}"/>
+          <Label text="Strategy"/>
+          <Text text="{data>Strategy/name}"/>
           <Label text="Advice"/>
 					<Text text="{= ${data>advice} === '1' ? 'Buy' : (${data>advice} === '-1' ? 'Sell' : 'Hold')}"/>
-          <Label text="Last candle time"/>
-          <Text text="{data>lastCandleTime}"/>
+          <Label text="Last"/>
+          <Text text="{data>History/end}"/>
         </form:content>
       </form:SimpleForm>
 		</content>

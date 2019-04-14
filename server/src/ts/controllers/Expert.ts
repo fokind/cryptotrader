@@ -1,65 +1,116 @@
-// import { ObjectID } from "mongodb";
-// import { createQuery } from "odata-v4-mongodb";
+import { ObjectID } from "mongodb";
+import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Expert } from "../models/Expert";
-import { ObjectID } from "bson";
+// import { ObjectID } from "bson";
 // import { Ticker } from "../models/Ticker";
-// import { Strategy } from "../models/Strategy";
-// import connect from "../connect";
+import { Strategy } from "../models/Strategy";
+import { History } from "../models/History";
+import connect from "../connect";
 // import * as market from "../../../market";
 
 // const exchange = require('../../../exchange');
 
-// const collectionName = "expert";
+const collectionName = "expert";
 
-const experts = [];
+// const experts = [];
 
 @odata.type(Expert)
 @Edm.EntitySet("Experts")
 export class ExpertController extends ODataController {
-  @odata.GET
-  get(): Promise<Expert[]> {
-    return new Promise(resolve => {
-      resolve(experts);
-    });
+  async get(@odata.query query: ODataQuery): Promise<Expert[]> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    if (typeof mongodbQuery.query._id == "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
+    let result = typeof mongodbQuery.limit == "number" && mongodbQuery.limit === 0 ? [] : await db.collection(collectionName)
+      .find(mongodbQuery.query)
+      .project(mongodbQuery.projection)
+      .skip(mongodbQuery.skip || 0)
+      .limit(mongodbQuery.limit || 0)
+      .sort(mongodbQuery.sort)
+      .toArray();//TODO заменить на поток
+    if (mongodbQuery.inlinecount) {
+      (<any>result).inlinecount = await db.collection(collectionName)
+        .find(mongodbQuery.query)
+        .project(mongodbQuery.projection)
+        .count(false);
+    }
+    return result;
   }
 
   @odata.GET
-  getById(@odata.key currency: string, @odata.key asset: string, @odata.key period: string): Promise<Expert> {
-    return new Promise((resolve, reject) => {
-      // добавить проверку на наличие символов и периодов
-      // console.log(currency, asset, period, currency && asset && period);
-      if (currency !== 'undefined' && asset !== 'undefined' &&  period !== 'undefined') {
-        // console.log(1);
-        let expert = experts.find(e => e.currency === currency && e.asset === asset && e.period === period);
-        if (!expert) {
-          expert = new Expert({
-            currency,
-            asset,
-            period
-          });
-          experts.push();
-        }
-        expert.update(expert).then(() => {
-          resolve(expert);  
-        });
-      } else {
-        reject();
-      }
+  async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Expert> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    let keyId;
+    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+    return db.collection(collectionName).findOne({_id: keyId}, {
+      fields: mongodbQuery.projection // TODO заменить
     });
   }
 
-  @odata.PATCH
-  patch(@odata.key currency: string, @odata.key asset: string, @odata.key period: string, @odata.body delta: any): Promise<number> {
-    return new Promise(resolve => {
-      let expert = experts.find(e => e.currency === currency && e.asset === asset && e.period === period);
-      delete delta.currency;
-      delete delta.asset;
-      delete delta.period;
-      Object.assign(expert, delta);
-      resolve(1);
+  @odata.POST
+  async post(@odata.body data: any): Promise<Expert> {
+    const db = await connect();
+    const expert = new Expert(data);
+    console.log(data);
+    return await db.collection(collectionName).insertOne(expert).then((result) => {
+      expert._id = result.insertedId;
+      return expert;
     });
   }
+
+  @odata.DELETE
+  async delete(@odata.key key: string): Promise<number> {
+    const db = await connect();
+    let keyId;
+    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+    return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
+  }
+
+  // @odata.GET
+  // get(): Promise<Expert[]> {
+  //   return new Promise(resolve => {
+  //     resolve(experts);
+  //   });
+  // }
+
+  // @odata.GET
+  // getById(@odata.key currency: string, @odata.key asset: string, @odata.key period: string): Promise<Expert> {
+  //   return new Promise((resolve, reject) => {
+  //     // добавить проверку на наличие символов и периодов
+  //     // console.log(currency, asset, period, currency && asset && period);
+  //     if (currency !== 'undefined' && asset !== 'undefined' &&  period !== 'undefined') {
+  //       // console.log(1);
+  //       let expert = experts.find(e => e.currency === currency && e.asset === asset && e.period === period);
+  //       if (!expert) {
+  //         expert = new Expert({
+  //           currency,
+  //           asset,
+  //           period
+  //         });
+  //         experts.push();
+  //       }
+  //       expert.update(expert).then(() => {
+  //         resolve(expert);  
+  //       });
+  //     } else {
+  //       reject();
+  //     }
+  //   });
+  // }
+
+  // @odata.PATCH
+  // patch(@odata.key currency: string, @odata.key asset: string, @odata.key period: string, @odata.body delta: any): Promise<number> {
+  //   return new Promise(resolve => {
+  //     let expert = experts.find(e => e.currency === currency && e.asset === asset && e.period === period);
+  //     delete delta.currency;
+  //     delete delta.asset;
+  //     delete delta.period;
+  //     Object.assign(expert, delta);
+  //     resolve(1);
+  //   });
+  // }
 
   // @odata.GET("Ticker")
   // async getTicker(@odata.result result: any): Promise<Ticker> {
@@ -76,16 +127,25 @@ export class ExpertController extends ODataController {
   //   });
   // }
 
-  // @odata.GET("Strategy")
-  // async getStrategy(@odata.result result: Expert, @odata.query query: ODataQuery): Promise<Strategy> {
-  //     const db = await connect();
-  //     const mongodbQuery = createQuery(query);
-  //     let catId;
-  //     try{ catId = new ObjectID(result.strategyId); }catch(err){ catId = result.strategyId; }
-  //     return db.collection("strategy").findOne({ _id: catId }, {
-  //         fields: mongodbQuery.projection
-  //     });
-  // }
+  @odata.GET("History")
+  async getHistory(@odata.result result: Expert, @odata.query query: ODataQuery): Promise<History> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    const historyId = new ObjectID(result.historyId);
+    return db.collection("history").findOne({ _id: historyId }, {
+      fields: mongodbQuery.projection
+    });
+  }
+
+  @odata.GET("Strategy")
+  async getStrategy(@odata.result result: Expert, @odata.query query: ODataQuery): Promise<Strategy> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    const strategyId = new ObjectID(result.strategyId);
+    return db.collection("strategy").findOne({ _id: strategyId }, {
+      fields: mongodbQuery.projection
+    });
+  }
 
   // @odata.POST("Strategy").$ref
   // @odata.PUT("Strategy").$ref
