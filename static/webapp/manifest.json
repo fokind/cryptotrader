@@ -97,6 +97,16 @@
 					"pattern": "history/{id}",
 					"name": "history",
 					"target": "history"
+				},
+				{
+					"pattern": "traders",
+					"name": "traders",
+					"target": "traders"
+				},
+				{
+					"pattern": "trader/{id}",
+					"name": "trader",
+					"target": "trader"
 				}
 			],
 			"targets": {
@@ -139,6 +149,16 @@
 					"viewId": "history",
 					"viewName": "History",
 					"viewLevel": 7
+				},
+				"traders": {
+					"viewId": "traders",
+					"viewName": "Traders",
+					"viewLevel": 8
+				},
+				"trader": {
+					"viewId": "trader",
+					"viewName": "Trader",
+					"viewLevel": 9
 				}
 			}
 		}

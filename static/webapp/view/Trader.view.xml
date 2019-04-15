@@ -1,0 +1,44 @@
+<mvc:View controllerName="fokin.crypto.controller.Trader"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:tnt="sap.tnt"
+	xmlns="sap.m"
+	height="100%">
+	<Page>
+		<customHeader>
+			<Toolbar>
+				<Button
+					icon="sap-icon://nav-back" press=".onNavBack"/>
+				<ToolbarSpacer/>
+				<Title text="Trader"/>
+				<ToolbarSpacer/>
+				<Button
+					icon="sap-icon://refresh" press=".onRefreshPress"/>
+			</Toolbar>
+		</customHeader>
+		<content>
+			<form:SimpleForm
+        editable="true"
+        layout="ResponsiveGridLayout">
+        <form:content>
+          <Label text="Currency"/>
+          <Text text="{data>currency}"/>
+          <Label text="Asset"/>
+          <Text text="{data>asset}"/>
+          <Label text="Period"/>
+          <Text text="{data>Expert/History/period}"/>
+          <Label text="Strategy"/>
+          <Text text="{data>Expert/Strategy/name}"/>
+          <Label text="Advice"/>
+					<Text text="{= ${data>Expert/advice} === '1' ? 'Buy' : (${data>Expert/advice} === '-1' ? 'Sell' : '')}"/>
+          <Label text="Last update"/>
+          <Text text="{data>Expert/lastUpdate}"/>
+          <Label text="Ask"/>
+          <Text text="{data>Ticker/ask}"/>
+          <Label text="Bid"/>
+          <Text text="{data>Ticker/bid}"/>
+        </form:content>
+      </form:SimpleForm>
+		</content>
+	</Page>
+</mvc:View>
