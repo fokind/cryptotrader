@@ -10,7 +10,7 @@ sap.ui.define([
 		},
 
 		onRouteMatched: function(oEvent) {
-			this.getView().getModel("view").setProperty("/tab", "tarders");
+			this.getView().getModel("view").setProperty("/tab", "traders");
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
 			this.getView().bindElement({

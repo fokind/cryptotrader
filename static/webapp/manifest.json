@@ -107,6 +107,16 @@
 					"pattern": "trader/{id}",
 					"name": "trader",
 					"target": "trader"
+				},
+				{
+					"pattern": "accounts",
+					"name": "accounts",
+					"target": "accounts"
+				},
+				{
+					"pattern": "account/{id}",
+					"name": "account",
+					"target": "account"
 				}
 			],
 			"targets": {
@@ -159,6 +169,16 @@
 					"viewId": "trader",
 					"viewName": "Trader",
 					"viewLevel": 9
+				},
+				"accounts": {
+					"viewId": "accounts",
+					"viewName": "Accounts",
+					"viewLevel": 10
+				},
+				"account": {
+					"viewId": "account",
+					"viewName": "Account",
+					"viewLevel": 11
 				}
 			}
 		}

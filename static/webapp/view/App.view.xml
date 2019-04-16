@@ -13,6 +13,7 @@
 						<IconTabFilter key="experts" text="Expert"/>
 						<IconTabFilter key="histories" text="History"/>
 						<IconTabFilter key="traders" text="Trader"/>
+						<IconTabFilter key="accounts" text="Account"/>
 					</items>
 				</IconTabHeader>
 			</tnt:ToolHeader>
