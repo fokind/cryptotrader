@@ -7,8 +7,6 @@ import { Ticker } from "../models/Ticker";
 import { Portfolio } from "../models/Portfolio";
 import connect from "../connect";
 const exchange = require('../../../exchange'); // заменить на TS
-const API = process.env.API;
-const SECRET = process.env.SECRET;
 
 const collectionName = "trader";
 
@@ -89,12 +87,11 @@ export class TraderController extends ODataController {
 
   @odata.GET("Portfolio")
   async getPortfolio(@odata.result result: any): Promise<Portfolio[]> {
-    // const trader = new Trader(result);
+    const _id = new ObjectID(result._id);
+    const db = await connect();
+    const { user, pass } = await db.collection(collectionName).findOne({ _id });
     return await new Promise<Portfolio[]>(resolve => {
-      exchange.getPortfolio({
-        user: API,
-        pass: SECRET
-      }, (err, res: any[]) => {
+      exchange.getPortfolio({ user, pass }, (err, res: any[]) => {
         const portfolio = res.map(e => new Portfolio(e));
         resolve(portfolio);
       });

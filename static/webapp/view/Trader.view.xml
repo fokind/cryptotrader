@@ -40,6 +40,12 @@
           <Text text="{data>Ticker/ask}"/>
           <Label text="Bid"/>
           <Text text="{data>Ticker/bid}"/>
+					<Label text="Portfolio"/>
+					<List items="{data>Portfolio}">
+						<items>
+							<ObjectListItem title="{data>currency}" number="{data>available}"/>
+						</items>
+					</List>
         </form:content>
       </form:SimpleForm>
 		</content>

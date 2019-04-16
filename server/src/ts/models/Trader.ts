@@ -4,13 +4,17 @@ import { Portfolio } from "./Portfolio";
 import { Ticker } from "./Ticker";
 import { Expert } from "./Expert";
 
-const exchange = require('../../../exchange');
-
 export class Trader {
   @Edm.Key
   @Edm.Computed
   @Edm.String
   public _id: ObjectID
+
+  @Edm.String
+  public user: string
+
+  @Edm.String
+  public pass: string
 
   @Edm.String
   public currency: string
@@ -29,16 +33,6 @@ export class Trader {
 
   @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => Portfolio)))
   public Portfolio: Portfolio[]
-
-  @Edm.Function
-  public async getTicker(@odata.result result: any): Promise<Ticker> {
-    console.log(result);
-    return new Promise<Ticker>(resolve => {
-      exchange.getTicker(result, (err, ticker) => {
-        resolve(new Ticker(ticker));
-      });
-    });
-  }
 
   @Edm.Action
   async start(@odata.result result: any): Promise<void> {
