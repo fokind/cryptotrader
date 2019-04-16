@@ -23,6 +23,10 @@ sap.ui.define([
 			});
 		},
 
+		onSynchronizePress: function() {
+			this.getView().getElementBinding("data").refresh();
+		},
+
 		onRefreshPress: function() {
 			var oModel = this.getView().getModel("data");
 			var sPath = this.getView().getElementBinding("data").getPath();
