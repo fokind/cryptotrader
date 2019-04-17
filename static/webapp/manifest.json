@@ -74,11 +74,6 @@
 					"target": "backtest"
 				},
 				{
-					"pattern": "ticker",
-					"name": "ticker",
-					"target": "ticker"
-				},
-				{
 					"pattern": "experts",
 					"name": "experts",
 					"target": "experts"
@@ -97,6 +92,26 @@
 					"pattern": "history/{id}",
 					"name": "history",
 					"target": "history"
+				},
+				{
+					"pattern": "traders",
+					"name": "traders",
+					"target": "traders"
+				},
+				{
+					"pattern": "trader/{id}",
+					"name": "trader",
+					"target": "trader"
+				},
+				{
+					"pattern": "accounts",
+					"name": "accounts",
+					"target": "accounts"
+				},
+				{
+					"pattern": "account/{id}",
+					"name": "account",
+					"target": "account"
 				}
 			],
 			"targets": {
@@ -114,11 +129,6 @@
 					"viewId": "backtest",
 					"viewName": "Backtest",
 					"viewLevel": 3
-				},
-				"ticker": {
-					"viewId": "ticker",
-					"viewName": "Ticker",
-					"viewLevel": 4
 				},
 				"experts": {
 					"viewId": "experts",
@@ -139,6 +149,26 @@
 					"viewId": "history",
 					"viewName": "History",
 					"viewLevel": 7
+				},
+				"traders": {
+					"viewId": "traders",
+					"viewName": "Traders",
+					"viewLevel": 8
+				},
+				"trader": {
+					"viewId": "trader",
+					"viewName": "Trader",
+					"viewLevel": 9
+				},
+				"accounts": {
+					"viewId": "accounts",
+					"viewName": "Accounts",
+					"viewLevel": 10
+				},
+				"account": {
+					"viewId": "account",
+					"viewName": "Account",
+					"viewLevel": 11
 				}
 			}
 		}

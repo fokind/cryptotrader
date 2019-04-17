@@ -1,0 +1,112 @@
+<mvc:View controllerName="fokin.crypto.controller.Trader"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:tnt="sap.tnt"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m"
+	height="100%">
+	<Page>
+		<customHeader>
+			<Bar>
+				<contentLeft>
+					<Button icon="sap-icon://nav-back" press=".onNavBack"/>
+				</contentLeft>
+				<contentMiddle>
+					<Title text="Trader"/>
+				</contentMiddle>
+				<contentRight>
+					<Button icon="sap-icon://synchronize" press=".onSynchronizePress"/>
+					<Button icon="sap-icon://refresh" press=".onRefreshPress"/>
+				</contentRight>
+			</Bar>
+		</customHeader>
+		<content>
+			<form:Form editable="false">
+				<form:layout>
+					<form:ResponsiveGridLayout
+						labelSpanXL="6"
+						labelSpanL="6"
+						labelSpanM="6"
+						labelSpanS="6"
+						adjustLabelSpan="false"
+						emptySpanXL="1"
+						emptySpanL="0"
+						emptySpanM="0"
+						emptySpanS="0"
+						columnsXL="1"
+						columnsL="1"
+						columnsM="1"
+						singleContainerFullSize="false" />
+				</form:layout>
+				<form:formContainers>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Expert"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Symbol">
+								<form:fields>
+									<Text text="{data>asset}{data>currency}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Period">
+								<form:fields>
+									<Text text="{data>Expert/History/period}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Strategy">
+								<form:fields>
+									<Text text="{data>Expert/Strategy/name}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Advice">
+								<form:fields>
+									<Text text="{= ${data>Expert/advice} === '1' ? 'Buy' : (${data>Expert/advice} === '-1' ? 'Sell' : '')}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Last update">
+								<form:fields>
+									<Text text="{data>Expert/lastUpdate}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Ticker"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Ask">
+								<form:fields>
+									<Text text="{data>Ticker/ask}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Bid">
+								<form:fields>
+									<Text text="{data>Ticker/bid}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Balance"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="{data>currency}">
+								<form:fields>
+									<Text text="{data>Balance/available}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="{data>asset}">
+								<form:fields>
+									<Text text="{data>Balance/availableAsset}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+				</form:formContainers>
+			</form:Form>
+		</content>
+	</Page>
+</mvc:View>

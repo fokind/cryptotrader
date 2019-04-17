@@ -1,0 +1,67 @@
+<mvc:View controllerName="fokin.crypto.controller.Account"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:tnt="sap.tnt"
+	xmlns="sap.m"
+	height="100%">
+	<Page>
+		<customHeader>
+			<Bar>
+				<contentLeft>
+					<Button icon="sap-icon://nav-back" press=".onNavBack"/>
+				</contentLeft>
+				<contentMiddle>
+					<Title text="Account"/>
+				</contentMiddle>
+			</Bar>
+		</customHeader>
+		<content>
+			<form:Form editable="false">
+				<form:layout>
+					<form:ResponsiveGridLayout
+						labelSpanXL="12"
+						labelSpanL="12"
+						labelSpanM="12"
+						labelSpanS="12"
+						adjustLabelSpan="false"
+						emptySpanXL="0"
+						emptySpanL="0"
+						emptySpanM="0"
+						emptySpanS="0"
+						columnsXL="1"
+						columnsL="1"
+						columnsM="1"
+						columnsS="1"
+						singleContainerFullSize="false" />
+				</form:layout>
+				<form:formContainers>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Common"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Name">
+								<form:fields>
+									<Text text="{data>name}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+					<form:FormContainer formElements="{data>Credentials}">
+						<form:title>
+							<core:Title text="Credentials"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="{data>name}">
+								<form:fields>
+									<Text text="{data>value}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+				</form:formContainers>
+			</form:Form>			
+		</content>
+	</Page>
+</mvc:View>

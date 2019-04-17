@@ -1,0 +1,39 @@
+<mvc:View controllerName="fokin.crypto.controller.Accounts"
+	xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true"
+	xmlns="sap.m">
+	<Page title="Traders" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table id="traders"
+				items="{
+					model: 'data',
+					path: '/Accounts'
+				}"
+				growingThreshold="100"
+				itemPress=".onItemPress"
+				inset="false">
+				<headerToolbar>
+					<Toolbar>
+						<content>
+							<Title text="Accounts"/>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://add" press=".onAddPress"/>
+						</content>
+					</Toolbar>
+				</headerToolbar>
+				<columns>
+					<Column>
+						<Text text="Name"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Active">
+						<cells>
+							<Text text="{data>name}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>			
+		</content>
+	</Page>
+</mvc:View>

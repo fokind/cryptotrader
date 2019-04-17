@@ -151,18 +151,21 @@ function getTicker({ currency, asset }, callback) {
   });
 };
 
-// function getBalance(auth, callback) {
-//   request.get({
-//     baseUrl: BASE_URL,
-//     url: 'trading/balance',
-//     auth
-//   }, (err1, res1, body1) => {
-//     callback(null, JSON.parse(body1).map(e => ({
-//       currency: e.currency,
-//       available: +e.available
-//     })));
-//   });
-// };
+function getPortfolio({ user, pass }, callback) {
+  request.get({
+    baseUrl: BASE_URL,
+    url: 'trading/balance',
+    auth: {
+      user,
+      pass,
+    }
+  }, (err1, res1, body1) => {
+    callback(null, JSON.parse(body1).filter(e => e.available !== "0").map(e => ({
+      currency: e.currency,
+      available: +e.available
+    })));
+  });
+};
 
 module.exports = {
   // getActiveOrders,
@@ -173,5 +176,5 @@ module.exports = {
   // getSymbols,
   // getSymbol,
   getTicker,
-  // getBalance,
+  getPortfolio,
 };

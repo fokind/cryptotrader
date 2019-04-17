@@ -1,0 +1,47 @@
+<mvc:View controllerName="fokin.crypto.controller.Traders"
+	xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true"
+	xmlns="sap.m">
+	<Page title="Traders" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table id="traders"
+				items="{
+					model: 'data',
+					path: '/Traders',
+					parameters: {
+						'$select': 'expertId',
+						'$expand': 'Expert($select=historyId)'
+					}
+				}"
+				growingThreshold="100"
+				itemPress=".onItemPress"
+				inset="false">
+				<headerToolbar>
+					<Toolbar>
+						<content>
+							<Title text="Traders"/>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://add" press=".onAddPress"/>
+						</content>
+					</Toolbar>
+				</headerToolbar>
+				<columns>
+					<Column>
+						<Text text="Symbol"/>
+					</Column>
+					<Column>
+						<Text text="Period"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Active">
+						<cells>
+							<Text text="{data>Expert/History/asset}{data>Expert/History/currency}"/>
+							<Text text="{data>Expert/History/period}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>			
+		</content>
+	</Page>
+</mvc:View>
