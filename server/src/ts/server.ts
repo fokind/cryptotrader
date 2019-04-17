@@ -1,7 +1,6 @@
 import { ODataServer, odata } from "odata-v4-server";
 import { BacktestController } from "./controllers/Backtest";
 import { StrategyController } from "./controllers/Strategy";
-import { TickerController } from "./controllers/Ticker";
 import { ExpertController } from "./controllers/Expert";
 import { HistoryController } from "./controllers/History";
 import { TraderController } from "./controllers/Trader";
@@ -11,7 +10,6 @@ import { AccountController } from "./controllers/Account";
 @odata.namespace("Crypto")
 @odata.controller(BacktestController, true)
 @odata.controller(StrategyController, true)
-@odata.controller(TickerController, true)
 @odata.controller(ExpertController, true)
 @odata.controller(HistoryController, true)
 @odata.controller(TraderController, true)

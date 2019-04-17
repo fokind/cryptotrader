@@ -9,7 +9,6 @@
 				<IconTabHeader select=".onTabSelect" selectedKey="{view>/tab}">
 					<items>
 						<IconTabFilter key="strategies" text="Strategy"/>
-						<IconTabFilter key="ticker" text="Ticker"/>
 						<IconTabFilter key="experts" text="Expert"/>
 						<IconTabFilter key="histories" text="History"/>
 						<IconTabFilter key="traders" text="Trader"/>

@@ -74,11 +74,6 @@
 					"target": "backtest"
 				},
 				{
-					"pattern": "ticker",
-					"name": "ticker",
-					"target": "ticker"
-				},
-				{
 					"pattern": "experts",
 					"name": "experts",
 					"target": "experts"
@@ -134,11 +129,6 @@
 					"viewId": "backtest",
 					"viewName": "Backtest",
 					"viewLevel": 3
-				},
-				"ticker": {
-					"viewId": "ticker",
-					"viewName": "Ticker",
-					"viewLevel": 4
 				},
 				"experts": {
 					"viewId": "experts",
