@@ -2,36 +2,37 @@ const request = require('request');
 
 const BASE_URL = 'https://api.hitbtc.com/api/2/';
 
-// function getActiveOrders(options, callback) {
-//   var { symbol, user, pass } = options;
-//   request.get(
-//     {
-//       baseUrl: BASE_URL,
-//       url: 'order',
-//       qs: {
-//         symbol
-//       },
-//       auth: {
-//         user,
-//         pass
-//       }
-//     },
-//     (err, res) => {
-//       callback(
-//         err,
-//         JSON.parse(res.body).map(e => ({
-//           clientOrderId: e.clientOrderId,
-//           createdAt: e.createdAt,
-//           symbol: e.symbol,
-//           side: e.side,
-//           type: e.type,
-//           quantity: +e.quantity,
-//           price: +(e.type === 'stopMarket' ? e.stopPrice : e.price),
-//         }))
-//       );
-//     }
-//   );
-// };
+function getOrders(options, callback) {
+  var { currency, asset, user, pass } = options;
+  request.get(
+    {
+      baseUrl: BASE_URL,
+      url: 'order',
+      qs: {
+        symbol: asset + currency
+      },
+      auth: {
+        user,
+        pass
+      }
+    },
+    (err, res) => {
+      callback(
+        err,
+        JSON.parse(res.body).map(e => ({
+          _id: e.clientOrderId,
+          createdAt: e.createdAt,
+          currency,
+          asset,
+          side: e.side,
+          // type: e.type,
+          quantity: +e.quantity,
+          price: +(e.type === 'stopMarket' ? e.stopPrice : e.price),
+        }))
+      );
+    }
+  );
+};
 
 // function getOrders(options, callback) {
 //   var { symbol, user, pass } = options;
@@ -169,7 +170,7 @@ function getPortfolio({ user, pass }, callback) {
 
 module.exports = {
   // getActiveOrders,
-  // getOrders,
+  getOrders,
   // deleteOrder,
   // createOrder,
   // getCandles,

@@ -6,6 +6,7 @@ import { Trader } from "../models/Trader";
 import { Ticker } from "../models/Ticker";
 import { Balance } from "../models/Balance";
 import { Portfolio } from "../models/Portfolio";
+import { Order } from "../models/Order";
 import connect from "../connect";
 const exchange = require('../../../exchange'); // заменить на TS
 
@@ -97,6 +98,32 @@ export class TraderController extends ODataController {
           available: balance ? balance.available : 0,
           availableAsset: balanceAsset ? balanceAsset.available : 0
         }));
+      });
+    });
+  }
+
+  @odata.GET("Orders")
+  async getOrders(@odata.result result: any): Promise<Order[]> {
+    const { currency, asset } = result;
+    const _id = new ObjectID(result._id);
+    const db = await connect();
+    const { user, pass } = await db.collection(collectionName).findOne({ _id });
+    return await new Promise<Order[]>(resolve => {
+      exchange.getOrders({ currency, asset, user, pass }, (err, orders: Order[]) => {
+        resolve(orders);
+      });
+    });
+  }
+
+  @odata.GET("Order")
+  async getOrder(@odata.result result: any): Promise<Order> {
+    const { currency, asset } = result;
+    const _id = new ObjectID(result._id);
+    const db = await connect();
+    const { user, pass } = await db.collection(collectionName).findOne({ _id });
+    return await new Promise<Order>(resolve => {
+      exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
+        resolve(orders.length ? orders[0] : undefined);
       });
     });
   }

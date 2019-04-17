@@ -3,6 +3,7 @@ import { Edm, odata } from "odata-v4-server";
 import { Ticker } from "./Ticker";
 import { Balance } from "./Balance";
 import { Expert } from "./Expert";
+import { Order } from "./Order";
 
 export class Trader {
   @Edm.Key
@@ -33,6 +34,12 @@ export class Trader {
 
   @Edm.EntityType(Edm.ForwardRef(() => Expert))
   public Expert: Expert
+
+  @Edm.EntityType(Edm.ForwardRef(() => Order))
+  public Orders: Order[]
+
+  @Edm.EntityType(Edm.ForwardRef(() => Order))
+  public Order: Order
 
   // TODO разобраться как использовать
   // @Edm.Function
