@@ -2,6 +2,7 @@
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:form="sap.ui.layout.form"
 	xmlns:tnt="sap.tnt"
+	xmlns:core="sap.ui.core"
 	xmlns="sap.m"
 	height="100%">
 	<Page>
@@ -20,34 +21,92 @@
 			</Bar>
 		</customHeader>
 		<content>
-			<form:SimpleForm
-        editable="true"
-        layout="ResponsiveGridLayout">
-        <form:content>
-          <Label text="Currency"/>
-          <Text text="{data>currency}"/>
-          <Label text="Asset"/>
-          <Text text="{data>asset}"/>
-          <Label text="Period"/>
-          <Text text="{data>Expert/History/period}"/>
-          <Label text="Strategy"/>
-          <Text text="{data>Expert/Strategy/name}"/>
-          <Label text="Advice"/>
-					<Text text="{= ${data>Expert/advice} === '1' ? 'Buy' : (${data>Expert/advice} === '-1' ? 'Sell' : '')}"/>
-          <Label text="Last update"/>
-          <Text text="{data>Expert/lastUpdate}"/>
-          <Label text="Ask"/>
-          <Text text="{data>Ticker/ask}"/>
-          <Label text="Bid"/>
-          <Text text="{data>Ticker/bid}"/>
-					<Label text="Portfolio"/>
-					<List items="{data>Portfolio}">
-						<items>
-							<ObjectListItem title="{data>currency}" number="{data>available}"/>
-						</items>
-					</List>
-        </form:content>
-      </form:SimpleForm>
+			<form:Form editable="false">
+				<form:layout>
+					<form:ResponsiveGridLayout
+						labelSpanXL="6"
+						labelSpanL="6"
+						labelSpanM="6"
+						labelSpanS="6"
+						adjustLabelSpan="false"
+						emptySpanXL="1"
+						emptySpanL="0"
+						emptySpanM="0"
+						emptySpanS="0"
+						columnsXL="1"
+						columnsL="1"
+						columnsM="1"
+						singleContainerFullSize="false" />
+				</form:layout>
+				<form:formContainers>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Expert"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Symbol">
+								<form:fields>
+									<Text text="{data>asset}{data>currency}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Period">
+								<form:fields>
+									<Text text="{data>Expert/History/period}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Strategy">
+								<form:fields>
+									<Text text="{data>Expert/Strategy/name}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Advice">
+								<form:fields>
+									<Text text="{= ${data>Expert/advice} === '1' ? 'Buy' : (${data>Expert/advice} === '-1' ? 'Sell' : '')}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Last update">
+								<form:fields>
+									<Text text="{data>Expert/lastUpdate}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Ticker"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Ask">
+								<form:fields>
+									<Text text="{data>Ticker/ask}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Bid">
+								<form:fields>
+									<Text text="{data>Ticker/bid}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Balance"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="{data>currency}">
+								<form:fields>
+									<Text text="{data>Balance/available}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="{data>asset}">
+								<form:fields>
+									<Text text="{data>Balance/availableAsset}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+				</form:formContainers>
+			</form:Form>
 		</content>
 	</Page>
 </mvc:View>

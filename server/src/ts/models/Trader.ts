@@ -1,7 +1,7 @@
 import { ObjectID } from "mongodb";
 import { Edm, odata } from "odata-v4-server";
-import { Portfolio } from "./Portfolio";
 import { Ticker } from "./Ticker";
+import { Balance } from "./Balance";
 import { Expert } from "./Expert";
 
 export class Trader {
@@ -28,11 +28,22 @@ export class Trader {
   @Edm.EntityType(Edm.ForwardRef(() => Ticker))
   public Ticker: Ticker
 
+  @Edm.EntityType(Edm.ForwardRef(() => Balance))
+  public Balance: Balance
+
   @Edm.EntityType(Edm.ForwardRef(() => Expert))
   public Expert: Expert
 
-  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => Portfolio)))
-  public Portfolio: Portfolio[]
+  // TODO разобраться как использовать
+  // @Edm.Function
+  // public async getTicker(@odata.result result: any): Promise<Ticker> {
+  //   console.log(result);
+  //   return await new Promise<Ticker>(resolve => {
+  //     exchange.getTicker(result, (err, ticker) => {
+  //       resolve(new Ticker(ticker));
+  //     });
+  //   });
+  // }
 
   @Edm.Action
   async start(@odata.result result: any): Promise<void> {

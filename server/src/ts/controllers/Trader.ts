@@ -4,6 +4,7 @@ import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Expert } from "../models/Expert";
 import { Trader } from "../models/Trader";
 import { Ticker } from "../models/Ticker";
+import { Balance } from "../models/Balance";
 import { Portfolio } from "../models/Portfolio";
 import connect from "../connect";
 const exchange = require('../../../exchange'); // заменить на TS
@@ -71,9 +72,6 @@ export class TraderController extends ODataController {
 
   @odata.GET("Ticker")
   async getTicker(@odata.result result: any): Promise<Ticker> {
-    // сначала получить валюту, а это можно только через Expert/History
-    // FIXME это нужно делать заранее
-    // const trader = new Trader(result);
     const { currency, asset } = result;
     return await new Promise<Ticker>(resolve => {
       exchange.getTicker({
@@ -85,15 +83,20 @@ export class TraderController extends ODataController {
     });
   }
 
-  @odata.GET("Portfolio")
-  async getPortfolio(@odata.result result: any): Promise<Portfolio[]> {
+  @odata.GET("Balance")
+  async getBalance(@odata.result result: any): Promise<Balance> {
+    const { currency, asset } = result;
     const _id = new ObjectID(result._id);
     const db = await connect();
     const { user, pass } = await db.collection(collectionName).findOne({ _id });
-    return await new Promise<Portfolio[]>(resolve => {
-      exchange.getPortfolio({ user, pass }, (err, res: any[]) => {
-        const portfolio = res.map(e => new Portfolio(e));
-        resolve(portfolio);
+    return await new Promise<Balance>(resolve => {
+      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
+        const balance = portfolio.find(e => e.currency === currency);
+        const balanceAsset = portfolio.find(e => e.currency === asset);
+        resolve(new Balance({
+          available: balance ? balance.available : 0,
+          availableAsset: balanceAsset ? balanceAsset.available : 0
+        }));
       });
     });
   }
