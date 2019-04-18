@@ -58,10 +58,11 @@ export class Trader {
 
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
-    const { expertId } = this;
+    const { _id } = this;
     const db = await connect();
+    const { expertId } = await db.collection("trader").findOne({ _id });
     const expert = new Expert(await db.collection("expert").findOne({ _id: expertId }));
-    return await expert.update(expert);
+    return expert.update(expert);
   }
 
   @Edm.Action
