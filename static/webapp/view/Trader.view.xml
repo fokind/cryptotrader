@@ -98,6 +98,11 @@
 									<Text text="{data>Order/price}"/>
 								</form:fields>
 							</form:FormElement>
+							<form:FormElement label="In spread">
+								<form:fields>
+									<Text text="{data>isOrderInSpread}"/>
+								</form:fields>
+							</form:FormElement>
 						</form:formElements>
 					</form:FormContainer>
 					<form:FormContainer>

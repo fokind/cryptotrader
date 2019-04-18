@@ -42,12 +42,9 @@ export class History {
 
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
-    // console.log(this);
     const history = this;
     const { currency, asset, period, _id, end, begin } = this;
-    // const candles = await historyController.getCandles(this, null); // TODO получить из контроллера не свечи, а дату последнего обновления, это можно и без контроллера сделать
     return await new Promise<number>(resolve => {
-      // console.log(currency, asset, period);
       market.getCandles({
         currency,
         asset,
@@ -93,7 +90,6 @@ export class History {
   }
 
   constructor(jsonData: any) {
-    // console.log(jsonData);
     this.active = false;
     this.delay = 60000; // должна зависеть от периода
 
