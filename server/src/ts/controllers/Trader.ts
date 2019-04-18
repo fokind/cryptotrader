@@ -39,11 +39,26 @@ export class TraderController extends ODataController {
   async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Trader> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return await db.collection(collectionName).findOne({_id: keyId}, {
-      fields: mongodbQuery.projection // TODO заменить
+    // console.log(query // на самом деле обращение должно происходить к движку
+    // этот движок должен кэшировать сохраненный объект, ловить все изменения к нему
+    // этот движок должен самостоятельно взаимодействовать с другими API
+    // движок сам понимает в каком состоянии он находится и какие данные возвращать
+    // самы выбирает способ получения данных, кэшировать их или нет и т.п.
+    // движок снимет проблему синхорнизации запросов
+    const keyId = new ObjectID(key);
+    const { projection } = mongodbQuery;
+    projection.currency = 1;
+    projection.asset = 1;
+    projection.user = 1;
+    projection.pass = 1;
+
+    const trader = new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
+    trader.Order = await new Promise<Order>(resolve => {
+      exchange.getOrders(trader, (err, orders: any[]) => {
+        resolve(orders.length ? orders[0] : undefined);
+      });
     });
+    return trader;
   }
 
   @odata.POST
@@ -115,18 +130,18 @@ export class TraderController extends ODataController {
     });
   }
 
-  @odata.GET("Order")
-  async getOrder(@odata.result result: any): Promise<Order> {
-    const { currency, asset } = result;
-    const _id = new ObjectID(result._id);
-    const db = await connect();
-    const { user, pass } = await db.collection(collectionName).findOne({ _id });
-    return await new Promise<Order>(resolve => {
-      exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
-        resolve(orders.length ? orders[0] : undefined);
-      });
-    });
-  }
+  // @odata.GET("Order")
+  // async getOrder(@odata.result result: any): Promise<Order> {
+  //   const { currency, asset } = result;
+  //   const _id = new ObjectID(result._id);
+  //   const db = await connect();
+  //   const { user, pass } = await db.collection(collectionName).findOne({ _id });
+  //   return await new Promise<Order>(resolve => {
+  //     exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
+  //       resolve(orders.length ? orders[0] : undefined);
+  //     });
+  //   });
+  // }
 
   @odata.GET("Expert")
   async getExpert(@odata.result result: any, @odata.query query: ODataQuery): Promise<Expert> {

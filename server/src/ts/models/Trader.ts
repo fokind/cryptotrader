@@ -38,8 +38,8 @@ export class Trader {
   @Edm.EntityType(Edm.ForwardRef(() => Order))
   public Orders: Order[]
 
-  @Edm.EntityType(Edm.ForwardRef(() => Order))
-  public Order: Order
+  @Edm.ComplexType(Edm.ForwardRef(() => Order))
+  public Order: Order // не нашел возможности пользоваться асинхронными свойствами
 
   // TODO разобраться как использовать
   // @Edm.Function
