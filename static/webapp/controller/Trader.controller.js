@@ -30,7 +30,7 @@ sap.ui.define([
 		onRefreshPress: function() {
 			var oModel = this.getView().getModel("data");
 			var sPath = this.getView().getElementBinding("data").getPath();
-			var oOperation = oModel.bindContext(sPath + "/Expert/Crypto.update(...)");
+			var oOperation = oModel.bindContext(sPath + "/Crypto.update(...)");
 			oOperation.execute().then(function() {
 				oModel.refresh(); // заменить на обновление только связанных элементов
 			}.bind(this));

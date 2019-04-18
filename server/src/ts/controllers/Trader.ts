@@ -18,6 +18,8 @@ export class TraderController extends ODataController {
   async get(@odata.query query: ODataQuery): Promise<Trader[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
+    // TODO комплексные объекты необходимо хранить не в базе данных, а в памяти
+    // в списочном виде такие объекты можно не возвращать
     if (typeof mongodbQuery.query._id == "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
     let result = typeof mongodbQuery.limit == "number" && mongodbQuery.limit === 0 ? [] : await db.collection(collectionName)
       .find(mongodbQuery.query)
@@ -53,11 +55,41 @@ export class TraderController extends ODataController {
     projection.pass = 1;
 
     const trader = new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
-    trader.Order = await new Promise<Order>(resolve => {
+    await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
+      // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
       exchange.getOrders(trader, (err, orders: any[]) => {
-        resolve(orders.length ? orders[0] : undefined);
+        trader.hasOrders = !!orders.length;
+        if (orders.length) {
+          trader.Order = new Order(orders[0]);
+        } else {
+          delete trader.Order;
+        }
+        resolve();
       });
     });
+
+    await new Promise(resolve => {
+      exchange.getTicker(trader, (err, ticker) => {
+        trader.Ticker = new Ticker(ticker);
+        trader.isOrderInSpread = trader.hasOrders
+          && trader.Order.price <= ticker.ask
+          && trader.Order.price >= ticker.bid;
+        resolve();
+      });
+    });
+
+    await new Promise(resolve => {
+      exchange.getPortfolio(trader, (err, portfolio: Portfolio[]) => {
+        const balance = portfolio.find(e => e.currency === trader.currency);
+        const balanceAsset = portfolio.find(e => e.currency === trader.asset);
+        trader.Balance = new Balance({
+          available: balance ? balance.available : 0,
+          availableAsset: balanceAsset ? balanceAsset.available : 0
+        });
+        resolve();
+      });
+    });
+
     return trader;
   }
 
@@ -85,63 +117,6 @@ export class TraderController extends ODataController {
     try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
   }
-
-  @odata.GET("Ticker")
-  async getTicker(@odata.result result: any): Promise<Ticker> {
-    const { currency, asset } = result;
-    return await new Promise<Ticker>(resolve => {
-      exchange.getTicker({
-        currency,
-        asset
-      }, (err, ticker) => {
-        resolve(new Ticker(ticker));
-      });
-    });
-  }
-
-  @odata.GET("Balance")
-  async getBalance(@odata.result result: any): Promise<Balance> {
-    const { currency, asset } = result;
-    const _id = new ObjectID(result._id);
-    const db = await connect();
-    const { user, pass } = await db.collection(collectionName).findOne({ _id });
-    return await new Promise<Balance>(resolve => {
-      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
-        const balance = portfolio.find(e => e.currency === currency);
-        const balanceAsset = portfolio.find(e => e.currency === asset);
-        resolve(new Balance({
-          available: balance ? balance.available : 0,
-          availableAsset: balanceAsset ? balanceAsset.available : 0
-        }));
-      });
-    });
-  }
-
-  @odata.GET("Orders")
-  async getOrders(@odata.result result: any): Promise<Order[]> {
-    const { currency, asset } = result;
-    const _id = new ObjectID(result._id);
-    const db = await connect();
-    const { user, pass } = await db.collection(collectionName).findOne({ _id });
-    return await new Promise<Order[]>(resolve => {
-      exchange.getOrders({ currency, asset, user, pass }, (err, orders: Order[]) => {
-        resolve(orders);
-      });
-    });
-  }
-
-  // @odata.GET("Order")
-  // async getOrder(@odata.result result: any): Promise<Order> {
-  //   const { currency, asset } = result;
-  //   const _id = new ObjectID(result._id);
-  //   const db = await connect();
-  //   const { user, pass } = await db.collection(collectionName).findOne({ _id });
-  //   return await new Promise<Order>(resolve => {
-  //     exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
-  //       resolve(orders.length ? orders[0] : undefined);
-  //     });
-  //   });
-  // }
 
   @odata.GET("Expert")
   async getExpert(@odata.result result: any, @odata.query query: ODataQuery): Promise<Expert> {
