@@ -114,23 +114,21 @@ export class Trader {
   }
 
   @Edm.Action
-  async start(@odata.result result: any): Promise<number> {
+  async start(@odata.result result: any): Promise<void> {
     const trader = this;
     trader.active = true;
     const db = await connect();
-    return await db.collection("trader")
-      .updateOne({ _id: trader._id }, { $set: { active: trader.active } })
-      .then(result => result.modifiedCount);
+    await db.collection("trader").updateOne({ _id: trader._id }, { $set: { active: true } });
+    TraderEngine.start(trader._id.toHexString(), 3000);
   }
 
   @Edm.Action
-  async stop(@odata.result result: any): Promise<number> {
+  async stop(@odata.result result: any): Promise<void> {
     const trader = this;
     trader.active = false;
     const db = await connect();
-    return await db.collection("trader")
-      .updateOne({ _id: trader._id }, { $set: { active: trader.active } })
-      .then(result => result.modifiedCount);
+    await db.collection("trader").updateOne({ _id: trader._id }, { $set: { active: false } });
+    TraderEngine.stop(trader._id.toHexString());
   }
 
   constructor(jsonData: any) {
