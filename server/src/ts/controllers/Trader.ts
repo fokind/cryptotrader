@@ -100,9 +100,9 @@ export class TraderController extends ODataController {
 
     const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
     trader.canBuy = !trader.hasOrders && trader.Balance.available > 0;
-    trader.toBuy = trader.canBuy && expert.advice === 1;
+    trader.toBuy = expert.advice === 1;
     trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0; 
-    trader.toSell = trader.canSell && expert.advice === -1;
+    trader.toSell = expert.advice === -1;
 
     return trader;
   }
