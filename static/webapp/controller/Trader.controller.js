@@ -36,6 +36,55 @@ sap.ui.define([
 			}.bind(this));
 		},
 
+		onStartPress: function() {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+			var oOperation = oModel.bindContext(sPath + "/Crypto.start(...)");
+			oOperation.execute().then(function() {
+				oModel.refresh(); // заменить на обновление только связанных элементов
+			}.bind(this));
+		},
+
+		onStopPress: function() {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+			var oOperation = oModel.bindContext(sPath + "/Crypto.stop(...)");
+			oOperation.execute().then(function() {
+				oModel.refresh(); // заменить на обновление только связанных элементов
+			}.bind(this));
+		},
+
+		onCancelPress: function() {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+			var oOperation = oModel.bindContext(sPath + "/Crypto.cancel(...)");
+			oOperation.execute().then(function() {
+				oModel.refresh(); // заменить на обновление только связанных элементов
+			}.bind(this));
+		},
+
+		onBuyPress: function(oEvent) {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+			var oOperation = oModel.bindContext(sPath + "/Crypto.buy(...)");
+			oOperation.execute().then(function() {
+				oModel.refresh(); // заменить на обновление только связанных элементов
+			}.bind(this));
+		},
+
+		onSellPress: function() {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+			var oOperation = oModel.bindContext(sPath + "/Crypto.sell(...)");
+			oOperation.execute().then(function() {
+				oModel.refresh(); // заменить на обновление только связанных элементов
+			}.bind(this));
+		},
+
+		formatterEmphasized: function(sValue) {
+			console.log(typeof sValue, sValue);
+		},
+
 		onNavBack: function() {
 			window.history.go(-1);
 		}

@@ -65,18 +65,43 @@ function getOrders(options, callback) {
 //   );
 // };
 
-// function deleteOrder({ auth, body }, callback) {
-//   // удаляет все ордеры
-//   request.delete({
-//     baseUrl: BASE_URL,
-//     url: 'order',
-//     auth,
-//     json: true,
-//     body,
-//   }, (err, res) => {
-//     callback(err, res);
-//   });
-// };
+function deleteOrders({ user, pass, asset, currency }, callback) {
+  // удаляет все ордеры, относящиеся к символу
+  request.delete({
+    baseUrl: BASE_URL,
+    url: 'order',
+    auth: {
+      user,
+      pass
+    },
+    body: {
+      symbol: asset + currency
+    },
+    json: true,
+  }, (err, res) => {
+    callback(err, res);
+  });
+};
+
+function buy({ user, pass, asset, currency, quantity, price }, callback) {
+  request.post({
+    baseUrl: BASE_URL,
+    url: 'order',
+    auth: {
+      user,
+      pass
+    },
+    json: true,
+    body: {
+      symbol:  asset + currency,
+      side: 'buy',
+      quantity,
+      price,
+    }
+  }, (err, res) => {
+    callback(err, res);
+  });
+};
 
 // function createOrder(options, callback) {
 //   var { auth, body } = options;
@@ -116,15 +141,19 @@ function getOrders(options, callback) {
 //   });
 // };
 
-// function getSymbol(symbol, callback) {
-//   request.get({
-//     baseUrl: BASE_URL,
-//     url: 'public/symbol/' + symbol
-//   }, (err1, res1, body1) => {
-//     if (err1) callback(err1);
-//     callback(null, JSON.parse(body1));
-//   });
-// };
+function getSymbol({ currency, asset }, callback) {
+  request.get({
+    baseUrl: BASE_URL,
+    url: 'public/symbol/' + asset + currency
+  }, (err, res, body) => {
+    if (err) callback(err);
+    var { quantityIncrement, takeLiquidityRate } = JSON.parse(body);
+    callback(null, {
+      quantityIncrement: +quantityIncrement,
+      takeLiquidityRate: +takeLiquidityRate
+    });
+  });
+};
 
 // function getSymbols(callback) {
 //   request.get({
@@ -171,11 +200,12 @@ function getPortfolio({ user, pass }, callback) {
 module.exports = {
   // getActiveOrders,
   getOrders,
-  // deleteOrder,
+  buy,
+  deleteOrders,
   // createOrder,
   // getCandles,
   // getSymbols,
-  // getSymbol,
+  getSymbol,
   getTicker,
   getPortfolio,
 };

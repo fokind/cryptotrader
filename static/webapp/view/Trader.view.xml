@@ -100,7 +100,7 @@
 							</form:FormElement>
 							<form:FormElement label="In spread">
 								<form:fields>
-									<Text text="{data>isOrderInSpread}"/>
+									<Text text="{data>inSpread}"/>
 								</form:fields>
 							</form:FormElement>
 						</form:formElements>
@@ -125,5 +125,15 @@
 				</form:formContainers>
 			</form:Form>
 		</content>
+		<footer>
+			<Toolbar>
+				<Button icon="sap-icon://media-play" text="Start" enabled="{= !${data>active}}" press=".onStartPress"/>
+				<Button icon="sap-icon://media-pause" text="Stop" enabled="{= !!${data>active}}" press=".onStopPress"/>
+				<ToolbarSpacer/>
+				<Button text="Cancel" type="{= ${data>toCancel} === 'Да' ? 'Emphasized' : 'Default'}" enabled="{= !!${data>canCancel}}" press=".onCancelPress"/>
+				<Button text="Buy" type="{= ${data>toBuy} === 'Да' ? 'Emphasized' : 'Default'}" enabled="{= !!${data>canBuy}}" press=".onBuyPress"/>
+				<Button text="Sell" type="{= ${data>toSell} === 'Да' ? 'Emphasized' : 'Default'}"  enabled="{= !!${data>canSell}}" press=".onSellPress"/>
+			</Toolbar>
+		</footer>
 	</Page>
 </mvc:View>
