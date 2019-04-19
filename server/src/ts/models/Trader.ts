@@ -5,6 +5,8 @@ import { Balance } from "./Balance";
 import { Expert } from "./Expert";
 import { Order } from "./Order";
 import connect from "../connect";
+import { TraderEngine } from "../engine/Trader";
+const exchange = require('../../../exchange'); // заменить на TS
 
 export class Trader {
   @Edm.Key
@@ -24,11 +26,35 @@ export class Trader {
   @Edm.String
   public asset: string
 
+  @Edm.Double
+  public buyQuantity: number
+
+  @Edm.Boolean
+  public active: boolean
+
   @Edm.Boolean
   public hasOrders: boolean
 
   @Edm.Boolean
-  public isOrderInSpread: boolean
+  public inSpread: boolean
+
+  @Edm.Boolean
+  public toCancel: boolean
+
+  @Edm.Boolean
+  public toSell: boolean
+
+  @Edm.Boolean
+  public toBuy: boolean
+
+  @Edm.Boolean
+  public canCancel: boolean
+
+  @Edm.Boolean
+  public canSell: boolean
+
+  @Edm.Boolean
+  public canBuy: boolean
 
   @Edm.String
   public expertId: ObjectID
@@ -66,11 +92,45 @@ export class Trader {
   }
 
   @Edm.Action
-  async start(@odata.result result: any): Promise<void> {
+  async buy(@odata.result result: any): Promise<void> {
+    return TraderEngine.buy(this);
   }
 
   @Edm.Action
-  async stop(@odata.result result: any): Promise<void> {
+  async sell(@odata.result result: any): Promise<void> {
+    return TraderEngine.sell(this);
+  }
+
+  @Edm.Action
+  async cancel(@odata.result result: any): Promise<void> {
+    const { _id } = this;
+    const db = await connect();
+    const trader = new Trader(await db.collection("trader").findOne({ _id }));
+    return new Promise(resolve => {
+      exchange.deleteOrders(trader, (err, res) => {
+        resolve(res);
+      });
+    });
+  }
+
+  @Edm.Action
+  async start(@odata.result result: any): Promise<number> {
+    const trader = this;
+    trader.active = true;
+    const db = await connect();
+    return await db.collection("trader")
+      .updateOne({ _id: trader._id }, { $set: { active: trader.active } })
+      .then(result => result.modifiedCount);
+  }
+
+  @Edm.Action
+  async stop(@odata.result result: any): Promise<number> {
+    const trader = this;
+    trader.active = false;
+    const db = await connect();
+    return await db.collection("trader")
+      .updateOne({ _id: trader._id }, { $set: { active: trader.active } })
+      .then(result => result.modifiedCount);
   }
 
   constructor(jsonData: any) {
@@ -93,4 +153,8 @@ export class Trader {
 эксперт считывает и хранит только необходимый набор для получения сигнала
 при актуализации данных с экспертом сравнивается момент последнего обновления, если не совпал, то обновляется
 в активном режиме и эксперт и маркет и все остальные работают самостоятельно, в нужные моменты синхронизируются
+
+состояние должно влиять на кнопки
+купить или продать можно только если есть достаточная сумма баланса
+отменить можно только если ордер в принципе есть
 */

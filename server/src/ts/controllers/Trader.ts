@@ -71,9 +71,11 @@ export class TraderController extends ODataController {
     await new Promise(resolve => {
       exchange.getTicker(trader, (err, ticker) => {
         trader.Ticker = new Ticker(ticker);
-        trader.isOrderInSpread = trader.hasOrders
+        trader.inSpread = trader.hasOrders
           && trader.Order.price <= ticker.ask
           && trader.Order.price >= ticker.bid;
+        trader.canCancel = !!trader.hasOrders;
+        trader.toCancel = trader.canCancel && !trader.inSpread;
         resolve();
       });
     });
@@ -89,6 +91,18 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
+
+    const decimals = 6;
+    trader.buyQuantity = +((Math.floor((trader.Balance.available / trader.Ticker.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));
+    // console.log(trader.buyQuantity);
+    // num = 19.66752
+    // f = num.toFixed(3).slice(0,-1)
+
+    const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    trader.canBuy = !trader.hasOrders && trader.Balance.available > 0;
+    trader.toBuy = trader.canBuy && expert.advice === 1;
+    trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0; 
+    trader.toSell = trader.canSell && expert.advice === -1;
 
     return trader;
   }
@@ -108,6 +122,15 @@ export class TraderController extends ODataController {
       data._id = result.insertedId;
       return new Trader(data);
     });
+  }
+
+  @odata.PATCH
+  async patch(@odata.key key: string, @odata.body delta: any): Promise<number> {
+    const db = await connect();
+    if (delta._id) delete delta._id;
+    let keyId;
+    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
+    return await db.collection(collectionName).updateOne({_id: keyId}, {$set: delta}).then(result => result.modifiedCount);
   }
 
   @odata.DELETE
