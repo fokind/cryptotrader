@@ -98,14 +98,7 @@ export class Trader {
 
   @Edm.Action
   async sell(@odata.result result: any): Promise<void> {
-    const { _id } = this;
-    const db = await connect();
-    const trader = new Trader(await db.collection("trader").findOne({ _id }));
-    return new Promise(resolve => {
-      exchange.sell(trader, (err, res) => {
-        resolve(res);
-      });
-    });
+    return TraderEngine.sell(this);
   }
 
   @Edm.Action

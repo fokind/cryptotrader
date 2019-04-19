@@ -103,6 +103,26 @@ function buy({ user, pass, asset, currency, quantity, price }, callback) {
   });
 };
 
+function sell({ user, pass, asset, currency, quantity, price }, callback) {
+  request.post({
+    baseUrl: BASE_URL,
+    url: 'order',
+    auth: {
+      user,
+      pass
+    },
+    json: true,
+    body: {
+      symbol:  asset + currency,
+      side: 'sell',
+      quantity,
+      price,
+    }
+  }, (err, res) => {
+    callback(err, res);
+  });
+};
+
 // function createOrder(options, callback) {
 //   var { auth, body } = options;
 //   var { symbol, side, quantity, price } = body;
@@ -201,6 +221,7 @@ module.exports = {
   // getActiveOrders,
   getOrders,
   buy,
+  sell,
   deleteOrders,
   // createOrder,
   // getCandles,

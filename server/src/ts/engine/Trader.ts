@@ -67,6 +67,18 @@ export class TraderEngine {
     });
   }
 
+  static async sell({ currency, asset, user, pass }): Promise<void> {
+    const { ask: price } = await TraderEngine.getTicker({ currency, asset });
+    const { availableAsset: quantity } = await TraderEngine.getBalance({ currency, asset, user, pass });
+
+    // создать ордер
+    return new Promise<void>(resolve => {
+      exchange.sell({ user, pass, asset, currency, quantity, price }, (err, res) => {
+        resolve();
+      });
+    });
+  }
+
   constructor(jsonData: any) {
     // if (!TraderEngine.Traders) TraderEngine.Traders = [];
     Object.assign(this, jsonData);
