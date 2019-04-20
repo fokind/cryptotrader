@@ -69,7 +69,7 @@ export class BacktestController extends ODataController {
         Promise.all([candlesPromise, strategyPromise]).then((result) => {
           const candles = result[0];
           const strategyFunction = new Function(
-            'candles, tulind, callback',
+            'candles, tulind, console, callback',
             result[1].code,
           );
           
