@@ -68,9 +68,14 @@ export class TraderEngine {
     const db = await connect();
     const keyId = new ObjectID(key);
     const trader = new Trader(await db.collection("trader").findOne({ _id: keyId }));
+    const { currency, asset } = trader;
+    const accountId = new ObjectID(trader.accountId);
+    const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
+
     await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
       // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
-      exchange.getOrders(trader, (err, orders: any[]) => {
+      exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
         trader.hasOrders = !!orders.length;
         if (orders.length) {
           trader.Order = new Order(orders[0]);
@@ -82,7 +87,7 @@ export class TraderEngine {
     });
 
     await new Promise(resolve => {
-      exchange.getTicker(trader, (err, ticker) => {
+      exchange.getTicker({ currency, asset }, (err, ticker) => {
         trader.Ticker = new Ticker(ticker);
         trader.inSpread = trader.hasOrders
           && trader.Order.price <= ticker.ask
@@ -94,7 +99,7 @@ export class TraderEngine {
     });
 
     await new Promise(resolve => {
-      exchange.getPortfolio(trader, (err, portfolio: Portfolio[]) => {
+      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
         const balanceAsset = portfolio.find(e => e.currency === trader.asset);
         trader.Balance = new Balance({
@@ -120,6 +125,12 @@ export class TraderEngine {
   }
 
   static async update(key: string): Promise<void> {
+    const { expertId } = await TraderEngine.getTrader(key);
+    // чтобы не запрашивать собранного трейдера дважды
+    // TODO например, назвать TraderCore то, что хранится в базе данных
+
+    const expert = await TraderEngine.getExpert(expertId);
+    await expert.update(expert);
     const { canCancel, toCancel, canBuy, toBuy, canSell, toSell, asset, currency, accountId } = await TraderEngine.getTrader(key);
     const keyId = new ObjectID(accountId);
     const db = await connect();

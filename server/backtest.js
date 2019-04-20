@@ -7,7 +7,7 @@ function backtest({
   balanceInitial,
 }, callback) {
   async.map(candles,
-    (candle, cb) => strategyFunction(candles.slice(0, candles.indexOf(candle) + 1), tulind, cb),
+    (candle, cb) => strategyFunction(candles.slice(0, candles.indexOf(candle) + 1), tulind, console, cb),
     (err, advices) => {
       const backtestRows = [];
       for (let i = 0; i < candles.length; i++) { // TODO заменить на candles.map()
