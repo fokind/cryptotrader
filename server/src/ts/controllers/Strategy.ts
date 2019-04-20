@@ -39,21 +39,18 @@ export class StrategyController extends ODataController {
   @odata.GET
   public async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Strategy> {
     const db = await connect();
-    const mongodbQuery = createQuery(query);
+    const { projection } = createQuery(query);
     let keyId;
     try { keyId = new ObjectID(key); } catch (err) { keyId = key; }
-    return db.collection(collectionName).findOne({ _id: keyId }, {
-      fields: mongodbQuery.projection,
-    });
+    return db.collection(collectionName).findOne({ _id: keyId }, { projection });
   }
 
   @odata.POST
-  async post(@odata.body data: Strategy): Promise<Strategy> {
+  async post(@odata.body data: any): Promise<Strategy> {
     const db = await connect();
-    data.version = 0;
-    return await db.collection(collectionName).insertOne(data).then((result) => {
-      data._id = result.insertedId;
-      return data;
+    const { name = '', code = '', version = 0 } = data; // TODO сделать везде по этому образцу
+    return await db.collection(collectionName).insertOne({ name, code, version }).then((result) => {
+      return new Strategy({ _id: result.insertedId, name, code, version });
     });
   }
 
