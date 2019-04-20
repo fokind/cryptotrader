@@ -2,8 +2,7 @@ const request = require('request');
 
 const BASE_URL = 'https://api.hitbtc.com/api/2/';
 
-function getOrders(options, callback) {
-  var { currency, asset, user, pass } = options;
+function getOrders({ currency, asset, user, pass }, callback) {
   request.get(
     {
       baseUrl: BASE_URL,

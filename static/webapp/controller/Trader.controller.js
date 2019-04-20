@@ -17,7 +17,7 @@ sap.ui.define([
 				model: "data",
 				path: "/Traders(\'" + sId + "\')",
 				parameters: {
-					"$select": "expertId",
+					"$select": "expertId,accountId",
 					"$expand": "Expert($select=historyId,strategyId)"
 				}
 			});
@@ -79,10 +79,6 @@ sap.ui.define([
 			oOperation.execute().then(function() {
 				oModel.refresh(); // заменить на обновление только связанных элементов
 			}.bind(this));
-		},
-
-		formatterEmphasized: function(sValue) {
-			console.log(typeof sValue, sValue);
 		},
 
 		onNavBack: function() {
