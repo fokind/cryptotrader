@@ -41,7 +41,7 @@ export class TraderController extends ODataController {
   async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Trader> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
-    // console.log(query // на самом деле обращение должно происходить к движку
+    // на самом деле обращение должно происходить к движку
     // этот движок должен кэшировать сохраненный объект, ловить все изменения к нему
     // этот движок должен самостоятельно взаимодействовать с другими API
     // движок сам понимает в каком состоянии он находится и какие данные возвращать
@@ -51,13 +51,14 @@ export class TraderController extends ODataController {
     const { projection } = mongodbQuery;
     projection.currency = 1;
     projection.asset = 1;
-    projection.user = 1;
-    projection.pass = 1;
-
     const trader = new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
+    const { currency, asset } = trader;
+    const accountId = new ObjectID('5cb63796fa68380d4c1aa156');
+    const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
     await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
       // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
-      exchange.getOrders(trader, (err, orders: any[]) => {
+      exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
         trader.hasOrders = !!orders.length;
         if (orders.length) {
           trader.Order = new Order(orders[0]);
@@ -69,7 +70,7 @@ export class TraderController extends ODataController {
     });
 
     await new Promise(resolve => {
-      exchange.getTicker(trader, (err, ticker) => {
+      exchange.getTicker({ currency, asset }, (err, ticker) => {
         trader.Ticker = new Ticker(ticker);
         trader.inSpread = trader.hasOrders
           && trader.Order.price <= ticker.ask
@@ -81,7 +82,7 @@ export class TraderController extends ODataController {
     });
 
     await new Promise(resolve => {
-      exchange.getPortfolio(trader, (err, portfolio: Portfolio[]) => {
+      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
         const balanceAsset = portfolio.find(e => e.currency === trader.asset);
         trader.Balance = new Balance({
@@ -94,16 +95,11 @@ export class TraderController extends ODataController {
 
     const decimals = 6;
     trader.buyQuantity = +((Math.floor((trader.Balance.available / trader.Ticker.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));
-    // console.log(trader.buyQuantity);
-    // num = 19.66752
-    // f = num.toFixed(3).slice(0,-1)
-
     const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
     trader.canBuy = !trader.hasOrders && trader.Balance.available > 0;
     trader.toBuy = expert.advice === 1;
     trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0; 
     trader.toSell = expert.advice === -1;
-
     return trader;
   }
 
@@ -113,12 +109,12 @@ export class TraderController extends ODataController {
     // const trader = new Trader(data); // добавить проверку входящих данных на соответствие типам
     // никогда не доверяй внешним входящим данным!!!
     if (data.expertId) data.expertId = new ObjectID(data.expertId);
+    if (data.accountId) data.accountId = new ObjectID(data.accountId);
     const { historyId } = await db.collection("expert").findOne({ _id: data.expertId });
     const { currency, asset } = await db.collection("history").findOne({ _id: historyId });
     data.currency = currency;
     data.asset = asset;
-  
-    return db.collection(collectionName).insertOne(data).then((result) => {
+      return db.collection(collectionName).insertOne(data).then((result) => {
       data._id = result.insertedId;
       return new Trader(data);
     });
@@ -147,6 +143,16 @@ export class TraderController extends ODataController {
     const mongodbQuery = createQuery(query);
     const expertId = new ObjectID(result.expertId);
     return await db.collection("expert").findOne({ _id: expertId }, {
+      fields: mongodbQuery.projection
+    });
+  }
+
+  @odata.GET("Account")
+  async getAccount(@odata.result result: any, @odata.query query: ODataQuery): Promise<Expert> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    const accountId = new ObjectID(result.accountId);
+    return await db.collection("account").findOne({ _id: accountId }, {
       fields: mongodbQuery.projection
     });
   }

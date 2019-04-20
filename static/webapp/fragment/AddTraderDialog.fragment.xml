@@ -21,6 +21,11 @@
             selectedKey="{draft>/expertId}">
             <core:Item key="{data>_id}" text="{data>History/asset}{data>History/currency} {data>History/period}"/>
           </Select>
+          <Label text="Account"/>
+          <Select items="{data>/Accounts}"
+            selectedKey="{draft>/accountId}">
+            <core:Item key="{data>_id}" text="{data>name}"/>
+          </Select>
         </form:content>
       </form:SimpleForm>
     </content>

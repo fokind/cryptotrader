@@ -108,7 +108,7 @@ export class TraderEngine {
     const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
     trader.canBuy = !trader.hasOrders && trader.Balance.available > 0;
     trader.toBuy = expert.advice === 1;
-    trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0; 
+    trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0;
     trader.toSell = expert.advice === -1;
 
     return trader;
@@ -120,8 +120,11 @@ export class TraderEngine {
   }
 
   static async update(key: string): Promise<void> {
-    const { canCancel, toCancel, canBuy, toBuy, canSell, toSell, user, pass, asset, currency } = await TraderEngine.getTrader(key);
-    console.log('update', { canCancel, toCancel, canBuy, toBuy, canSell, toSell, user, pass, asset, currency });
+    const { canCancel, toCancel, canBuy, toBuy, canSell, toSell, asset, currency, accountId } = await TraderEngine.getTrader(key);
+    const keyId = new ObjectID(accountId);
+    const db = await connect();
+    const { value: user } = await db.collection("credential").findOne({ accountId: keyId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
     return new Promise<void>(resolve => {
       if (canCancel && toCancel) {
         exchange.deleteOrders({ user, pass, asset, currency }, (err, res) => {

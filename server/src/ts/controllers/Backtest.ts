@@ -68,14 +68,10 @@ export class BacktestController extends ODataController {
         const strategyPromise = db.collection("strategy").findOne({ _id: data.strategyId });
         Promise.all([candlesPromise, strategyPromise]).then((result) => {
           const candles = result[0];
-          // console.log(result[1].code);
-          // const strategyFunction = _eval(result[1].code);
-          // console.log(strategyFunction);
           const strategyFunction = new Function(
             'candles, tulind, callback',
             result[1].code,
           );
-          // data._id = result[2].insertedId;
           
           return new Promise(resolve => {
             backtest({

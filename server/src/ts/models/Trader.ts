@@ -6,6 +6,7 @@ import { Expert } from "./Expert";
 import { Order } from "./Order";
 import connect from "../connect";
 import { TraderEngine } from "../engine/Trader";
+import { Account } from "./Account";
 const exchange = require('../../../exchange'); // заменить на TS
 
 export class Trader {
@@ -13,12 +14,6 @@ export class Trader {
   @Edm.Computed
   @Edm.String
   public _id: ObjectID
-
-  @Edm.String
-  public user: string
-
-  @Edm.String
-  public pass: string
 
   @Edm.String
   public currency: string
@@ -59,6 +54,9 @@ export class Trader {
   @Edm.String
   public expertId: ObjectID
 
+  @Edm.String
+  public accountId: ObjectID
+
   @Edm.ComplexType(Edm.ForwardRef(() => Ticker))
   public Ticker: Ticker
 
@@ -68,13 +66,15 @@ export class Trader {
   @Edm.EntityType(Edm.ForwardRef(() => Expert))
   public Expert: Expert
 
+  @Edm.EntityType(Edm.ForwardRef(() => Account))
+  public Account: Account
+
   @Edm.ComplexType(Edm.ForwardRef(() => Order))
   public Order: Order // не нашел возможности пользоваться асинхронными свойствами
 
   // TODO разобраться как использовать
   // @Edm.Function
   // public async getTicker(@odata.result result: any): Promise<Ticker> {
-  //   console.log(result);
   //   return await new Promise<Ticker>(resolve => {
   //     exchange.getTicker(result, (err, ticker) => {
   //       resolve(new Ticker(ticker));
@@ -93,21 +93,36 @@ export class Trader {
 
   @Edm.Action
   async buy(@odata.result result: any): Promise<void> {
-    return TraderEngine.buy(this);
+    const { _id } = this;
+    const db = await connect();
+    const { currency, asset, accountId } = new Trader(await db.collection("trader").findOne({ _id }));
+    const keyId = new ObjectID(accountId);
+    const { value: user } = await db.collection("credential").findOne({ accountId: keyId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
+    return TraderEngine.buy({ currency, asset, user, pass });
   }
 
   @Edm.Action
   async sell(@odata.result result: any): Promise<void> {
-    return TraderEngine.sell(this);
+    const { _id } = this;
+    const db = await connect();
+    const { currency, asset, accountId } = new Trader(await db.collection("trader").findOne({ _id }));
+    const keyId = new ObjectID(accountId);
+    const { value: user } = await db.collection("credential").findOne({ accountId: keyId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
+    return TraderEngine.sell({ currency, asset, user, pass });
   }
 
   @Edm.Action
   async cancel(@odata.result result: any): Promise<void> {
     const { _id } = this;
     const db = await connect();
-    const trader = new Trader(await db.collection("trader").findOne({ _id }));
+    const { currency, asset, accountId } = new Trader(await db.collection("trader").findOne({ _id }));
+    const keyId = new ObjectID(accountId);
+    const { value: user } = await db.collection("credential").findOne({ accountId: keyId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
     return new Promise(resolve => {
-      exchange.deleteOrders(trader, (err, res) => {
+      exchange.deleteOrders({ user, pass, asset, currency }, (err, res) => {
         resolve(res);
       });
     });

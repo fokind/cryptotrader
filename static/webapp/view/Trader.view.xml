@@ -122,6 +122,18 @@
 							</form:FormElement>
 						</form:formElements>
 					</form:FormContainer>
+					<form:FormContainer>
+						<form:title>
+							<core:Title text="Account"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Account">
+								<form:fields>
+									<Text text="{data>Account/name}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
 				</form:formContainers>
 			</form:Form>
 		</content>

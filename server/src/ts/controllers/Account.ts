@@ -74,11 +74,7 @@ export class AccountController extends ODataController {
     const accountId = new ObjectID(result._id);
     // if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id); // зачем?
     // if (typeof mongodbQuery.query.accountId === "string") mongodbQuery.query.accountId = new ObjectID(mongodbQuery.query.accountId);
-
-    // console.log(accountId);
     // let creds = await db.collection("credential").find({ accountId: result._id }).toArray();
-    // console.log(creds);
-
 
     let credentials = typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0 ? [] : await db.collection("credential")
       .find({ $and: [{ accountId }, mongodbQuery.query] })
