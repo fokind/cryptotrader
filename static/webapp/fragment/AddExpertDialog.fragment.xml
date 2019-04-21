@@ -10,8 +10,8 @@
         layout="ResponsiveGridLayout">
         <form:content>
           <Label text="Market"/>
-          <Select items="{data>/Histories}"
-            selectedKey="{draft>/historyId}">
+          <Select items="{data>/MarketData}"
+            selectedKey="{draft>/marketDataId}">
             <core:Item key="{data>_id}" text="{data>asset}{data>currency} {data>period}"/>
           </Select>
           <Label text="Strategy"/>

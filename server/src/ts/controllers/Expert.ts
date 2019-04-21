@@ -3,7 +3,7 @@ import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Expert } from "../models/Expert";
 import { Strategy } from "../models/Strategy";
-import { History } from "../models/History";
+import { MarketData } from "../models/MarketData";
 import connect from "../connect";
 
 const collectionName = "expert";
@@ -47,7 +47,7 @@ export class ExpertController extends ODataController {
     const db = await connect();
     const expert = new Expert(data); // добавить проверку входящих данных на соответствие типам
     // никогда не доверяй внешним входящим данным!!!
-    expert.historyId = new ObjectID(data.historyId);
+    expert.marketDataId = new ObjectID(data.marketDataId);
     expert.strategyId = new ObjectID(data.strategyId);
   
     return await db.collection(collectionName).insertOne(expert).then((result) => {
@@ -64,12 +64,12 @@ export class ExpertController extends ODataController {
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
   }
 
-  @odata.GET("History")
-  async getHistory(@odata.result result: any, @odata.query query: ODataQuery): Promise<History> {
+  @odata.GET("MarketData")
+  async getMarketData(@odata.result result: any, @odata.query query: ODataQuery): Promise<MarketData> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
-    const historyId = new ObjectID(result.historyId);
-    return db.collection("history").findOne({ _id: historyId }, {
+    const marketDataId = new ObjectID(result.marketDataId);
+    return db.collection("marketData").findOne({ _id: marketDataId }, {
       fields: mongodbQuery.projection
     });
   }

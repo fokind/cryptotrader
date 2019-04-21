@@ -51,9 +51,9 @@ export class TraderController extends ODataController {
     const { projection } = mongodbQuery;
     projection.currency = 1;
     projection.asset = 1;
+    projection.accountId = 1;
     const trader = new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
-    const { currency, asset } = trader;
-    const accountId = new ObjectID('5cb63796fa68380d4c1aa156');
+    const { currency, asset, accountId } = trader;
     const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
     const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
     await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
@@ -110,8 +110,8 @@ export class TraderController extends ODataController {
     // никогда не доверяй внешним входящим данным!!!
     if (data.expertId) data.expertId = new ObjectID(data.expertId);
     if (data.accountId) data.accountId = new ObjectID(data.accountId);
-    const { historyId } = await db.collection("expert").findOne({ _id: data.expertId });
-    const { currency, asset } = await db.collection("history").findOne({ _id: historyId });
+    const { marketDataId } = await db.collection("expert").findOne({ _id: data.expertId });
+    const { currency, asset } = await db.collection("marketData").findOne({ _id: marketDataId });
     data.currency = currency;
     data.asset = asset;
       return db.collection(collectionName).insertOne(data).then((result) => {

@@ -18,7 +18,7 @@ sap.ui.define([
 				path: "/Traders(\'" + sId + "\')",
 				parameters: {
 					"$select": "expertId,accountId",
-					"$expand": "Expert($select=historyId,strategyId)"
+					"$expand": "Expert($select=marketDataId,strategyId)"
 				}
 			});
 		},

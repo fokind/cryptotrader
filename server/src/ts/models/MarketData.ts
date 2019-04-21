@@ -35,7 +35,7 @@ export class MarketData {
   public Candles: Candle[]
 
   @Edm.Action
-  async update(@odata.result result: any, @Edm.DateTimeOffset begin: Date, @Edm.DateTimeOffset end: Date): Promise<void> {
+  async update(@odata.result result: any, @Edm.DateTimeOffset begin?: Date, @Edm.DateTimeOffset end?: Date): Promise<number> {
     const marketData = this;
     const { currency, asset, period, _id } = this;
     const candles = (await MarketDataEngine
@@ -56,6 +56,9 @@ export class MarketData {
         return e;
       }));
       await db.collection("marketData").updateOne({ _id }, { $set: delta });
+      return 1;
+    } else {
+      return 0;
     }
   }
 

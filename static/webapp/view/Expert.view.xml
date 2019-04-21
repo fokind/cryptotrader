@@ -22,11 +22,11 @@
         layout="ResponsiveGridLayout">
         <form:content>
           <Label text="Currency"/>
-          <Text text="{data>History/currency}"/>
+          <Text text="{data>MarketData/currency}"/>
           <Label text="Asset"/>
-          <Text text="{data>History/asset}"/>
+          <Text text="{data>MarketData/asset}"/>
           <Label text="Period"/>
-          <Text text="{data>History/period}"/>
+          <Text text="{data>MarketData/period}"/>
           <Label text="Strategy"/>
           <Text text="{data>Strategy/name}"/>
           <Label text="Advice"/>

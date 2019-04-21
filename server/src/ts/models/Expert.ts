@@ -1,7 +1,7 @@
 import { ObjectID } from "mongodb";
 import { Edm, odata } from "odata-v4-server";
 import { Strategy } from "./Strategy";
-import { History } from "./History";
+import { MarketData } from "./MarketData";
 
 const tulind = require('tulind');
 import connect from "../connect";
@@ -34,7 +34,7 @@ export class Expert {
   public strategyId: ObjectID
 
   @Edm.String
-  public historyId: ObjectID
+  public marketDataId: ObjectID
 
   @Edm.DateTimeOffset
   public lastUpdate: Date;
@@ -42,25 +42,28 @@ export class Expert {
   @Edm.EntityType(Edm.ForwardRef(() => Strategy))
   Strategy: Strategy
 
-  @Edm.EntityType(Edm.ForwardRef(() => History))
-  History: History
+  @Edm.EntityType(Edm.ForwardRef(() => MarketData))
+  MarketData: MarketData
 
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
+    // запросить из кэша, кэш либо устаревает, либо обновляется в автоматическом режиме
+    // если кэш устарел, тогда проделать обновление
+    
     const expert = this;
-    const { historyId, _id, strategyId, lastUpdate } = this;
+    const { marketDataId, _id, strategyId, lastUpdate } = this;
 
     const db = await connect();
-    const history = new History(await db.collection("history").findOne({ _id: historyId }));
-    if (await history.update(history) || lastUpdate !== history.end) {
-      const candles = await db.collection("candle").find({ historyId }).toArray();
+    const marketData = new MarketData(await db.collection("marketData").findOne({ _id: marketDataId }));
+    if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
+      const candles = await db.collection("candle").find({ marketDataId }).toArray();
       const { code } = await db.collection("strategy").findOne({ _id: strategyId });
       const strategyFunction = new Function('candles, tulind, callback', code);
 
       return await new Promise<number>(resolve => {
         strategyFunction(candles, tulind, (err, advice) => {
-          if (lastUpdate !== history.end || expert.advice !== advice) {
-            const delta = { advice, lastUpdate: history.end };
+          if (lastUpdate !== marketData.end || expert.advice !== advice) {
+            const delta = { advice, lastUpdate: marketData.end };
             db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
               Object.assign(expert, delta);
               resolve(result.modifiedCount);
