@@ -1,0 +1,58 @@
+<mvc:View controllerName="fokin.crypto.controller.Candles"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:uxap="sap.uxap"
+	xmlns="sap.m">
+	<Page title="Candles" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table items="{
+					model: 'data',
+					path: 'Candles',
+					sorter: {
+						path: 'time',
+						descending: true
+					}
+				}"
+				inset="false"
+				growingThreshold="100"
+				growing="true">
+				<headerToolbar>
+					<Toolbar>
+						<content>
+							<Title text="Candles"/>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://refresh" press=".onRefreshPress"/>
+						</content>
+					</Toolbar>
+				</headerToolbar>
+				<columns>
+					<Column>
+						<Text text="Time"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Open"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="High"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Low"/>
+					</Column>
+					<Column hAlign="End">
+						<Text text="Close"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<ObjectIdentifier title="{data>time}"/>
+							<ObjectNumber number="{data>open}"/>
+							<ObjectNumber number="{data>high}"/>
+							<ObjectNumber number="{data>low}"/>
+							<ObjectNumber number="{data>close}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

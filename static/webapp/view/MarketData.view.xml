@@ -1,0 +1,48 @@
+<mvc:View controllerName="fokin.crypto.controller.MarketData"
+	xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true"
+	xmlns="sap.m">
+	<Page title="Market Data" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<Table id="marketData"
+				items="{data>/MarketData}"
+				growingThreshold="100"
+				itemPress=".onItemPress"
+				inset="false">
+				<headerToolbar>
+					<Toolbar>
+						<content>
+							<Title text="Market Data"/>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://add" press=".onAddPress"/>
+						</content>
+					</Toolbar>
+				</headerToolbar>
+				<columns>
+					<Column>
+						<Text text="Symbol"/>
+					</Column>
+					<Column>
+						<Text text="Period"/>
+					</Column>
+					<Column>
+						<Text text="Begin"/>
+					</Column>
+					<Column>
+						<Text text="End"/>
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Active">
+						<cells>
+							<Text text="{data>asset}{data>currency}"/>
+							<Text text="{data>period}"/>
+							<Text text="{data>begin}"/>
+							<Text text="{data>end}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>			
+		</content>
+	</Page>
+</mvc:View>

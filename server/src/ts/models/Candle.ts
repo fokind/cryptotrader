@@ -20,6 +20,9 @@ export class Candle {
   @Edm.String
   public historyId: ObjectID;
 
+  @Edm.String
+  public marketDataId: ObjectID;
+
   constructor(jsonData: any) {
     Object.assign(this, jsonData);
   }

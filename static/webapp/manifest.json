@@ -59,6 +59,16 @@
 					"target": "strategies"
 				},
 				{
+					"pattern": "marketData",
+					"name": "marketData",
+					"target": "marketData"
+				},
+				{
+					"pattern": "candles/{id}",
+					"name": "candles",
+					"target": "candles"
+				},
+				{
 					"pattern": "strategies",
 					"name": "strategies",
 					"target": "strategies"
@@ -115,30 +125,40 @@
 				}
 			],
 			"targets": {
+				"marketData": {
+					"viewId": "marketData",
+					"viewName": "MarketData",
+					"viewLevel": 2
+				},
+				"candles": {
+					"viewId": "candles",
+					"viewName": "Candles",
+					"viewLevel": 3
+				},
 				"strategies": {
 					"viewId": "strategies",
 					"viewName": "Strategies",
-					"viewLevel": 1
+					"viewLevel": 4
 				},
 				"strategy": {
 					"viewId": "strategy",
 					"viewName": "Strategy",
-					"viewLevel": 2
+					"viewLevel": 5
 				},
 				"backtest": {
 					"viewId": "backtest",
 					"viewName": "Backtest",
-					"viewLevel": 3
+					"viewLevel": 6
 				},
 				"experts": {
 					"viewId": "experts",
 					"viewName": "Experts",
-					"viewLevel": 5
+					"viewLevel": 7
 				},
 				"expert": {
 					"viewId": "expert",
 					"viewName": "Expert",
-					"viewLevel": 6
+					"viewLevel": 8
 				},
 				"histories": {
 					"viewId": "histories",
