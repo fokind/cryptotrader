@@ -14,12 +14,12 @@
               model: 'data',
               path: '/Experts',
               parameters: {
-                '$select': 'historyId',
-                '$expand': 'History'
+                '$select': 'marketDataId',
+                '$expand': 'MarketData'
               }
             }"
             selectedKey="{draft>/expertId}">
-            <core:Item key="{data>_id}" text="{data>History/asset}{data>History/currency} {data>History/period}"/>
+            <core:Item key="{data>_id}" text="{data>MarketData/asset}{data>MarketData/currency} {data>MarketData/period}"/>
           </Select>
           <Label text="Account"/>
           <Select items="{data>/Accounts}"

@@ -59,6 +59,16 @@
 					"target": "strategies"
 				},
 				{
+					"pattern": "marketData",
+					"name": "marketData",
+					"target": "marketData"
+				},
+				{
+					"pattern": "candles/{id}",
+					"name": "candles",
+					"target": "candles"
+				},
+				{
 					"pattern": "strategies",
 					"name": "strategies",
 					"target": "strategies"
@@ -84,16 +94,6 @@
 					"target": "expert"
 				},
 				{
-					"pattern": "histories",
-					"name": "histories",
-					"target": "histories"
-				},
-				{
-					"pattern": "history/{id}",
-					"name": "history",
-					"target": "history"
-				},
-				{
 					"pattern": "traders",
 					"name": "traders",
 					"target": "traders"
@@ -115,60 +115,60 @@
 				}
 			],
 			"targets": {
+				"marketData": {
+					"viewId": "marketData",
+					"viewName": "MarketData",
+					"viewLevel": 2
+				},
+				"candles": {
+					"viewId": "candles",
+					"viewName": "Candles",
+					"viewLevel": 3
+				},
 				"strategies": {
 					"viewId": "strategies",
 					"viewName": "Strategies",
-					"viewLevel": 1
+					"viewLevel": 4
 				},
 				"strategy": {
 					"viewId": "strategy",
 					"viewName": "Strategy",
-					"viewLevel": 2
+					"viewLevel": 5
 				},
 				"backtest": {
 					"viewId": "backtest",
 					"viewName": "Backtest",
-					"viewLevel": 3
+					"viewLevel": 6
 				},
 				"experts": {
 					"viewId": "experts",
 					"viewName": "Experts",
-					"viewLevel": 5
+					"viewLevel": 7
 				},
 				"expert": {
 					"viewId": "expert",
 					"viewName": "Expert",
-					"viewLevel": 6
-				},
-				"histories": {
-					"viewId": "histories",
-					"viewName": "Histories",
-					"viewLevel": 6
-				},
-				"history": {
-					"viewId": "history",
-					"viewName": "History",
-					"viewLevel": 7
+					"viewLevel": 8
 				},
 				"traders": {
 					"viewId": "traders",
 					"viewName": "Traders",
-					"viewLevel": 8
+					"viewLevel": 9
 				},
 				"trader": {
 					"viewId": "trader",
 					"viewName": "Trader",
-					"viewLevel": 9
+					"viewLevel": 10
 				},
 				"accounts": {
 					"viewId": "accounts",
 					"viewName": "Accounts",
-					"viewLevel": 10
+					"viewLevel": 11
 				},
 				"account": {
 					"viewId": "account",
 					"viewName": "Account",
-					"viewLevel": 11
+					"viewLevel": 12
 				}
 			}
 		}

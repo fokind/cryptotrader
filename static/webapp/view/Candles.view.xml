@@ -1,8 +1,8 @@
-<mvc:View controllerName="fokin.crypto.controller.History"
+<mvc:View controllerName="fokin.crypto.controller.Candles"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:uxap="sap.uxap"
 	xmlns="sap.m">
-	<Page title="History" showNavButton="true" navButtonPress=".onNavBack">
+	<Page title="Candles" showNavButton="true" navButtonPress=".onNavBack">
 		<content>
 			<Table items="{
 					model: 'data',

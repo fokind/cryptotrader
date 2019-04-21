@@ -45,7 +45,7 @@ sap.ui.define([
 			oDialog.close();
 
 			oView.byId("experts").getBinding("items").create({
-				historyId: oDraft.historyId,
+				marketDataId: oDraft.marketDataId,
 				strategyId: oDraft.strategyId,
 			}).created().then(function() {
 				oView.getBindingContext("data").refresh();

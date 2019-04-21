@@ -1,24 +1,25 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
-	"sap/ui/core/Fragment"
-], function (Controller, UIComponent, Fragment) {
+	"sap/ui/core/Fragment",
+	"sap/ui/model/json/JSONModel"
+], function (Controller, UIComponent, Fragment, JSONModel) {
 	"use strict";
 
-	return Controller.extend("fokin.crypto.controller.Histories", {
+	return Controller.extend("fokin.crypto.controller.MarketData", {
 		onInit: function() {
-			UIComponent.getRouterFor(this).getRoute("histories").attachPatternMatched(this.onRouteMatched, this);
+			UIComponent.getRouterFor(this).getRoute("marketData").attachPatternMatched(this.onRouteMatched, this);
 		},
 
 		onRouteMatched: function(oEvent) {
-			this.getView().getModel("view").setProperty("/tab", "histories");
-			this.getView().getModel("view").setProperty("/HistoryDraft", {
-				name: "",
+			this.getView().getModel("view").setProperty("/tab", "marketData");
+			this.getView().getModel("view").setProperty("/Draft", {
+				name: "", // UNDONE
 			});
 		},
 
 		onItemPress: function(oEvent) {
-			UIComponent.getRouterFor(this).navTo("history", {
+			UIComponent.getRouterFor(this).navTo("candles", {
 				id: oEvent.getParameters().listItem.getBindingContext("data").getProperty("_id")
 			});
 		},
@@ -28,10 +29,11 @@ sap.ui.define([
 			if (!this.byId("dialog")) {
 				Fragment.load({
 					id: oView.getId(),
-					name: "fokin.crypto.fragment.AddHistoryDialog",
+					name: "fokin.crypto.fragment.AddMarketDataDialog",
 					controller: this
 				}).then(function (oDialog) {
 					oView.addDependent(oDialog);
+					oDialog.setModel(new JSONModel(), "draft");
 					oDialog.open();
 				});
 			} else {
@@ -40,11 +42,12 @@ sap.ui.define([
 		},
 
 		onOkPress: function() {
-			this.byId("dialog").close();
+			var oDialog = this.byId("dialog");
 			var oView = this.getView();
-			var oDraft = oView.getModel("view").getProperty("/HistoryDraft");
+			var oDraft = oDialog.getModel("draft").getData();
+			oDialog.close();
 
-			oView.byId("histories").getBinding("items").create({
+			oView.byId("marketData").getBinding("items").create({
 				currency: oDraft.currency,
 				asset: oDraft.asset,
 				period: oDraft.period,

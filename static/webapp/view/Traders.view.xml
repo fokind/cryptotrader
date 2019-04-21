@@ -10,7 +10,7 @@
 					path: '/Traders',
 					parameters: {
 						'$select': 'expertId',
-						'$expand': 'Expert($select=historyId)'
+						'$expand': 'Expert($select=marketDataId)'
 					}
 				}"
 				growingThreshold="100"
@@ -36,8 +36,8 @@
 				<items>
 					<ColumnListItem type="Active">
 						<cells>
-							<Text text="{data>Expert/History/asset}{data>Expert/History/currency}"/>
-							<Text text="{data>Expert/History/period}"/>
+							<Text text="{data>Expert/MarketData/asset}{data>Expert/MarketData/currency}"/>
+							<Text text="{data>Expert/MarketData/period}"/>
 						</cells>
 					</ColumnListItem>
 				</items>

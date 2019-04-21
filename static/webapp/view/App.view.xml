@@ -8,9 +8,9 @@
 			<tnt:ToolHeader>
 				<IconTabHeader select=".onTabSelect" selectedKey="{view>/tab}">
 					<items>
+						<IconTabFilter key="marketData" text="Market Data"/>
 						<IconTabFilter key="strategies" text="Strategy"/>
 						<IconTabFilter key="experts" text="Expert"/>
-						<IconTabFilter key="histories" text="History"/>
 						<IconTabFilter key="traders" text="Trader"/>
 						<IconTabFilter key="accounts" text="Account"/>
 					</items>

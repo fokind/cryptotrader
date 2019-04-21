@@ -4,18 +4,18 @@ sap.ui.define([
 ], function (Controller, UIComponent) {
 	"use strict";
 
-	return Controller.extend("fokin.crypto.controller.History", {
+	return Controller.extend("fokin.crypto.controller.Candles", {
 		onInit: function() {
-			UIComponent.getRouterFor(this).getRoute("history").attachPatternMatched(this.onRouteMatched, this);
+			UIComponent.getRouterFor(this).getRoute("candles").attachPatternMatched(this.onRouteMatched, this);
 		},
 
 		onRouteMatched: function(oEvent) {
-			this.getView().getModel("view").setProperty("/tab", "histories");
+			this.getView().getModel("view").setProperty("/tab", "marketData");
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
 			this.getView().bindElement({
 				model: "data",
-				path: `/Histories(\'${sId}\')`
+				path: `/MarketData(\'${sId}\')`
 			});
 		},
 

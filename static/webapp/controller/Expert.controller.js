@@ -17,7 +17,7 @@ sap.ui.define([
 				model: "data",
 				path: "/Experts(\'" + sId + "\')",
 				parameters: {
-					"$select": "historyId,strategyId"
+					"$select": "marketDataId,strategyId"
 				}
 			});
 		},

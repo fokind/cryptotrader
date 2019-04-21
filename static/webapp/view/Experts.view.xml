@@ -9,7 +9,7 @@
 					model: 'data',
 					path: '/Experts',
 					parameters: {
-						'$select': 'historyId,strategyId'
+						'$select': 'marketDataId,strategyId'
 					}
 				}"
 				growingThreshold="100"
@@ -44,8 +44,8 @@
 				<items>
 					<ColumnListItem type="Active">
 						<cells>
-							<Text text="{data>History/asset}{data>History/currency}"/>
-							<Text text="{data>History/period}"/>
+							<Text text="{data>MarketData/asset}{data>MarketData/currency}"/>
+							<Text text="{data>MarketData/period}"/>
 							<Text text="{data>Strategy/name}"/>
 							<Text text="{data>lastUpdate}"/>
 							<Text text="{= ${data>advice} === '1' ? 'Buy' : (${data>advice} === '-1' ? 'Sell' : 'Hold')}"/>

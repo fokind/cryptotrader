@@ -1,21 +1,18 @@
-<mvc:View controllerName="fokin.crypto.controller.Histories"
+<mvc:View controllerName="fokin.crypto.controller.MarketData"
 	xmlns:mvc="sap.ui.core.mvc"
 	displayBlock="true"
 	xmlns="sap.m">
-	<Page title="Histories" showNavButton="true" navButtonPress=".onNavBack">
+	<Page title="Market Data" showNavButton="true" navButtonPress=".onNavBack">
 		<content>
-			<Table id="histories"
-				items="{
-					model: 'data',
-					path: '/Histories'
-				}"
+			<Table id="marketData"
+				items="{data>/MarketData}"
 				growingThreshold="100"
 				itemPress=".onItemPress"
 				inset="false">
 				<headerToolbar>
 					<Toolbar>
 						<content>
-							<Title text="Histories"/>
+							<Title text="Market Data"/>
 							<ToolbarSpacer/>
 							<Button icon="sap-icon://add" press=".onAddPress"/>
 						</content>

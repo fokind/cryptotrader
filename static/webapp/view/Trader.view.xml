@@ -51,7 +51,7 @@
 							</form:FormElement>
 							<form:FormElement label="Period">
 								<form:fields>
-									<Text text="{data>Expert/History/period}"/>
+									<Text text="{data>Expert/MarketData/period}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="Strategy">
