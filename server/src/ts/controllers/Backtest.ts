@@ -5,7 +5,8 @@ import { Backtest } from "../models/Backtest";
 import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
 import { backtest } from "../../../backtest";
-import { MarketDataEngine } from "../engine/Market";
+import moment = require("moment");
+import { Candle } from "../models/Candle";
 
 const collectionName = "backtest";
 
@@ -46,10 +47,10 @@ export class BacktestController extends ODataController {
 
   @odata.POST
   async insert(@odata.body data: any): Promise<Backtest> {
-    const { marketDataId, begin, end } = data;
+    const { marketDataId, begin, end } = data; // FIXME аналогичный косяк с часовым поясом, исправляется в UI
     const db = await connect();
     const keyMarketDataId = new ObjectID(marketDataId);
-    const { currency, asset, period } = await db.collection("marketData").findOne({_id: keyMarketDataId});
+    const { currency, asset, period } = await db.collection("marketData").findOne({ _id: keyMarketDataId });
     data.currency = currency;
     data.asset = asset;
     data.period = period;
@@ -59,17 +60,28 @@ export class BacktestController extends ODataController {
       connect().then(db => {
         // срабатывает только если в body содержится хотя бы одно значение
         // const candlesPromise = db.collection("candle").find({}).sort({ time: 1 }).toArray(); // TODO выбирать нужные свечи
-        const candlesPromise = MarketDataEngine.getCandles({
-          currency,
-          asset,
-          period,
-          begin,
-          end,
-        });
+        // const q = {
+        //   marketDataId: keyMarketDataId,
+        //   time: {
+        //     $gte: new Date(begin).toISOString(),
+        //     $lte: new Date(end).toISOString()
+        //   }
+        // };
+        // console.log(q);
+        // UNDONE Это не работает, необходимо перевести на string вместо даты
+        // неизвестно как это будет себя проявлять с другими базами данных
+
+        const q = {
+          marketDataId: keyMarketDataId
+        };
+
+        const candlesPromise = <Promise<Array<Candle>>>db.collection("candle").find(q).toArray();
 
         const strategyPromise = db.collection("strategy").findOne({ _id: data.strategyId });
         Promise.all([candlesPromise, strategyPromise]).then((result) => {
-          const candles = result[0];
+          const candles = result[0].filter(e => moment(e.time).isBetween(begin, end, 'd', "[]"));
+          console.log(candles.length);
+
           const strategyFunction = new Function(
             'candles, tulind, console, callback',
             result[1].code,
@@ -84,9 +96,9 @@ export class BacktestController extends ODataController {
               resolve(backtestRows);
             });
           });
-        }).then((backtestRows) => {
-          const backtestRowFirst = <BacktestRow>backtestRows[0];
-          const backtestRowLast = <BacktestRow>backtestRows[(<Array<any>>backtestRows).length - 1];
+        }).then((backtestRows: BacktestRow[]) => {
+          const backtestRowFirst = backtestRows[0];
+          const backtestRowLast = backtestRows[backtestRows.length - 1];
 
           // data.timeFrom = backtestRowFirst.time;
           // data.timeTo = backtestRowLast.time;
@@ -96,13 +108,14 @@ export class BacktestController extends ODataController {
           data.priceChange = (data.priceFinal / data.priceInitial - 1) * 100;
           data.balanceFinal = backtestRowLast.balanceEstimate;
           data.balanceChange = (data.balanceFinal / data.balanceInitial - 1) * 100;
+          data.duration = moment(backtestRowLast.time).add(1, 'm').diff(backtestRowFirst.time, 'd');
           
           // data.balanceEstimate = backtestRowLast.balanceEstimate;
           // data.result = data.balanceEstimate / data.balanceInitial;
 
           db.collection(collectionName).insertOne(data).then(result => {
             // присвоить backtestId
-            return db.collection("backtestRow").insertMany((<Array<any>>backtestRows).map(e => {
+            return db.collection("backtestRow").insertMany(backtestRows.map(e => {
               e.backtestId = result.insertedId;
               return e;
             }));

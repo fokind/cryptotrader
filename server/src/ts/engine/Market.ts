@@ -1,8 +1,6 @@
 import * as request from 'request';
 import * as moment from 'moment';
 
-const API_KEY = "2a08a2e9a69cb0c3f23076e2eafb7cfbe84f4b8904524a3f4cfdeeb3f6800532"; // UNDONE
-
 export class MarketDataEngine {
   static async getCandles(options: {
     currency: string,
@@ -49,9 +47,6 @@ export class MarketDataEngine {
         const options = {
           baseUrl: 'https://min-api.cryptocompare.com/data/',
           url,
-          headers: {
-            authorization: `Apikey ${API_KEY}`
-          },
           qs,
         };
         // console.log(options);
