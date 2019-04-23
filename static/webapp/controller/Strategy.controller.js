@@ -1,8 +1,9 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
-	"sap/ui/core/Fragment"
-], function (Controller, UIComponent, Fragment) {
+	"sap/ui/core/Fragment",
+	"sap/ui/model/json/JSONModel"
+], function (Controller, UIComponent, Fragment, JSONModel) {
 	"use strict";
 
 	return Controller.extend("fokin.crypto.controller.Strategy", {
@@ -15,52 +16,36 @@ sap.ui.define([
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
 			this.getView().bindElement("data>/Strategies(\'" + sId + "\')");
-			// добавить draft
-
-			this.getView().getModel("view").setProperty("/Draft", {
-				currency: "BTC",
-				asset: "XRP",
-				period: "M1",
-				length: 1000,
-				balanceInitial: 100
-			});
 		},
 
 		onAddBacktestPress: function() {
 			var oView = this.getView();
-
-			// create dialog lazily
-			if (!this.byId("createBacktestDialog")) {
-				// load asynchronous XML fragment
+			if (!this.byId("addBacktestDialog")) {
 				Fragment.load({
 					id: oView.getId(),
-					name: "fokin.crypto.fragment.CreateBacktestDialog",
+					name: "fokin.crypto.fragment.AddBacktestDialog",
 					controller: this
 				}).then(function (oDialog) {
-					// connect dialog to the root view of this component (models, lifecycle)
 					oView.addDependent(oDialog);
-
-					// подписаться на нажатие кнопки
+					oDialog.setModel(new JSONModel({
+						balanceInitial: 1
+					}), "draft");
 					oDialog.open();
 				});
 			} else {
-				this.byId("createBacktestDialog").open();
-			}			
+				this.byId("addBacktestDialog").open();
+			}		
 		},
 
-		onCreateBacktestDialogOk: function() {
-			this.byId("createBacktestDialog").close();
-			// добавить индикатор загрузки, пока данные и модель обновляются
-
-			// дождаться сохранения
+		onAddBacktestDialogOk: function() {
+			var oDialog = this.byId("addBacktestDialog");
 			var oView = this.getView();
-			var oDraft = oView.getModel("view").getProperty("/Draft");
-			
+			var oDraft = oDialog.getModel("draft").getData();
+			oDialog.close();
+
 			oView.byId("backtests").getBinding("items").create({
 				balanceInitial: oDraft.balanceInitial,
-				currency: oDraft.currency,
-				asset: oDraft.asset,
-				period: oDraft.period,
+				marketDataId: oDraft.marketDataId,
 				begin: oDraft.begin,
 				end: oDraft.end,
 			}).created().then(function() {
@@ -68,8 +53,8 @@ sap.ui.define([
 			});
 		},
 
-		onCreateBacktestDialogCancel: function() {
-			this.byId("createBacktestDialog").close();
+		onAddBacktestDialogCancel: function() {
+			this.byId("addBacktestDialog").close();
 		},
 
 		onBacktestPress: function(oEvent) {

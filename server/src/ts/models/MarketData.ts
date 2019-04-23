@@ -27,6 +27,12 @@ export class MarketData {
   @Edm.DateTimeOffset
   public end: Date;
 
+  // @Edm.Boolean
+  // public live: boolean; // если да, то end игнорируется и всегда равен текущему значению
+  // необходим для поддержания данных в актуальном состоянии
+  // есть ограничения источников, данные предоставляются за ограниченный период,
+  // если разрыв будет велик, то продолжить поддерживать будет нельзя
+
   // @Edm.String
   // public accountId: ObjectID
   // здесь требуется только API_KEY
@@ -36,31 +42,106 @@ export class MarketData {
 
   @Edm.Action
   async update(@odata.result result: any, @Edm.DateTimeOffset begin?: Date, @Edm.DateTimeOffset end?: Date): Promise<number> {
-    const marketData = this;
-    const { currency, asset, period, _id } = this;
-    const candles = (await MarketDataEngine
-      .getCandles({ currency, asset, period, begin, end })).map(e => new Candle(e));
+    // если указано начало, то найти наименьшее из текущего начала и параметра
+    // если указан конец, то найти наибольшее из текущего и параметра
+    const db = await connect();
+    const marketData = await db.collection("marketData").findOne({ _id: this._id });
+    const { currency, asset, period, _id, begin: marketDataBegin, end: marketDataEnd } = marketData;
+
+    // первый более свежие, если дата конца позднее текущей
+    // берем разницу между параметром и текущей последней датой
+
+    // если текущих нет
+    // если периоды не указаны, и текущих нет, тогда без параметров, и всё
+
+    // если текущие есть, тогда только до конца
+    // если текущие есть и конец до текущего, тогда не делаем
+
+    // если указано начало, а текущие начало после, тогда с начала до начала
+    // если указано начало, а текущие начало до, тогда ничего не делать
     
-    const diff = marketData.end ? candles.filter(e => moment(e.time).isAfter(marketData.end)) : candles;
+    let diff: Candle[];
+
+    if (!marketDataEnd) {
+      diff = (await MarketDataEngine
+        .getCandles({ currency, asset, period, begin, end })).map(e => new Candle(e));
+    } else {
+      diff = (moment(end).isAfter(marketDataEnd) ? (await MarketDataEngine
+        .getCandles({ currency, asset, period, begin: moment(marketDataEnd).add(1, 'm').toDate(), end })) : []).concat(
+          moment(begin).isBefore(marketDataBegin) ? (await MarketDataEngine
+            .getCandles({ currency, asset, period, begin, end: moment(marketDataBegin).add(-1, 'm').toDate() })) : []
+          ).map(e => new Candle(e));
+    }
+    
+    // разбить на два раза, если начало и конец выходит за рамки
+    // 
+    // если текущих нет, то просто обновить
+    // если текущие есть, то есть и то и другое
+    // если новое начало меньше текущего
+    // const diff = marketData.end ? candles.filter(e => moment(e.time).isAfter(marketData.end)) : candles;
     const { length } = diff;
+    // console.log(3, length);
+
     if (length) {
-      const delta: any = {
-        end: candles[candles.length - 1].time
-      };
-      if (!begin) {
-        delta.begin = candles[0].time;
+      let deltaBegin = marketDataBegin ? marketDataBegin : diff[0].time;
+      let deltaEnd = marketDataEnd ? marketDataEnd : diff[0].time;
+      for (let i = 0; i < length; i++) {
+        if (moment(diff[i].time).isBefore(deltaBegin)) deltaBegin = diff[i].time;
+        if (moment(diff[i].time).isAfter(deltaEnd)) deltaEnd = diff[i].time;
       }
+      const delta: { begin?: Date, end?: Date } = {};
+
+      if (deltaBegin !== marketDataBegin) delta.begin = deltaBegin;
+      if (deltaEnd !== marketDataEnd) delta.end = deltaEnd;
+
       const db = await connect();
       await db.collection("candle").insertMany(diff.map(e => {
         e.marketDataId = _id;
         return e;
       }));
+
       await db.collection("marketData").updateOne({ _id }, { $set: delta });
+
       return 1;
     } else {
       return 0;
     }
   }
+
+  // @Edm.Action
+  // async import(@odata.result result: any, @Edm.DateTimeOffset begin?: Date, @Edm.DateTimeOffset end?: Date): Promise<number> {
+  //   const db = await connect();
+  //   const marketData = await db.collection("marketData").findOne({ _id: this._id });
+  //   const { currency, asset, period, _id, begin: currentBegin, end: currentEnd } = marketData;
+  //   // TODO запросить только то, что нужно
+  //   // дополнить более ранними записями
+  //   // дополнить более поздними записями
+  //   if (moment(begin).isBefore(currentBegin)) {
+      
+  //   }
+  //   const candles = (await MarketDataEngine
+  //     .getCandles({ currency, asset, period, begin, end })).map(e => new Candle(e));
+    
+  //   const diff = marketData.end ? candles.filter(e => moment(e.time).isAfter(marketData.end)) : candles;
+  //   const { length } = diff;
+  //   if (length) {
+  //     const delta: any = {
+  //       end: candles[candles.length - 1].time
+  //     };
+  //     if (!begin) {
+  //       delta.begin = candles[0].time;
+  //     }
+  //     const db = await connect();
+  //     await db.collection("candle").insertMany(diff.map(e => {
+  //       e.marketDataId = _id;
+  //       return e;
+  //     }));
+  //     await db.collection("marketData").updateOne({ _id }, { $set: delta });
+  //     return 1;
+  //   } else {
+  //     return 0;
+  //   }
+  // }
 
   constructor(jsonData: any) {
     Object.assign(this, jsonData);
