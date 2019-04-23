@@ -29,6 +29,9 @@ export class MarketData {
 
   // @Edm.Boolean
   // public live: boolean; // если да, то end игнорируется и всегда равен текущему значению
+  // необходим для поддержания данных в актуальном состоянии
+  // есть ограничения источников, данные предоставляются за ограниченный период,
+  // если разрыв будет велик, то продолжить поддерживать будет нельзя
 
   // @Edm.String
   // public accountId: ObjectID
@@ -80,16 +83,25 @@ export class MarketData {
     // console.log(3, length);
 
     if (length) {
-      const delta: any = {
-        end: marketDataEnd ? moment.max(moment(marketDataEnd), moment(diff[diff.length - 1].time)).toDate() : diff[diff.length - 1].time,
-        begin: marketDataBegin ? moment.min(moment(marketDataBegin), moment(diff[0].time)).toDate() : diff[0].time
+      let deltaBegin = marketDataBegin ? marketDataBegin : diff[0].time;
+      let deltaEnd = marketDataEnd ? marketDataEnd : diff[0].time;
+      for (let i = 0; i < length; i++) {
+        if (moment(diff[i].time).isBefore(deltaBegin)) deltaBegin = diff[i].time;
+        if (moment(diff[i].time).isAfter(deltaEnd)) deltaEnd = diff[i].time;
       }
+      const delta: { begin?: Date, end?: Date } = {};
+
+      if (deltaBegin !== marketDataBegin) delta.begin = deltaBegin;
+      if (deltaEnd !== marketDataEnd) delta.end = deltaEnd;
+
       const db = await connect();
       await db.collection("candle").insertMany(diff.map(e => {
         e.marketDataId = _id;
         return e;
       }));
+
       await db.collection("marketData").updateOne({ _id }, { $set: delta });
+
       return 1;
     } else {
       return 0;
