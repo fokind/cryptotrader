@@ -9,17 +9,15 @@
         editable="true"
         layout="ResponsiveGridLayout">
         <form:content>
-          <Label text="Expert"/>
-          <Select items="{
-              model: 'data',
-              path: '/Experts',
-              parameters: {
-                '$select': 'marketDataId',
-                '$expand': 'MarketData'
-              }
-            }"
-            selectedKey="{draft>/expertId}">
-            <core:Item key="{data>_id}" text="{data>MarketData/asset}{data>MarketData/currency} {data>MarketData/period}"/>
+          <Label text="Market Data"/>
+          <Select items="{data>/MarketData}"
+            selectedKey="{draft>/marketDataId}">
+            <core:Item key="{data>_id}" text="{data>asset}{data>currency} {data>period}"/>
+          </Select>
+          <Label text="Strategy"/>
+          <Select items="{data>/Strategies}"
+            selectedKey="{draft>/strategyId}">
+            <core:Item key="{data>_id}" text="{data>name}"/>
           </Select>
           <Label text="Account"/>
           <Select items="{data>/Accounts}"

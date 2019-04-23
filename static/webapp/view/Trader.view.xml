@@ -61,7 +61,7 @@
 							</form:FormElement>
 							<form:FormElement label="Advice">
 								<form:fields>
-									<Text text="{= ${data>Expert/advice} === '1' ? 'Buy' : (${data>Expert/advice} === '-1' ? 'Sell' : '')}"/>
+									<Text text="{= ${data>Expert/advice} === '1' ? 'Buy' : (${data>Expert/advice} === '-1' ? 'Sell' : 'Hold')}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="Last update">
