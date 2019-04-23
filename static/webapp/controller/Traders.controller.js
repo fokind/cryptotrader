@@ -45,8 +45,11 @@ sap.ui.define([
 			oDialog.close();
 
 			oView.byId("traders").getBinding("items").create({
-				expertId: oDraft.expertId,
 				accountId: oDraft.accountId,
+				Expert: {
+					marketDataId: oDraft.marketDataId,
+					strategyId: oDraft.strategyId
+				}
 			}).created().then(function() {
 				oView.getBindingContext("data").refresh();
 			});

@@ -84,16 +84,6 @@
 					"target": "backtest"
 				},
 				{
-					"pattern": "experts",
-					"name": "experts",
-					"target": "experts"
-				},
-				{
-					"pattern": "expert/{id}",
-					"name": "expert",
-					"target": "expert"
-				},
-				{
 					"pattern": "traders",
 					"name": "traders",
 					"target": "traders"
@@ -139,16 +129,6 @@
 					"viewId": "backtest",
 					"viewName": "Backtest",
 					"viewLevel": 6
-				},
-				"experts": {
-					"viewId": "experts",
-					"viewName": "Experts",
-					"viewLevel": 7
-				},
-				"expert": {
-					"viewId": "expert",
-					"viewName": "Expert",
-					"viewLevel": 8
 				},
 				"traders": {
 					"viewId": "traders",

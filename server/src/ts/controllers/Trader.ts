@@ -106,15 +106,14 @@ export class TraderController extends ODataController {
   @odata.POST
   async post(@odata.body data: any): Promise<Trader> {
     const db = await connect();
-    // const trader = new Trader(data); // добавить проверку входящих данных на соответствие типам
-    // никогда не доверяй внешним входящим данным!!!
-    if (data.expertId) data.expertId = new ObjectID(data.expertId);
+    const marketDataId = new ObjectID(data.Expert.marketDataId);
+    const strategyId = new ObjectID(data.Expert.strategyId);
+    data.expertId = (await db.collection("expert").insertOne({ marketDataId, strategyId })).insertedId;
     if (data.accountId) data.accountId = new ObjectID(data.accountId);
-    const { marketDataId } = await db.collection("expert").findOne({ _id: data.expertId });
     const { currency, asset } = await db.collection("marketData").findOne({ _id: marketDataId });
     data.currency = currency;
     data.asset = asset;
-      return db.collection(collectionName).insertOne(data).then((result) => {
+    return db.collection(collectionName).insertOne(data).then((result) => {
       data._id = result.insertedId;
       return new Trader(data);
     });
