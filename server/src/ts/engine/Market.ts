@@ -29,22 +29,31 @@ export class MarketDataEngine {
       if (end) qs.toTs = moment(end).unix();
       if (begin) qs.limit = moment(end).diff(moment(begin), period === 'M1' ? 'm' : (period === 'H1' ? 'h' : 'd'));
 
-      request.get({
-        baseUrl: 'https://min-api.cryptocompare.com/data/',
-        url,
-        headers: {
-          authorization: `Apikey ${API_KEY}`
-        },
-        qs,
-      }, (err, res, body) => {
-        resolve(JSON.parse(body).Data.slice(0, -1).map(e => (<any>{
-          time: moment.unix(e.time).toDate(),
-          open: +e.open,
-          high: +e.high,
-          low: +e.low,
-          close: +e.close,
-        })));
-      });      
+      if (qs.limit) {
+        request.get({
+          baseUrl: 'https://min-api.cryptocompare.com/data/',
+          url,
+          headers: {
+            authorization: `Apikey ${API_KEY}`
+          },
+          qs,
+        }, (err, res, body) => {
+          if (err) console.log(err);
+          try {
+            resolve(JSON.parse(body).Data.slice(0, -1).map(e => (<any>{
+              time: moment.unix(e.time).toDate(),
+              open: +e.open,
+              high: +e.high,
+              low: +e.low,
+              close: +e.close,
+            })));
+          } catch (error) {
+            console.log(JSON.parse(body));
+          }
+        });
+      } else {
+        resolve([]);
+      }
     });
   };
 }
