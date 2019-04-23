@@ -5,9 +5,7 @@ import { Backtest } from "../models/Backtest";
 import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
 import { backtest } from "../../../backtest";
-import * as market from "../../../market";
-import * as moment from "moment";
-// import _eval from "eval";
+import { MarketDataEngine } from "../engine/Market";
 
 const collectionName = "backtest";
 
@@ -47,24 +45,28 @@ export class BacktestController extends ODataController {
   }
 
   @odata.POST
-  insert(@odata.body data: Backtest): Promise<Backtest> {
-    data.duration = moment.duration(moment(data.end).diff(data.begin)).days() + 1;
+  async insert(@odata.body data: any): Promise<Backtest> {
+    const { marketDataId, begin, end } = data;
+    const db = await connect();
+    const keyMarketDataId = new ObjectID(marketDataId);
+    const { currency, asset, period } = await db.collection("marketData").findOne({_id: keyMarketDataId});
+    data.currency = currency;
+    data.asset = asset;
+    data.period = period;
+    // FIXME если выходит за пределы, то ошибка!
     // FIXME выполнить явное преобразование data в backtest с валидацией, т.к. в data значения числовые
     return new Promise<Backtest>(resolve => {
       connect().then(db => {
         // срабатывает только если в body содержится хотя бы одно значение
         // const candlesPromise = db.collection("candle").find({}).sort({ time: 1 }).toArray(); // TODO выбирать нужные свечи
-        const candlesPromise = new Promise(resolve => {
-          market.getCandles({
-            currency: data.currency,
-            asset: data.asset,
-            period: data.period,
-            end: data.end,
-            duration: data.duration, // TODO здесь задается период с по какое число получить статистику, а этот параметр упразднить
-          }, (err, candles) => {
-            resolve(candles);
-          });
+        const candlesPromise = MarketDataEngine.getCandles({
+          currency,
+          asset,
+          period,
+          begin,
+          end,
         });
+
         const strategyPromise = db.collection("strategy").findOne({ _id: data.strategyId });
         Promise.all([candlesPromise, strategyPromise]).then((result) => {
           const candles = result[0];
@@ -88,6 +90,7 @@ export class BacktestController extends ODataController {
 
           // data.timeFrom = backtestRowFirst.time;
           // data.timeTo = backtestRowLast.time;
+
           data.priceInitial = backtestRowFirst.close;
           data.priceFinal = backtestRowLast.close;
           data.priceChange = (data.priceFinal / data.priceInitial - 1) * 100;

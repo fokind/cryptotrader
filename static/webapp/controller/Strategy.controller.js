@@ -38,7 +38,7 @@ sap.ui.define([
 		},
 
 		onAddBacktestDialogOk: function() {
-			var oDialog = this.byId("dialog");
+			var oDialog = this.byId("addBacktestDialog");
 			var oView = this.getView();
 			var oDraft = oDialog.getModel("draft").getData();
 			oDialog.close();

@@ -8,8 +8,8 @@ export class MarketDataEngine {
     currency: string,
     asset: string,
     period: string,
-    begin: Date,
-    end: Date
+    begin?: Date,
+    end?: Date
   }): Promise<{
     time: number,
     open: number,

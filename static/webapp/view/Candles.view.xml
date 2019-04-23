@@ -20,6 +20,7 @@
 						<content>
 							<Title text="Candles"/>
 							<ToolbarSpacer/>
+							<Button icon="sap-icon://download" press=".onImportCandlesPress"/>
 							<Button icon="sap-icon://refresh" press=".onRefreshPress"/>
 						</content>
 					</Toolbar>

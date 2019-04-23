@@ -13,7 +13,6 @@
 					</l:SplitPane>
 					<l:SplitPane>
 						<Table id="backtests"
-							height="100%"
 							items="{
 								model: 'data',
 								path: 'Backtests'
