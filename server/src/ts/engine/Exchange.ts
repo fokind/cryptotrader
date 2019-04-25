@@ -64,7 +64,7 @@ export class ExchangeEngine {
             user,
             pass
           }
-        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
             orders = JSON.parse(body).map(e => new Order({
@@ -154,7 +154,7 @@ export class ExchangeEngine {
         callback => request.get({
           baseUrl: BASE_URL,
           url: 'public/symbol/' + asset + currency
-        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
             const { quantityIncrement, takeLiquidityRate } = JSON.parse(body);
@@ -183,7 +183,7 @@ export class ExchangeEngine {
         callback => request.get({
           baseUrl: BASE_URL,
           url: 'public/ticker/' + asset + currency
-        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
             const { ask, bid } = JSON.parse(body);
@@ -216,7 +216,7 @@ export class ExchangeEngine {
             user,
             pass,
           }
-        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
             portfolio = JSON.parse(body).filter(e => e.available !== "0").map(e => ({
