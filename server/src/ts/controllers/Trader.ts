@@ -68,7 +68,7 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
-
+console.log(1)
     await new Promise(resolve => {
       ExchangeEngine.getTicker({ currency, asset }).then(ticker => {
         trader.Ticker = new Ticker(ticker);
@@ -80,7 +80,7 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
-
+ console.log(2)
     await new Promise(resolve => {
       ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
@@ -92,6 +92,7 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
+    console.log(4)
 
     const decimals = 6;
     trader.buyQuantity = +((Math.floor((trader.Balance.available / trader.Ticker.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));

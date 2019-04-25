@@ -50,8 +50,11 @@ export class ExchangeEngine {
   }): Promise<Array<Order>> {
     const { currency, asset, user, pass } = options;
     return new Promise<Array<Order>>((resolve, reject) => {
-      request.get(
-        {
+      const TIMEOUT = 100;
+      let orders;
+      // TODO добавить счетчик, ограничивающий число попыток
+      async.doDuring(
+        callback => request.get({
           baseUrl: BASE_URL,
           url: 'order',
           qs: {
@@ -61,13 +64,10 @@ export class ExchangeEngine {
             user,
             pass
           }
-        },
-        (err, res) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            resolve(JSON.parse(res.body).map(e => new Order({
+        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        (statusCode, body, callback) => {
+          if (statusCode === 200) {
+            orders = JSON.parse(body).map(e => new Order({
               _id: e.clientOrderId,
               // createdAt: e.createdAt,
               // currency,
@@ -75,9 +75,12 @@ export class ExchangeEngine {
               // side: e.side,
               // quantity: +e.quantity,
               price: +(e.type === 'stopMarket' ? e.stopPrice : e.price),
-            })));
-          }
-        }
+            }));
+
+            callback(undefined, false);
+          } else setTimeout(() => { callback(undefined, true); }, TIMEOUT);
+        },
+        err => !err ? resolve(orders) : reject(err)
       );
     });
   };
@@ -144,21 +147,25 @@ export class ExchangeEngine {
   }): Promise<{ quantityIncrement: number, takeLiquidityRate: number }> {
     const { currency, asset } = options;
     return new Promise<{ quantityIncrement: number, takeLiquidityRate: number }>((resolve, reject) => {
-      request.get({
-        baseUrl: BASE_URL,
-        url: 'public/symbol/' + asset + currency
-      }, (err, res) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            var { quantityIncrement, takeLiquidityRate } = JSON.parse(res.body);
-            resolve({
+      const TIMEOUT = 100;
+      let symbol;
+      // TODO добавить счетчик, ограничивающий число попыток
+      async.doDuring(
+        callback => request.get({
+          baseUrl: BASE_URL,
+          url: 'public/symbol/' + asset + currency
+        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        (statusCode, body, callback) => {
+          if (statusCode === 200) {
+            const { quantityIncrement, takeLiquidityRate } = JSON.parse(body);
+            symbol = {
               quantityIncrement: +quantityIncrement,
               takeLiquidityRate: +takeLiquidityRate
-            });
-          }
-        }
+            };
+            callback(undefined, false);
+          } else setTimeout(() => { callback(undefined, true); }, TIMEOUT);
+        },
+        err => !err ? resolve(symbol) : reject(err)
       );
     });
   };
@@ -169,21 +176,25 @@ export class ExchangeEngine {
   }): Promise<{ ask: number, bid: number }> {
     const { currency, asset } = options;
     return new Promise<{ ask: number, bid: number }>((resolve, reject) => {
-      request.get({
-        baseUrl: BASE_URL,
-        url: 'public/ticker/' + asset + currency
-      }, (err, res) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            var { ask, bid } = JSON.parse(res.body);
-            resolve({
+      const TIMEOUT = 100;
+      let ticker;
+      // TODO добавить счетчик, ограничивающий число попыток
+      async.doDuring(
+        callback => request.get({
+          baseUrl: BASE_URL,
+          url: 'public/ticker/' + asset + currency
+        }, (err, res, body) => callback(undefined, res.statusCode, body)),
+        (statusCode, body, callback) => {
+          if (statusCode === 200) {
+            const { ask, bid } = JSON.parse(body);
+            ticker = {
               ask: +ask,
               bid: +bid
-            });
-          }
-        }
+            };
+            callback(undefined, false);
+          } else setTimeout(() => { callback(undefined, true); }, TIMEOUT);
+        },
+        err => !err ? resolve(ticker) : reject(err)
       );
     });
   };
