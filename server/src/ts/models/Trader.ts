@@ -7,7 +7,7 @@ import { Order } from "./Order";
 import connect from "../connect";
 import { TraderEngine } from "../engine/Trader";
 import { Account } from "./Account";
-const exchange = require('../../../exchange'); // заменить на TS
+import { ExchangeEngine } from "../engine/Exchange";
 
 export class Trader {
   @Edm.Key
@@ -122,7 +122,7 @@ export class Trader {
     const { value: user } = await db.collection("credential").findOne({ accountId: keyId, name: "API" });
     const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
     return new Promise(resolve => {
-      exchange.deleteOrders({ user, pass, asset, currency }, (err, res) => {
+      ExchangeEngine.cancelOrders({ user, pass, asset, currency }).then(res => {
         resolve(res);
       });
     });

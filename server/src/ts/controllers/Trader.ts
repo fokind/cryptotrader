@@ -8,7 +8,7 @@ import { Balance } from "../models/Balance";
 import { Portfolio } from "../models/Portfolio";
 import { Order } from "../models/Order";
 import connect from "../connect";
-const exchange = require('../../../exchange'); // заменить на TS
+import { ExchangeEngine } from "../engine/Exchange";
 
 const collectionName = "trader";
 
@@ -58,7 +58,7 @@ export class TraderController extends ODataController {
     const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
     await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
       // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
-      exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
+      ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
         trader.hasOrders = !!orders.length;
         if (orders.length) {
           trader.Order = new Order(orders[0]);
@@ -68,9 +68,9 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
-
+console.log(1)
     await new Promise(resolve => {
-      exchange.getTicker({ currency, asset }, (err, ticker) => {
+      ExchangeEngine.getTicker({ currency, asset }).then(ticker => {
         trader.Ticker = new Ticker(ticker);
         trader.inSpread = trader.hasOrders
           && trader.Order.price <= ticker.ask
@@ -80,9 +80,9 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
-
+ console.log(2)
     await new Promise(resolve => {
-      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
+      ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
         const balanceAsset = portfolio.find(e => e.currency === trader.asset);
         trader.Balance = new Balance({
@@ -92,6 +92,7 @@ export class TraderController extends ODataController {
         resolve();
       });
     });
+    console.log(4)
 
     const decimals = 6;
     trader.buyQuantity = +((Math.floor((trader.Balance.available / trader.Ticker.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));

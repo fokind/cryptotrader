@@ -6,28 +6,24 @@ import { Balance } from "../models/Balance";
 import connect from "../connect";
 import { Expert } from "../models/Expert";
 import { Order } from "../models/Order";
-const exchange = require('../../../exchange'); // заменить на TS
+import { ExchangeEngine } from "./Exchange";
 
 export class TraderEngine {
   static async getSymbol({ currency, asset }): Promise<any> {
-    return new Promise<any>(resolve => {
-      exchange.getSymbol({ currency, asset }, (err, symbol) => {
-        resolve(symbol);
-      });
-    });
+    return ExchangeEngine.getSymbol({ currency, asset });
   };
 
   static async getTicker({ currency, asset }): Promise<Ticker> {
     return new Promise<Ticker>(resolve => {
-      exchange.getTicker({ currency, asset }, (err, ticker) => {
-        resolve(new Ticker(ticker));
+      ExchangeEngine.getTicker({ currency, asset }).then(({ ask, bid }) => {
+        resolve(new Ticker({ ask, bid, currency, asset }));
       });
     });
   };
 
   static async getBalance({ currency, asset, user, pass }): Promise<Balance> {
     return new Promise<Balance>(resolve => {
-      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
+      ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === currency);
         const balanceAsset = portfolio.find(e => e.currency === asset);
         resolve(new Balance({
@@ -43,25 +39,13 @@ export class TraderEngine {
     const { bid: price } = await TraderEngine.getTicker({ currency, asset });
     const { available } = await TraderEngine.getBalance({ currency, asset, user, pass });
     const quantity = +((Math.floor(available / quantityIncrement / price / (1 + takeLiquidityRate)) * quantityIncrement).toFixed(-Math.log10(quantityIncrement)));
-
-    // создать ордер
-    return new Promise<void>(resolve => {
-      exchange.buy({ user, pass, asset, currency, quantity, price }, (err, res) => {
-        resolve();
-      });
-    });
+    return ExchangeEngine.buy({ user, pass, asset, currency, quantity, price });
   }
 
   static async sell({ currency, asset, user, pass }): Promise<void> {
     const { ask: price } = await TraderEngine.getTicker({ currency, asset });
     const { availableAsset: quantity } = await TraderEngine.getBalance({ currency, asset, user, pass });
-
-    // создать ордер
-    return new Promise<void>(resolve => {
-      exchange.sell({ user, pass, asset, currency, quantity, price }, (err, res) => {
-        resolve();
-      });
-    });
+    return ExchangeEngine.sell({ user, pass, asset, currency, quantity, price });
   }
 
   static async getTrader(key: string): Promise<Trader> {
@@ -75,7 +59,7 @@ export class TraderEngine {
 
     await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
       // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
-      exchange.getOrders({ currency, asset, user, pass }, (err, orders: any[]) => {
+      ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
         trader.hasOrders = !!orders.length;
         if (orders.length) {
           trader.Order = new Order(orders[0]);
@@ -87,7 +71,7 @@ export class TraderEngine {
     });
 
     await new Promise(resolve => {
-      exchange.getTicker({ currency, asset }, (err, ticker) => {
+      ExchangeEngine.getTicker({ currency, asset }).then((ticker) => {
         trader.Ticker = new Ticker(ticker);
         trader.inSpread = trader.hasOrders
           && trader.Order.price <= ticker.ask
@@ -99,7 +83,7 @@ export class TraderEngine {
     });
 
     await new Promise(resolve => {
-      exchange.getPortfolio({ user, pass }, (err, portfolio: Portfolio[]) => {
+      ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
         const balanceAsset = portfolio.find(e => e.currency === trader.asset);
         trader.Balance = new Balance({
@@ -138,7 +122,7 @@ export class TraderEngine {
     const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
     return new Promise<void>(resolve => {
       if (canCancel && toCancel) {
-        exchange.deleteOrders({ user, pass, asset, currency }, (err, res) => {
+        ExchangeEngine.cancelOrders({ user, pass, asset, currency }).then(res => {
           resolve();
         });
       } else if (canBuy && toBuy) {
