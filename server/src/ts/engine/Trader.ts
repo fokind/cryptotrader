@@ -148,6 +148,9 @@ export class TraderEngine {
   };
 
   static stop(traderId: string) {
-    clearInterval(TraderEngine.intervals[traderId]);
+    if (TraderEngine.intervals) {
+      const interval = TraderEngine.intervals[traderId];
+      if (interval) clearInterval(interval);
+    }
   };
 }
