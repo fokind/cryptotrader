@@ -49,11 +49,14 @@ sap.ui.define([
 			var oDraft = oDialog.getModel("draft").getData();
 			oDialog.close();
 
-			oView.byId("traders").getBinding("items").create({
+			var oBinding = oView.byId("accounts").getBinding("items");
+			var oContext = oBinding.create({
 				name: oDraft.name,
 				Credentials: oDraft.Credentials
-			}).created().then(function() {
-				oView.getBindingContext("data").refresh();
+			});
+			
+			oContext.created().then(function() {
+				oBinding.refresh();
 			});
 		},
 

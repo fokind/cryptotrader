@@ -43,13 +43,16 @@ sap.ui.define([
 			var oDraft = oDialog.getModel("draft").getData();
 			oDialog.close();
 
-			oView.byId("backtests").getBinding("items").create({
+			var oBinding = oView.byId("backtests").getBinding("items");
+			var oContext = oBinding.create({
 				balanceInitial: oDraft.balanceInitial,
 				marketDataId: oDraft.marketDataId,
 				begin: oDraft.begin,
 				end: oDraft.end,
-			}).created().then(function() {
-				oView.getBindingContext("data").refresh();
+			});
+			
+			oContext.created().then(function() {
+				oBinding.refresh();
 			});
 		},
 

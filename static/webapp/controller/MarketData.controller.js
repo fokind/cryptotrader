@@ -47,12 +47,15 @@ sap.ui.define([
 			var oDraft = oDialog.getModel("draft").getData();
 			oDialog.close();
 
-			oView.byId("marketData").getBinding("items").create({
+			var oBinding = oView.byId("marketData").getBinding("items");
+			var oContext = oBinding.create({
 				currency: oDraft.currency,
 				asset: oDraft.asset,
 				period: oDraft.period,
-			}).created().then(function() {
-				oView.getBindingContext("data").refresh();
+			});
+			
+			oContext.created().then(function() {
+				oBinding.refresh();
 			});
 		},
 

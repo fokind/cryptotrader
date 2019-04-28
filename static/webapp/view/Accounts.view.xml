@@ -4,7 +4,7 @@
 	xmlns="sap.m">
 	<Page title="Accounts" showNavButton="true" navButtonPress=".onNavBack">
 		<content>
-			<Table id="traders"
+			<Table id="accounts"
 				items="{
 					model: 'data',
 					path: '/Accounts'
