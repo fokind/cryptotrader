@@ -43,10 +43,14 @@ sap.ui.define([
 			this.byId("createStrategyDialog").close();
 			var oView = this.getView();
 			var oDraft = oView.getModel("view").getProperty("/StrategyDraft");
-			oView.byId("strategies").getBinding("items").create({
+
+			var oBinding = oView.byId("strategies").getBinding("items");
+			var oContext = oBinding.create({
 				name: oDraft.name,
-			}).created().then(function() {
-				oView.getBindingContext("data").refresh();
+			});
+			
+			oContext.created().then(function() {
+				oBinding.refresh();
 			});
 		},
 

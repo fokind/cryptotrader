@@ -44,11 +44,14 @@ sap.ui.define([
 			var oDraft = oDialog.getModel("draft").getData();
 			oDialog.close();
 
-			oView.byId("experts").getBinding("items").create({
+			var oBinding = oView.byId("experts").getBinding("items");
+			var oContext = oBinding.create({
 				marketDataId: oDraft.marketDataId,
 				strategyId: oDraft.strategyId,
-			}).created().then(function() {
-				oView.getBindingContext("data").refresh();
+			});
+			
+			oContext.created().then(function() {
+				oBinding.refresh();
 			});
 		},
 
