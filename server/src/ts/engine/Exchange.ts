@@ -8,15 +8,15 @@ const exchanges = {
 };
 
 export enum SideEnum {
-  buy = "buy",
-  sell = "sell"
+  sell,
+  buy
 };
 
-export enum IntervalEnum {
-  "M1",
-  "H1",
-  "D1"
-};
+// export enum IntervalEnum {
+//   "M1",
+//   "H1",
+//   "D1"
+// };
 
 export interface IExchange {
   createOrder(options: {
@@ -139,7 +139,7 @@ export class ExchangeEngine {
     return exchanges.hitbtc.getPortfolio(options);
   };
 
-  static async getCandles(options: {
+  static async getCandles(exchange: string, options: {
     currency: string,
     asset: string,
     period: string,
@@ -152,6 +152,6 @@ export class ExchangeEngine {
     low: number,
     close: number
   }>> {
-    return exchanges.hitbtc.getCandles(options);
+    return exchanges[exchange].getCandles(options);
   };
 };

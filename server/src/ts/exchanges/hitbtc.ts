@@ -2,6 +2,7 @@ import * as request from 'request';
 import * as async from 'async';
 import { Order } from '../models/Order';
 import { SideEnum, IExchange, IMarketDataSource } from '../engine/Exchange';
+import moment = require('moment');
 
 const BASE_URL = 'https://api.hitbtc.com/api/2/';
 
@@ -27,7 +28,7 @@ export class Hitbtc implements IExchange, IMarketDataSource {
         json: true,
         body: {
           symbol:  asset + currency,
-          side,
+          side: side ? 'buy' : 'sell',
           quantity,
           price,
         }
@@ -116,31 +117,6 @@ export class Hitbtc implements IExchange, IMarketDataSource {
       );
     });
   };
-
-  // async buy(options: {
-  //   currency: string,
-  //   asset: string,
-  //   quantity: number,
-  //   price: number,
-  //   user: string,
-  //   pass: string
-  // }): Promise<void> {
-  //   const { user, pass, asset, currency, quantity, price } = options;
-  //   return createOrder({ user, pass, asset, currency, quantity, price, side: 'buy' });
-  // };
-
-  // async sell(options: {
-  //   currency: string,
-  //   asset: string,
-  //   quantity: number,
-  //   price: number,
-  //   user: string,
-  //   pass: string
-  // }): Promise<void> {
-  //   const { user, pass, asset, currency, quantity, price } = options;
-  //   // TODO проверить на количество знаков и наличие валюты
-  //   return createOrder({ user, pass, asset, currency, quantity, price, side: 'sell' });
-  // };
 
   async getSymbol(options: {
     currency: string,
@@ -236,7 +212,7 @@ export class Hitbtc implements IExchange, IMarketDataSource {
     currency: string,
     asset: string,
     period: string,
-    begin?: Date,
+    begin?: Date, // FIXME заменить на число или строку, чтобы исключить часовой пояс для даты
     end?: Date
   }): Promise<Array<{
     time: Date,
@@ -246,36 +222,47 @@ export class Hitbtc implements IExchange, IMarketDataSource {
     close: number
   }>> {
     const { currency, asset, period, begin, end } = options;
-    // TODO чтобы выгрузить за длительный период необходимо выполнить подряд несколько запросов
-    return new Promise<Array<{
-      time: Date,
-      open: number,
-      high: number,
-      low: number,
-      close: number
-    }>>((resolve, reject) => {
-      request.get({
-        baseUrl: BASE_URL,
-        url: `public/candles/${asset}${currency}`,
-        qs: {
-          // limit: 1000,
-          period,
-        },
-      }, (err, res) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            resolve(JSON.parse(res.body).map(e => ({
-              moment: e.timestamp, // UNDONE преобразовать в дату
+    const url = `public/candles/${asset}${currency}`;
+    const qs: any = {
+      period
+    };
+
+    if (begin) qs.from = moment(begin).toISOString();
+
+    let candles = [];
+    const MAX_LIMIT = 1000;
+    const TIMEOUT = 100;
+    let from = moment(begin);
+    let duration = begin ? moment(end).diff(begin, period === 'M1' ? 'm' : (period === 'H1' ? 'h' : 'd')) : MAX_LIMIT;
+
+    while (duration > 0) {
+      qs.limit = Math.min(duration, MAX_LIMIT);
+      if (qs.limit) candles = candles.concat(await new Promise<any>(resolve => {
+        const options = {
+          baseUrl: BASE_URL,
+          url,
+          qs,
+        };
+        request.get(options, (err, res, body) => {
+          if (err) console.log(err);
+          if (res && res.statusCode === 200) {
+            resolve(JSON.parse(body).slice(0, -1).map(e => (<any>{
+              time: moment(e.timestamp).toDate(),
               open: +e.open,
               high: +e.max,
               low: +e.min,
               close: +e.close,
             })));
+            duration -= qs.limit;
+          } else {
+            setTimeout(() => { resolve([]); }, TIMEOUT);
           }
-        }
-      );
-    });
+        });
+      }));
+      from = from.add(qs.limit, period === 'M1' ? 'm' : (period === 'H1' ? 'h' : 'd'));
+      qs.from = from.toISOString();
+    }
+
+    return candles;
   };
 };
