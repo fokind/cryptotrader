@@ -1,3 +1,5 @@
+/* global moment */
+
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
@@ -44,11 +46,14 @@ sap.ui.define([
 			oDialog.close();
 
 			var oBinding = oView.byId("backtests").getBinding("items");
+			var dBegin = moment.utc([oDraft.begin.getFullYear(), oDraft.begin.getMonth(), oDraft.begin.getDate()]);
+			var dEnd = moment.utc([oDraft.end.getFullYear(), oDraft.end.getMonth(), oDraft.end.getDate()]).add(1, "d").add(-1, "ms");
+
 			var oContext = oBinding.create({
 				balanceInitial: oDraft.balanceInitial,
 				marketDataId: oDraft.marketDataId,
-				begin: oDraft.begin,
-				end: oDraft.end,
+				begin: dBegin.toISOString(),
+				end: dEnd.toISOString()
 			});
 			
 			oContext.created().then(function() {

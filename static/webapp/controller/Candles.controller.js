@@ -46,12 +46,12 @@ sap.ui.define([
 							year: moment().year(),
 							month: moment().month(),
 							day: moment().date()
-						}).add(-1, 'd'),
+						}).add(-1, 'd').toDate(),
 						end: moment({
 							year: moment().year(),
 							month: moment().month(),
 							day: moment().date()
-						}).add(-1, 'm')
+						}).add(-1, 'ms').toDate()
 					}), "draft");
 					oDialog.open();
 				});
@@ -67,16 +67,12 @@ sap.ui.define([
 			var oCalendar = oEvent.getSource();
 			var oSelectedDates = oCalendar.getSelectedDates()[0];
 			if (oSelectedDates) {
-				var dStartDate = oSelectedDates.getStartDate();
-				var dBegin = moment.utc(Date.UTC(dStartDate.getFullYear(), dStartDate.getMonth(), dStartDate.getDate())).toDate();
-
 				// console.log(dStartDate, dStartDate.getUTCDate(), Date.UTC(dStartDate.getUTCFullYear(), dStartDate.getUTCMonth(), dStartDate.getUTCDate()), moment.utc(Date.UTC(dStartDate.getUTCFullYear(), dStartDate.getUTCMonth(), dStartDate.getUTCDate())).toDate());
-				oDraftModel.setProperty("/begin", dBegin); // FIXME исключить влияние часового пояса
-				var dEndDate = oSelectedDates.getEndDate();
-				var dEnd = moment.utc(dEndDate
-					? Date.UTC(dEndDate.getFullYear(), dEndDate.getMonth(), dEndDate.getDate())
-					: dBegin).add(1, 'd').add(-1, 'm').toDate();
-				oDraftModel.setProperty("/end", dEnd);
+				oDraftModel.setProperty("/begin", oSelectedDates.getStartDate()); // FIXME исключить влияние часового пояса
+				oDraftModel.setProperty("/end", oSelectedDates.getEndDate());
+			} else {
+				oDraftModel.setProperty("/begin", undefined); // FIXME исключить влияние часового пояса
+				oDraftModel.setProperty("/end", undefined);
 			}
 		},
 
@@ -87,20 +83,23 @@ sap.ui.define([
 
 			var oModel = this.getView().getModel("data");
 			var sPath = this.getView().getElementBinding("data").getPath();
+			var dBegin = moment.utc([oDraft.begin.getFullYear(), oDraft.begin.getMonth(), oDraft.begin.getDate()]);
+			var dEnd = (oDraft.end ? moment.utc([oDraft.end.getFullYear(), oDraft.end.getMonth(), oDraft.end.getDate()]) : dBegin).add(1, "d").add(-1, "ms");
 			// bindContext не поддерживает параметры через body
 			$.ajax({
 				contentType: 'application/json',
 				data: JSON.stringify({
-					begin: moment(oDraft.begin).toISOString(),
-					end: moment(oDraft.end).toISOString()}),
+					begin: dBegin.toISOString(),
+					end: dEnd.toISOString()
+				}),
 				dataType: 'json',
 				success: function() {
-					oModel.refresh();
+					oModel.refresh(); // TODO обновлять только свечи
 				},
 				processData: false,
 				type: 'POST',
 				url: "/odata" + sPath + "/Crypto.update"
-		});
+			});
 		},
 
 		onImportCandlesDialogCancel: function(oEvent) {

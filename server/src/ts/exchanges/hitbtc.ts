@@ -228,6 +228,7 @@ export class Hitbtc implements IExchange, IMarketDataSource {
     };
 
     if (begin) qs.from = moment(begin).toISOString();
+    // UNDONE !!! должно из локального переводиться в UTC
 
     let candles = [];
     const MAX_LIMIT = 1000;
