@@ -81,6 +81,23 @@ sap.ui.define([
 			}.bind(this));
 		},
 
+		onSellMarketPress: function() {
+			var oModel = this.getView().getModel("data");
+			var sPath = this.getView().getElementBinding("data").getPath();
+
+			$.ajax({
+				contentType: 'application/json',
+				data: JSON.stringify(true),
+				dataType: 'json',
+				success: function() {
+					oModel.refresh(); // TODO обновлять только свечи
+				},
+				processData: false,
+				type: 'POST',
+				url: "/odata" + sPath + "/Crypto.sell"
+			});
+		},
+
 		onNavBack: function() {
 			window.history.go(-1);
 		}

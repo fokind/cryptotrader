@@ -103,14 +103,14 @@ export class Trader {
   }
 
   @Edm.Action
-  async sell(@odata.result result: any): Promise<void> {
+  async sell(@odata.result result: any, market?: boolean): Promise<void> {
     const { _id } = this;
     const db = await connect();
     const { currency, asset, accountId } = new Trader(await db.collection("trader").findOne({ _id }));
     const keyId = new ObjectID(accountId);
     const { value: user } = await db.collection("credential").findOne({ accountId: keyId, name: "API" });
     const { value: pass } = await db.collection("credential").findOne({ accountId: keyId, name: "SECRET" });
-    return TraderEngine.sell({ currency, asset, user, pass });
+    return TraderEngine.sell({ currency, asset, market, user, pass });
   }
 
   @Edm.Action
