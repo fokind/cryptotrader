@@ -56,11 +56,21 @@ export class Expert {
     const db = await connect();
     const marketData = new MarketData(await db.collection("marketData").findOne({ _id: marketDataId }));
     if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
-      const candles = await db.collection("candle").find({ marketDataId }).toArray();
+      const candles = await db.collection("candle").find({ marketDataId })
+      .sort({ time: -1 }).limit(28).toArray(); // свечи отранжированы?
+      // console.log(candles);
+      // UNDONE 28 заменить на параметр из стратегии warmupPeriod
+      // в бэктест добавить индикатор
+      // нужно только заданное число свечей
+      // они должны быть по возрастанию
       const { code } = await db.collection("strategy").findOne({ _id: strategyId });
       const strategyFunction = new Function('candles, tulind, callback', code);
+      // TODO как в бэктесте, отдельно вычислить индикатор по параметрам для функции, туда передать
+      // для начала можно один индикатор с одним параметром, все жестко заданные
+      // количество точек для стратегии это тоже индикатор
 
       return await new Promise<number>(resolve => {
+        // свечи отранжированы?
         strategyFunction(candles, tulind, (err, advice) => {
           if (lastUpdate !== marketData.end || expert.advice !== advice) {
             const delta = { advice, lastUpdate: marketData.end };

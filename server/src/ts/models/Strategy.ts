@@ -11,11 +11,14 @@ export class Strategy {
   @Edm.String
   public name: string;
 
+  @Edm.Int32
+  public warmupPeriod: number;
+
   @Edm.String
   public code: string;
 
   @Edm.Int32
-  public version: number
+  public version: number;
 
   @Edm.ForeignKey("strategyId")
   @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => Backtest)))

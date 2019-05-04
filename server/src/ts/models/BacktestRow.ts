@@ -22,6 +22,9 @@ export class BacktestRow {
   @Edm.Double
   public close: number;
 
+  @Edm.Double
+  public indicator: number;
+
   @Edm.Int32
   public advice: number
 

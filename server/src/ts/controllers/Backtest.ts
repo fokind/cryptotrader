@@ -4,9 +4,9 @@ import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Backtest } from "../models/Backtest";
 import { BacktestRow } from "../models/BacktestRow";
 import connect from "../connect";
-import { backtest } from "../../../backtest";
 import moment = require("moment");
 import { Candle } from "../models/Candle";
+import { BacktestEngine } from "../engine/Backtest";
 
 const collectionName = "backtest";
 
@@ -88,11 +88,11 @@ export class BacktestController extends ODataController {
           );
           
           return new Promise(resolve => {
-            backtest({
+            BacktestEngine.backtest({
               candles,
               strategyFunction,
               balanceInitial: data.balanceInitial,
-            }, (err, backtestRows) => {
+            }).then(backtestRows => {
               resolve(backtestRows);
             });
           });
