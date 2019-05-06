@@ -5,6 +5,8 @@ import { MarketData } from "./MarketData";
 
 const tulind = require('tulind');
 import connect from "../connect";
+import { ExpertEngine } from "../engine/Expert";
+import { Indicator } from "./Indicator";
 
 export class Expert {
   @Edm.Key
@@ -57,30 +59,44 @@ export class Expert {
     const marketData = new MarketData(await db.collection("marketData").findOne({ _id: marketDataId }));
     if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
       const candles = await db.collection("candle").find({ marketDataId })
-      .sort({ time: -1 }).limit(28).toArray(); // свечи отранжированы?
+        .sort({ time: -1 }).limit(28).toArray(); // свечи отранжированы?
       // console.log(candles);
       // UNDONE 28 заменить на параметр из стратегии warmupPeriod
+
+
+
+
       // в бэктест добавить индикатор
       // нужно только заданное число свечей
       // они должны быть по возрастанию
       const { code } = await db.collection("strategy").findOne({ _id: strategyId });
-      const strategyFunction = new Function('candles, tulind, callback', code);
+      const indicators = await db.collection("indicator").find({ strategyId }).map(e => new Indicator(e)).toArray();
+
+      const strategyFunction = new Function(
+        'reversedIndicators',
+        code,
+      );
+
+      // const strategyFunction = new Function('candles, tulind, callback', code);
       // TODO как в бэктесте, отдельно вычислить индикатор по параметрам для функции, туда передать
       // для начала можно один индикатор с одним параметром, все жестко заданные
       // количество точек для стратегии это тоже индикатор
 
+      const advice = await ExpertEngine.calculateAdvice({ candles, strategyFunction, indicators });
+
       return await new Promise<number>(resolve => {
         // свечи отранжированы?
-        strategyFunction(candles, tulind, (err, advice) => {
+        // strategyFunction(candles, tulind, (err, advice) => {
           if (lastUpdate !== marketData.end || expert.advice !== advice) {
             const delta = { advice, lastUpdate: marketData.end };
             db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
               Object.assign(expert, delta);
               resolve(result.modifiedCount);
             });
+          } else {
+            resolve(0);
           }
-          resolve(0);
-        });
+        // });
       });
     } else {
       return 0;
