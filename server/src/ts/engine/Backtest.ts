@@ -1,6 +1,7 @@
 import * as tulind from 'tulind';
 import * as moment from 'moment';
 import { BacktestRow } from '../models/BacktestRow';
+import { Indicator } from '../models/Indicator';
 
 // class Buffer {
 //   currency: string;
@@ -33,36 +34,31 @@ export class BacktestEngine {
   //   });
   // };
 
-  static indicators1(inputs, options = [ 14 ], name = 'cci'): Promise<number[][]> {
-    const high = inputs.map(e => e.high);
-    const low = inputs.map(e => e.low);
-    const close = inputs.map(e => e.close);
-    return tulind.indicators[name].indicator([ high, low, close ], options);
+  static calculateIndicator(name, candles, options): Promise<number[][]> {
+    return tulind.indicators[name].indicator(tulind.indicators[name].input_names.map(e => candles.map(c => c[e])), options);
   };
-  
-  static strategy1(reversedIndicators: number[]): number {
-    const ccis = reversedIndicators;
-    const advice = (ccis.length > 0) ? (ccis[0] >= 100 ? 1 : -1) : 0;
-    return advice;
-  };
-  
+
   static async backtest({
     candles,
     strategyFunction,
     balanceInitial,
+    indicators,
   }: {
     candles: { time: Date, close: number }[],
     strategyFunction: Function,
-    balanceInitial: number
+    balanceInitial: number,
+    indicators: Indicator[],
   }): Promise<BacktestRow[]> {
     const sorted = candles.sort((a, b) => moment(a.time).isAfter(b.time) ? 1 : -1);
-    const reversedIndicators0 = (await BacktestEngine.indicators1(sorted))[0].reverse(); // UNDONE заменить на пользовательский индикатор
+    const { name: indicatorName, options } = indicators[0]; // UNDONE сделать произвольное число индикаторов
+    const reversedIndicators0 = (await BacktestEngine.calculateIndicator(indicatorName, sorted, JSON.parse(options)))[0].reverse(); // UNDONE заменить на пользовательский индикатор
     const candlesLength = candles.length;
     const buffer = sorted.map((candle, index) => ({
       time: candle.time,
       close: candle.close,
       indicator: reversedIndicators0[candlesLength - index - 1],
-      advice: BacktestEngine.strategy1(reversedIndicators0.slice(candlesLength - index - 1)), // UNDONE заменить на пользовательскую функцию
+      advice: strategyFunction(reversedIndicators0.slice(candlesLength - index - 1)), // UNDONE заменить на пользовательскую функцию
+      // UNDONE свечи тоже можно передавать
     }));
 
     const backtestRows = [];

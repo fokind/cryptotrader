@@ -1,6 +1,8 @@
 <mvc:View controllerName="fokin.crypto.controller.Strategy"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:l="sap.ui.layout"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:core="sap.ui.core"
 	xmlns="sap.m"
 	xmlns:codeeditor="sap.ui.codeeditor"
 	height="100%">
@@ -8,9 +10,45 @@
 		<content>
 			<l:ResponsiveSplitter defaultPane="default">
 				<l:PaneContainer>
-					<l:SplitPane id="default">
-						<codeeditor:CodeEditor editable="true" value="{data>code}" height="100%"/>
-					</l:SplitPane>
+					<l:PaneContainer orientation="Vertical">
+						<l:SplitPane id="default">
+							<form:Form editable="false">
+								<form:layout>
+									<form:ResponsiveGridLayout
+										labelSpanXL="6"
+										labelSpanL="6"
+										labelSpanM="6"
+										labelSpanS="6"
+										adjustLabelSpan="false"
+										emptySpanXL="1"
+										emptySpanL="0"
+										emptySpanM="0"
+										emptySpanS="0"
+										columnsXL="1"
+										columnsL="1"
+										columnsM="1"
+										singleContainerFullSize="false" />
+								</form:layout>
+								<form:formContainers>
+									<form:FormContainer formElements="{data>Indicators}">
+										<form:title>
+											<core:Title text="Indicators"/>
+										</form:title>
+										<form:formElements>
+											<form:FormElement label="{data>name}">
+												<form:fields>
+													<Text text="{data>options}"/>
+												</form:fields>
+											</form:FormElement>
+										</form:formElements>
+									</form:FormContainer>
+								</form:formContainers>
+							</form:Form>
+						</l:SplitPane>
+						<l:SplitPane>
+							<codeeditor:CodeEditor editable="true" value="{data>code}" height="100%"/>
+						</l:SplitPane>
+					</l:PaneContainer>
 					<l:SplitPane>
 						<Table id="backtests"
 							items="{

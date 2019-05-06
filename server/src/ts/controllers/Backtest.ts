@@ -7,6 +7,8 @@ import connect from "../connect";
 import moment = require("moment");
 import { Candle } from "../models/Candle";
 import { BacktestEngine } from "../engine/Backtest";
+import { Strategy } from "../models/Strategy";
+import { Indicator } from "../models/Indicator";
 
 const collectionName = "backtest";
 
@@ -75,23 +77,33 @@ export class BacktestController extends ODataController {
           marketDataId: keyMarketDataId
         };
 
-        const candlesPromise = <Promise<Array<Candle>>>db.collection("candle").find(q).toArray();
-
-        const strategyPromise = db.collection("strategy").findOne({ _id: data.strategyId });
-        Promise.all([candlesPromise, strategyPromise]).then((result) => {
+        const candlesPromise = <Promise<Candle[]>>db.collection("candle").find(q).toArray();
+        const strategyPromise = <Promise<Strategy>>db.collection("strategy").findOne({ _id: data.strategyId });
+        const indicatorsPromise = <Promise<Indicator[]>>db.collection("indicator").find({ strategyId: data.strategyId }).toArray();
+        Promise.all([candlesPromise, strategyPromise, indicatorsPromise]).then((result) => {
           const candles = result[0].filter(e => moment(e.time).isBetween(begin, end, 'd', "[]"));
           console.log(candles.length);
 
+          const { code } = result[1];
+          const indicators = result[2];
+
           const strategyFunction = new Function(
-            'candles, tulind, console, callback',
-            result[1].code,
+            'reversedIndicators',
+            code,
           );
-          
+
+          // const strategyFunction = function(reversedIndicators: number[]): number {
+          //   const ccis = reversedIndicators;
+          //   const advice = (ccis.length > 0) ? (ccis[0] >= 100 ? 1 : -1) : 0;
+          //   return advice;
+          // };
+                  
           return new Promise(resolve => {
             BacktestEngine.backtest({
               candles,
               strategyFunction,
               balanceInitial: data.balanceInitial,
+              indicators,
             }).then(backtestRows => {
               resolve(backtestRows);
             });
