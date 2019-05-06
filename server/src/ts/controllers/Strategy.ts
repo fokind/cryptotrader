@@ -4,6 +4,7 @@ import { Edm, odata, ODataController, ODataQuery } from "odata-v4-server";
 import connect from "../connect";
 import { Strategy } from "../models/Strategy";
 import { Backtest } from "../models/Backtest";
+import { Indicator } from "../models/Indicator";
 
 const collectionName = "strategy";
 
@@ -42,16 +43,19 @@ export class StrategyController extends ODataController {
     const { projection } = createQuery(query);
     let keyId;
     try { keyId = new ObjectID(key); } catch (err) { keyId = key; }
-    return db.collection(collectionName).findOne({ _id: keyId }, { projection });
+    return new Strategy(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
   }
 
   @odata.POST
   async post(@odata.body data: any): Promise<Strategy> {
     const db = await connect();
-    const { name = '', code = '', version = 0 } = data; // TODO сделать везде по этому образцу
-    return await db.collection(collectionName).insertOne({ name, code, version }).then((result) => {
-      return new Strategy({ _id: result.insertedId, name, code, version });
-    });
+    const { name = '', code = '', version = 0, Indicator } = data; // TODO сделать везде по этому образцу
+    // создание индикатора
+    const { name: indicatorName, options } = Indicator;
+
+    const result = await db.collection(collectionName).insertOne({ name, code, version });
+    await db.collection('indicator').insertOne({ name: indicatorName, options, strategyId: result.insertedId });
+    return new Strategy({ _id: result.insertedId, name, code, version });
   }
 
   @odata.PATCH
@@ -83,6 +87,31 @@ export class StrategyController extends ODataController {
         .count(false);
     }
     return backtests;
+  }
+
+  @odata.GET("Indicators")
+  async getIndicators(@odata.result result: Strategy, @odata.query query: ODataQuery): Promise<Indicator[]> {
+    const db = await connect();
+    const mongodbQuery = createQuery(query);
+    const strategyId = new ObjectID(result._id);
+    // if (typeof mongodbQuery.query._id === "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id); // зачем?
+    // if (typeof mongodbQuery.query.accountId === "string") mongodbQuery.query.accountId = new ObjectID(mongodbQuery.query.accountId);
+    // let creds = await db.collection("credential").find({ accountId: result._id }).toArray();
+
+    let indicators = typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0 ? [] : await db.collection("indicator")
+      .find({ $and: [{ strategyId }, mongodbQuery.query] })
+      .project(mongodbQuery.projection)
+      .skip(mongodbQuery.skip || 0)
+      .limit(mongodbQuery.limit || 0)
+      .sort(mongodbQuery.sort)
+      .toArray();
+    if (mongodbQuery.inlinecount) {
+      (<any>indicators).inlinecount = await db.collection("indicator")
+        .find({ $and: [{ strategyId }, mongodbQuery.query] })
+        .project(mongodbQuery.projection)
+        .count(false);
+    }
+    return indicators;
   }
 
   // @odata.GET("Backtests")

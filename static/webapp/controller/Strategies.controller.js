@@ -1,8 +1,9 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/UIComponent",
-	"sap/ui/core/Fragment"
-], function (Controller, UIComponent, Fragment) {
+	"sap/ui/core/Fragment",
+	"sap/ui/model/json/JSONModel"
+], function (Controller, UIComponent, Fragment, JSONModel) {
 	"use strict";
 
 	return Controller.extend("fokin.crypto.controller.Strategies", {
@@ -12,9 +13,6 @@ sap.ui.define([
 
 		onRouteMatched: function(oEvent) {
 			this.getView().getModel("view").setProperty("/tab", "strategies");
-			this.getView().getModel("view").setProperty("/StrategyDraft", {
-				name: "",
-			});
 		},
 
 		onItemPress: function(oEvent) {
@@ -25,28 +23,36 @@ sap.ui.define([
 
 		onAddStrategyPress: function() {
 			var oView = this.getView();
-			if (!this.byId("createStrategyDialog")) {
+			if (!this.byId("dialog")) {
 				Fragment.load({
 					id: oView.getId(),
-					name: "fokin.crypto.fragment.CreateStrategyDialog",
+					name: "fokin.crypto.fragment.AddStrategyDialog",
 					controller: this
 				}).then(function (oDialog) {
 					oView.addDependent(oDialog);
+					oDialog.setModel(new JSONModel({
+						name: "",
+					}), "draft");
 					oDialog.open();
 				});
 			} else {
-				this.byId("createStrategyDialog").open();
+				this.byId("dialog").open();
 			}			
 		},
 
-		onCreateStrategyDialogOk: function() {
-			this.byId("createStrategyDialog").close();
+		onOk: function() {
+			var oDialog = this.byId("dialog");
 			var oView = this.getView();
-			var oDraft = oView.getModel("view").getProperty("/StrategyDraft");
+			var oDraft = oDialog.getModel("draft").getData();
+			oDialog.close();
 
 			var oBinding = oView.byId("strategies").getBinding("items");
 			var oContext = oBinding.create({
 				name: oDraft.name,
+				Indicator: {
+					name: oDraft.indicatorName,
+					options: oDraft.indicatorOptions
+				}
 			});
 			
 			oContext.created().then(function() {
@@ -54,8 +60,8 @@ sap.ui.define([
 			});
 		},
 
-		onCreateStrategyDialogCancel: function() {
-			this.byId("createStrategyDialog").close();
+		onCancel: function() {
+			this.byId("dialog").close();
 		},
 
 		onNavBack: function() {

@@ -25,9 +25,9 @@ sap.ui.define([
 		onRefreshPress: function() {
 			var oModel = this.getView().getModel("data");
 			var sPath = this.getView().getElementBinding("data").getPath();
-			var oOperation = oModel.bindContext(sPath + "/Crypto.update(...)");
+			var oOperation = oModel.bindContext(sPath + "/Crypto.update(...)"); // каждый раз заново?
 			oOperation.execute().then(function() {
-				oModel.refresh(); // заменить на обновление только связанных элементов
+				oModel.refresh(); // TODO заменить на обновление только связанных элементов
 			}.bind(this));
 		},
 

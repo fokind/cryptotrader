@@ -145,6 +145,7 @@
 				<Button text="Cancel" type="{= ${data>toCancel} === 'Да' ? 'Emphasized' : 'Default'}" enabled="{= !!${data>canCancel}}" press=".onCancelPress"/>
 				<Button text="Buy" type="{= ${data>toBuy} === 'Да' ? 'Emphasized' : 'Default'}" enabled="{= !!${data>canBuy}}" press=".onBuyPress"/>
 				<Button text="Sell" type="{= ${data>toSell} === 'Да' ? 'Emphasized' : 'Default'}"  enabled="{= !!${data>canSell}}" press=".onSellPress"/>
+				<Button text="Sell market"  enabled="{= !!${data>canSell}}" press=".onSellMarketPress"/>
 			</Toolbar>
 		</footer>
 	</Page>

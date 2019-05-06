@@ -1,6 +1,7 @@
 import { Order } from '../models/Order';
 import { Hitbtc } from '../exchanges/hitbtc';
 import { Cryptocompare } from '../exchanges/cryptocompare';
+import { type } from 'odata-v4-server';
 
 const exchanges = {
   hitbtc: new Hitbtc(),
@@ -24,11 +25,16 @@ export interface IExchange {
     asset: string,
     side: SideEnum,
     quantity: number,
-    price: number,
+    price?: number,
     user: string,
     pass: string
   }): Promise<void>;
 
+  // обобщить для автоматической торговли
+  // ордеры всегда нужны вместе с балансом и спредом
+  // всегда нужен только один ордер и общее количество
+  // всё это всегда нужно в плоском виде одним объектом
+  // getLive...
   getOrders(options: {
     currency: string,
     asset: string,
@@ -98,7 +104,7 @@ export class ExchangeEngine {
     currency: string,
     asset: string,
     quantity: number,
-    price: number,
+    price?: number,
     user: string,
     pass: string
   }): Promise<void> {
@@ -110,7 +116,7 @@ export class ExchangeEngine {
     currency: string,
     asset: string,
     quantity: number,
-    price: number,
+    price?: number,
     user: string,
     pass: string
   }): Promise<void> {

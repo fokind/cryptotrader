@@ -22,7 +22,10 @@
 					<Column hAlign="End">
 						<Text text="Close"/>
 					</Column>
-					<Column>
+					<Column hAlign="End">
+						<Text text="Indicator"/>
+					</Column>
+					<Column hAlign="End">
 						<Text text="Advice"/>
 					</Column>
 					<Column hAlign="End">
@@ -40,6 +43,7 @@
 						<cells>
 							<ObjectIdentifier title="{data>time}"/>
 							<ObjectNumber number="{data>close}"/>
+							<ObjectNumber number="{data>indicator}"/>
 							<ObjectNumber number="{data>advice}"/>
 							<ObjectNumber number="{data>balance}"/>
 							<ObjectNumber number="{data>balanceAsset}"/>

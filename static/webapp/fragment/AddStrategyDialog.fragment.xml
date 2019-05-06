@@ -2,7 +2,7 @@
   xmlns="sap.m"
   xmlns:form="sap.ui.layout.form"
   xmlns:core="sap.ui.core" >
-  <Dialog id="createStrategyDialog"
+  <Dialog id="dialog"
     title="Strategy">
     <content>
       <form:SimpleForm
@@ -10,15 +10,19 @@
         layout="ResponsiveGridLayout">
         <form:content>
           <Label text="Name"/>
-          <Input value="{view>/StrategyDraft/name}"/>
+          <Input value="{draft>/name}"/>
+          <Label text="Indicator name"/>
+          <Input value="{draft>/indicatorName}"/>
+          <Label text="Indicator options"/>
+          <Input value="{draft>/indicatorOptions}"/>
         </form:content>
       </form:SimpleForm>
     </content>
     <beginButton>
-      <Button text="OK" press=".onCreateStrategyDialogOk"/>
+      <Button text="OK" press=".onOk"/>
     </beginButton>
     <endButton>
-      <Button text="Cancel" press=".onCreateStrategyDialogCancel"/>
+      <Button text="Cancel" press=".onCancel"/>
     </endButton>
   </Dialog>
 </core:FragmentDefinition>

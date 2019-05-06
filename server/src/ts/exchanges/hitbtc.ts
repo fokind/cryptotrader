@@ -7,16 +7,24 @@ import moment = require('moment');
 const BASE_URL = 'https://api.hitbtc.com/api/2/';
 
 export class Hitbtc implements IExchange, IMarketDataSource {
+  // если есть price, тогда это лимитный ордер
   async createOrder(options: {
     currency: string,
     asset: string,
     side: SideEnum,
     quantity: number,
-    price: number,
+    price?: number,
     user: string,
     pass: string
   }): Promise<void> {
     const { user, pass, asset, currency, side, quantity, price } = options;
+    // console.log({
+    //   symbol:  asset + currency,
+    //   side: side ? 'buy' : 'sell',
+    //   quantity,
+    //   type: price ? 'limit' : 'market',
+    //   postOnly: !!price
+    // });
     return new Promise<void>((resolve, reject) => {
       request.post({
         baseUrl: BASE_URL,
@@ -30,9 +38,12 @@ export class Hitbtc implements IExchange, IMarketDataSource {
           symbol:  asset + currency,
           side: side ? 'buy' : 'sell',
           quantity,
+          type: price ? 'limit' : 'market',
           price,
+          postOnly: !!price
         }
-      }, (err) => {
+      }, (err, res) => {
+          // console.log(res);
           if (err) {
             console.log(err);
             reject(err);
@@ -228,6 +239,7 @@ export class Hitbtc implements IExchange, IMarketDataSource {
     };
 
     if (begin) qs.from = moment(begin).toISOString();
+    // UNDONE !!! должно из локального переводиться в UTC
 
     let candles = [];
     const MAX_LIMIT = 1000;
