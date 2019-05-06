@@ -49,10 +49,13 @@ export class StrategyController extends ODataController {
   @odata.POST
   async post(@odata.body data: any): Promise<Strategy> {
     const db = await connect();
-    const { name = '', code = '', version = 0 } = data; // TODO сделать везде по этому образцу
-    return await db.collection(collectionName).insertOne({ name, code, version }).then((result) => {
-      return new Strategy({ _id: result.insertedId, name, code, version });
-    });
+    const { name = '', code = '', version = 0, Indicator } = data; // TODO сделать везде по этому образцу
+    // создание индикатора
+    const { name: indicatorName, options } = Indicator;
+
+    const result = await db.collection(collectionName).insertOne({ name, code, version });
+    await db.collection('indicator').insertOne({ name: indicatorName, options, strategyId: result.insertedId });
+    return new Strategy({ _id: result.insertedId, name, code, version });
   }
 
   @odata.PATCH
