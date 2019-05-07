@@ -30,12 +30,15 @@ sap.ui.define([
 					controller: this
 				}).then(function (oDialog) {
 					oView.addDependent(oDialog);
-					oDialog.setModel(new JSONModel(), "draft");
+					oDialog.setModel(new JSONModel({
+						stoplossEnabled: false,
+						stoplossLimit: 1,
+					}), "draft");
 					oDialog.open();
 				});
 			} else {
 				this.byId("dialog").open();
-			}			
+			}
 		},
 
 		onOkPress: function() {
@@ -47,6 +50,8 @@ sap.ui.define([
 			var oBinding = oView.byId("traders").getBinding("items");
 			var oContext = oBinding.create({
 				accountId: oDraft.accountId,
+				stoplossEnabled: oDraft.stoplossEnabled,
+				stoplossLimit: +oDraft.stoplossLimit,
 				Expert: {
 					marketDataId: oDraft.marketDataId,
 					strategyId: oDraft.strategyId

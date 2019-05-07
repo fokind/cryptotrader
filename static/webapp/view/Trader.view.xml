@@ -46,7 +46,7 @@
 						<form:formElements>
 							<form:FormElement label="Stop-loss enabled">
 								<form:fields>
-									<CheckBox selected="{data>stoplossEnabled}"/>
+									<Text text="{data>stoplossEnabled}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="Stop-loss limit">
