@@ -1,7 +1,6 @@
 // import { Order } from '../models/Order';
 import { Hitbtc } from '../exchanges/hitbtc';
 import { Cryptocompare } from '../exchanges/cryptocompare';
-// import { type } from 'odata-v4-server';
 
 const exchanges = {
   hitbtc: new Hitbtc(),

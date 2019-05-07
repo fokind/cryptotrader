@@ -81,6 +81,7 @@ export class Expert {
       // TODO как в бэктесте, отдельно вычислить индикатор по параметрам для функции, туда передать
       // для начала можно один индикатор с одним параметром, все жестко заданные
       // количество точек для стратегии это тоже индикатор
+
       const advice = await ExpertEngine.calculateAdvice({ candles, strategyFunction, indicators });
 
       return await new Promise<number>(resolve => {
