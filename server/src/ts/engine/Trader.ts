@@ -54,65 +54,65 @@ export class TraderEngine {
     return ExchangeEngine.sell({ user, pass, asset, currency, quantity, price });
   }
 
-  static async updateTrader(key: string): Promise<void> {
-    // всё как обычный апдейт, только сохраняет в базу данных
-    // тогда это метод контроллера
-  };
+  // static async getTrader(key: string): Promise<Trader> {
+  //   const db = await connect();
+  //   const keyId = new ObjectID(key);
+  //   const trader = new Trader(await db.collection("trader").findOne({ _id: keyId }));
+  //   const { currency, asset } = trader;
+  //   const accountId = new ObjectID(trader.accountId);
+  //   const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
+  //   const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
+
+  //   await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
+  //     // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
+  //     ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
+  //       trader.hasOrders = !!orders.length;
+  //       if (orders.length) {
+  //         const { orderPrice, orderSide } = orders[0];
+  //         trader.orderPrice = orderPrice;
+  //         trader.orderSide = orderSide;
+  //       }
+  //       resolve();
+  //     });
+  //   });
+
+  //   await new Promise(resolve => {
+  //     ExchangeEngine.getTicker({ currency, asset }).then((ticker) => {
+  //       const { ask, bid } = ticker;
+  //       trader.ask = ask;
+  //       trader.bid = bid;
+  //       trader.inSpread = trader.hasOrders
+  //         && trader.orderPrice <= ticker.ask
+  //         && trader.orderPrice >= ticker.bid;
+  //       trader.canCancel = !!trader.hasOrders;
+  //       trader.toCancel = trader.canCancel && !trader.inSpread; // TODO если не совпадает направление, то тоже отмена
+  //       resolve();
+  //     });
+  //   });
+
+  //   await new Promise(resolve => {
+  //     ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
+  //       const balance = portfolio.find(e => e.currency === trader.currency);
+  //       const balanceAsset = portfolio.find(e => e.currency === trader.asset);
+  //       trader.available = balance ? balance.available : 0;
+  //       trader.availableAsset = balanceAsset ? balanceAsset.available : 0
+
+  //       resolve();
+  //     });
+  //   });
+
+  //   const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+  //   trader.canBuy = !trader.hasOrders && trader.available > 0;
+  //   trader.toBuy = expert.advice === 1;
+  //   trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
+  //   trader.toSell = expert.advice === -1;
+
+  //   return trader;
+  // }
 
   static async getTrader(key: string): Promise<Trader> {
     const db = await connect();
-    const keyId = new ObjectID(key);
-    const trader = new Trader(await db.collection("trader").findOne({ _id: keyId }));
-    const { currency, asset } = trader;
-    const accountId = new ObjectID(trader.accountId);
-    const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
-    const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
-
-    await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
-      // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
-      ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
-        trader.hasOrders = !!orders.length;
-        if (orders.length) {
-          const { orderPrice, orderSide } = orders[0];
-          trader.orderPrice = orderPrice;
-          trader.orderSide = orderSide;
-        }
-        resolve();
-      });
-    });
-
-    await new Promise(resolve => {
-      ExchangeEngine.getTicker({ currency, asset }).then((ticker) => {
-        const { ask, bid } = ticker;
-        trader.ask = ask;
-        trader.bid = bid;
-        trader.inSpread = trader.hasOrders
-          && trader.orderPrice <= ticker.ask
-          && trader.orderPrice >= ticker.bid;
-        trader.canCancel = !!trader.hasOrders;
-        trader.toCancel = trader.canCancel && !trader.inSpread; // TODO если не совпадает направление, то тоже отмена
-        resolve();
-      });
-    });
-
-    await new Promise(resolve => {
-      ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
-        const balance = portfolio.find(e => e.currency === trader.currency);
-        const balanceAsset = portfolio.find(e => e.currency === trader.asset);
-        trader.available = balance ? balance.available : 0;
-        trader.availableAsset = balanceAsset ? balanceAsset.available : 0
-
-        resolve();
-      });
-    });
-
-    const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
-    trader.canBuy = !trader.hasOrders && trader.available > 0;
-    trader.toBuy = expert.advice === 1;
-    trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
-    trader.toSell = expert.advice === -1;
-
-    return trader;
+    return new Trader(await db.collection("trader").findOne({ _id: key }));
   }
 
   static async getExpert(key: ObjectID): Promise<Expert> {
@@ -121,7 +121,8 @@ export class TraderEngine {
   }
 
   static async update(key: string): Promise<void> {
-    const { expertId } = await TraderEngine.getTrader(key); // FIXME дважды выполняется запрос к бирже из-за эксперта
+    const trader = await TraderEngine.getTrader(key); // FIXME дважды выполняется запрос к бирже из-за эксперта
+    const { expertId } = trader; // FIXME дважды выполняется запрос к бирже из-за эксперта
     // чтобы не запрашивать собранного трейдера дважды
     // TODO например, назвать TraderData то, что хранится в базе данных
 
@@ -139,8 +140,7 @@ export class TraderEngine {
     // в любом случае трейдер существует и без обновления он меняться не будет
     // трейдер не обязательно хранится в базе данных, хотя наверное сейчас хранится
 
-
-
+    await trader.update(trader);
     const { canCancel, toCancel, canBuy, toBuy, canSell, toSell, asset, currency, accountId } = await TraderEngine.getTrader(key);
     const keyId = new ObjectID(accountId);
     const db = await connect();
