@@ -1,9 +1,9 @@
 import { ObjectID } from "mongodb";
 import { Edm, odata } from "odata-v4-server";
-import { Ticker } from "./Ticker";
-import { Balance } from "./Balance";
+// import { Ticker } from "./Ticker";
+// import { Balance } from "./Balance";
 import { Expert } from "./Expert";
-import { Order } from "./Order";
+// import { Order } from "./Order";
 import connect from "../connect";
 import { TraderEngine } from "../engine/Trader";
 import { Account } from "./Account";
@@ -69,11 +69,24 @@ export class Trader {
   @Edm.String
   public accountId: ObjectID
 
-  @Edm.ComplexType(Edm.ForwardRef(() => Ticker))
-  public Ticker: Ticker
+  // @Edm.ComplexType(Edm.ForwardRef(() => Ticker))
+  // public Ticker: Ticker
 
-  @Edm.ComplexType(Edm.ForwardRef(() => Balance))
-  public Balance: Balance
+  @Edm.Double
+  public ask: number;
+
+  @Edm.Double
+  public bid: number;
+
+  // @Edm.ComplexType(Edm.ForwardRef(() => Balance))
+  // public Balance: Balance
+
+  @Edm.Double
+  public available: number;
+
+  @Edm.Double
+  public availableAsset: number;
+
 
   @Edm.EntityType(Edm.ForwardRef(() => Expert))
   public Expert: Expert
@@ -81,8 +94,14 @@ export class Trader {
   @Edm.EntityType(Edm.ForwardRef(() => Account))
   public Account: Account
 
-  @Edm.ComplexType(Edm.ForwardRef(() => Order))
-  public Order: Order // не нашел возможности пользоваться асинхронными свойствами
+  // @Edm.ComplexType(Edm.ForwardRef(() => Order))
+  // public Order: Order // не нашел возможности пользоваться асинхронными свойствами
+
+  @Edm.Double
+  public orderPrice: number;
+
+  @Edm.String
+  public orderSide: string;
 
   // TODO разобраться как использовать
   // @Edm.Function
@@ -94,13 +113,22 @@ export class Trader {
   //   });
   // }
 
+  // @Edm.Action
+  // async update(@odata.result result: any): Promise<number> {
+  //   const { _id } = this;
+  //   const db = await connect();
+  //   const { expertId } = await db.collection("trader").findOne({ _id });
+  //   const expert = new Expert(await db.collection("expert").findOne({ _id: expertId }));
+  //   return expert.update(expert);
+  // }
+
   @Edm.Action
-  async update(@odata.result result: any): Promise<number> {
+  async update(@odata.result result: any): Promise<void> {
     const { _id } = this;
-    const db = await connect();
-    const { expertId } = await db.collection("trader").findOne({ _id });
-    const expert = new Expert(await db.collection("expert").findOne({ _id: expertId }));
-    return expert.update(expert);
+    const trader = await TraderEngine.getTrader(_id.toHexString());
+    // сохранить
+    // модель ордеров? тикера? сохранить непосредственно в бд?
+    return;
   }
 
   @Edm.Action

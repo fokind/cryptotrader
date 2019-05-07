@@ -3,10 +3,10 @@ import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Expert } from "../models/Expert";
 import { Trader } from "../models/Trader";
-import { Ticker } from "../models/Ticker";
-import { Balance } from "../models/Balance";
+// import { Ticker } from "../models/Ticker";
+// import { Balance } from "../models/Balance";
 import { Portfolio } from "../models/Portfolio";
-import { Order } from "../models/Order";
+// import { Order } from "../models/Order";
 import connect from "../connect";
 import { ExchangeEngine } from "../engine/Exchange";
 
@@ -61,9 +61,9 @@ export class TraderController extends ODataController {
       ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
         trader.hasOrders = !!orders.length;
         if (orders.length) {
-          trader.Order = new Order(orders[0]);
-        } else {
-          delete trader.Order;
+          const { orderPrice, orderSide } = orders[0];
+          trader.orderPrice = orderPrice;
+          trader.orderSide = orderSide;
         }
         resolve();
       });
@@ -71,10 +71,12 @@ export class TraderController extends ODataController {
 
     await new Promise(resolve => {
       ExchangeEngine.getTicker({ currency, asset }).then(ticker => {
-        trader.Ticker = new Ticker(ticker);
+        const { ask, bid } = ticker;
+        trader.ask = ask;
+        trader.bid = bid;
         trader.inSpread = trader.hasOrders
-          && trader.Order.price <= ticker.ask
-          && trader.Order.price >= ticker.bid;
+          && trader.orderPrice <= ticker.ask
+          && trader.orderPrice >= ticker.bid;
         trader.canCancel = !!trader.hasOrders;
         trader.toCancel = trader.canCancel && !trader.inSpread;
         resolve();
@@ -85,20 +87,19 @@ export class TraderController extends ODataController {
       ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
         const balanceAsset = portfolio.find(e => e.currency === trader.asset);
-        trader.Balance = new Balance({
-          available: balance ? balance.available : 0,
-          availableAsset: balanceAsset ? balanceAsset.available : 0
-        });
+        trader.available = balance ? balance.available : 0;
+        trader.availableAsset = balanceAsset ? balanceAsset.available : 0;
+
         resolve();
       });
     });
 
     const decimals = 6;
-    trader.buyQuantity = +((Math.floor((trader.Balance.available / trader.Ticker.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));
+    trader.buyQuantity = +((Math.floor((trader.available / trader.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));
     const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
-    trader.canBuy = !trader.hasOrders && trader.Balance.available > 0;
+    trader.canBuy = !trader.hasOrders && trader.available > 0;
     trader.toBuy = expert.advice === 1;
-    trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0; 
+    trader.canSell = !trader.hasOrders && trader.availableAsset > 0; 
     trader.toSell = expert.advice === -1;
     return trader;
   }

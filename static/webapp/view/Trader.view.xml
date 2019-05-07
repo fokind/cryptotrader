@@ -105,12 +105,12 @@
 						<form:formElements>
 							<form:FormElement label="Ask">
 								<form:fields>
-									<Text text="{data>Ticker/ask}"/>
+									<Text text="{data>ask}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="Bid">
 								<form:fields>
-									<Text text="{data>Ticker/bid}"/>
+									<Text text="{data>bid}"/>
 								</form:fields>
 							</form:FormElement>
 						</form:formElements>
@@ -122,7 +122,7 @@
 						<form:formElements>
 							<form:FormElement label="Price">
 								<form:fields>
-									<Text text="{data>Order/price}"/>
+									<Text text="{data>orderPrice}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="In spread">
@@ -139,12 +139,12 @@
 						<form:formElements>
 							<form:FormElement label="{data>currency}">
 								<form:fields>
-									<Text text="{data>Balance/available}"/>
+									<Text text="{data>available}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="{data>asset}">
 								<form:fields>
-									<Text text="{data>Balance/availableAsset}"/>
+									<Text text="{data>availableAsset}"/>
 								</form:fields>
 							</form:FormElement>
 						</form:formElements>

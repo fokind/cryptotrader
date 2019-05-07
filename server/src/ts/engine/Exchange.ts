@@ -1,7 +1,7 @@
-import { Order } from '../models/Order';
+// import { Order } from '../models/Order';
 import { Hitbtc } from '../exchanges/hitbtc';
 import { Cryptocompare } from '../exchanges/cryptocompare';
-import { type } from 'odata-v4-server';
+// import { type } from 'odata-v4-server';
 
 const exchanges = {
   hitbtc: new Hitbtc(),
@@ -40,7 +40,7 @@ export interface IExchange {
     asset: string,
     user: string,
     pass: string
-  }): Promise<Array<Order>>;
+  }): Promise<{ price: number, _id: string }[]>;
 
   cancelOrders(options: {
     currency: string,
@@ -87,7 +87,7 @@ export class ExchangeEngine {
     asset: string,
     user: string,
     pass: string
-  }): Promise<Array<Order>> {
+  }): Promise<{ price: number, _id: string }[]> {
     return exchanges.hitbtc.getOrders(options);
   };
 

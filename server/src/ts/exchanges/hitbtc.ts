@@ -1,6 +1,6 @@
 import * as request from 'request';
 import * as async from 'async';
-import { Order } from '../models/Order';
+// import { Order } from '../models/Order';
 import { SideEnum, IExchange, IMarketDataSource } from '../engine/Exchange';
 import moment = require('moment');
 
@@ -60,9 +60,9 @@ export class Hitbtc implements IExchange, IMarketDataSource {
     asset: string,
     user: string,
     pass: string
-  }): Promise<Array<Order>> {
+  }): Promise<{ price: number, _id: string }[]> {
     const { currency, asset, user, pass } = options;
-    return new Promise<Array<Order>>((resolve, reject) => {
+    return new Promise<{ price: number, _id: string }[]>((resolve, reject) => {
       const TIMEOUT = 100;
       let orders;
       // TODO добавить счетчик, ограничивающий число попыток
@@ -80,7 +80,7 @@ export class Hitbtc implements IExchange, IMarketDataSource {
         }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
-            orders = JSON.parse(body).map(e => new Order({
+            orders = JSON.parse(body).map(e => ({
               _id: e.clientOrderId,
               // createdAt: e.createdAt,
               // currency,

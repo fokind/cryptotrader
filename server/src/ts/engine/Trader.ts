@@ -1,11 +1,11 @@
 import { ObjectID } from "mongodb";
 import { Trader } from "../models/Trader";
-import { Ticker } from "../models/Ticker";
+// import { Ticker } from "../models/Ticker";
 import { Portfolio } from "../models/Portfolio";
-import { Balance } from "../models/Balance";
+// import { Balance } from "../models/Balance";
 import connect from "../connect";
 import { Expert } from "../models/Expert";
-import { Order } from "../models/Order";
+// import { Order } from "../models/Order";
 import { ExchangeEngine } from "./Exchange";
 
 export class TraderEngine {
@@ -13,23 +13,23 @@ export class TraderEngine {
     return ExchangeEngine.getSymbol({ currency, asset });
   };
 
-  static async getTicker({ currency, asset }): Promise<Ticker> {
-    return new Promise<Ticker>(resolve => {
+  static async getTicker({ currency, asset }): Promise<{ ask: number, bid: number}> {
+    return new Promise<{ ask: number, bid: number}>(resolve => {
       ExchangeEngine.getTicker({ currency, asset }).then(({ ask, bid }) => {
-        resolve(new Ticker({ ask, bid, currency, asset }));
+        resolve({ ask, bid });
       });
     });
   };
 
-  static async getBalance({ currency, asset, user, pass }): Promise<Balance> {
-    return new Promise<Balance>(resolve => {
+  static async getBalance({ currency, asset, user, pass }): Promise<{ available: number, availableAsset: number }> {
+    return new Promise<{ available: number, availableAsset: number }>(resolve => {
       ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === currency);
         const balanceAsset = portfolio.find(e => e.currency === asset);
-        resolve(new Balance({
+        resolve({
           available: balance ? balance.available : 0,
           availableAsset: balanceAsset ? balanceAsset.available : 0
-        }));
+        });
       });
     });
   };
@@ -54,6 +54,11 @@ export class TraderEngine {
     return ExchangeEngine.sell({ user, pass, asset, currency, quantity, price });
   }
 
+  static async updateTrader(key: string): Promise<void> {
+    // всё как обычный апдейт, только сохраняет в базу данных
+    // тогда это метод контроллера
+  };
+
   static async getTrader(key: string): Promise<Trader> {
     const db = await connect();
     const keyId = new ObjectID(key);
@@ -68,9 +73,9 @@ export class TraderEngine {
       ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
         trader.hasOrders = !!orders.length;
         if (orders.length) {
-          trader.Order = new Order(orders[0]);
-        } else {
-          delete trader.Order;
+          const { orderPrice, orderSide } = orders[0];
+          trader.orderPrice = orderPrice;
+          trader.orderSide = orderSide;
         }
         resolve();
       });
@@ -78,10 +83,12 @@ export class TraderEngine {
 
     await new Promise(resolve => {
       ExchangeEngine.getTicker({ currency, asset }).then((ticker) => {
-        trader.Ticker = new Ticker(ticker);
+        const { ask, bid } = ticker;
+        trader.ask = ask;
+        trader.bid = bid;
         trader.inSpread = trader.hasOrders
-          && trader.Order.price <= ticker.ask
-          && trader.Order.price >= ticker.bid;
+          && trader.orderPrice <= ticker.ask
+          && trader.orderPrice >= ticker.bid;
         trader.canCancel = !!trader.hasOrders;
         trader.toCancel = trader.canCancel && !trader.inSpread; // TODO если не совпадает направление, то тоже отмена
         resolve();
@@ -92,18 +99,17 @@ export class TraderEngine {
       ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
         const balance = portfolio.find(e => e.currency === trader.currency);
         const balanceAsset = portfolio.find(e => e.currency === trader.asset);
-        trader.Balance = new Balance({
-          available: balance ? balance.available : 0,
-          availableAsset: balanceAsset ? balanceAsset.available : 0
-        });
+        trader.available = balance ? balance.available : 0;
+        trader.availableAsset = balanceAsset ? balanceAsset.available : 0
+
         resolve();
       });
     });
 
     const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
-    trader.canBuy = !trader.hasOrders && trader.Balance.available > 0;
+    trader.canBuy = !trader.hasOrders && trader.available > 0;
     trader.toBuy = expert.advice === 1;
-    trader.canSell = !trader.hasOrders && trader.Balance.availableAsset > 0;
+    trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
     trader.toSell = expert.advice === -1;
 
     return trader;
@@ -117,7 +123,7 @@ export class TraderEngine {
   static async update(key: string): Promise<void> {
     const { expertId } = await TraderEngine.getTrader(key); // FIXME дважды выполняется запрос к бирже из-за эксперта
     // чтобы не запрашивать собранного трейдера дважды
-    // TODO например, назвать TraderCore то, что хранится в базе данных
+    // TODO например, назвать TraderData то, что хранится в базе данных
 
     const expert = await TraderEngine.getExpert(expertId);
     // если эксперт находится в активном состоянии, то его обновлять не надо
@@ -125,6 +131,15 @@ export class TraderEngine {
     await expert.update(expert); // зачем-то каждый раз выполняется обновление, эксперт активируется и обновляется самостоятельно
     // к запущенному эксперту можно обратиться, он без выполнения запроса предоставит нужные данные
     // на запущенного эксперта можно подписаться, он в нужный момент сгенерирует событие
+
+    // эксперта апдейтить не надо, он сам должен апдейтиться
+
+    // есть метод который просто возвращает текущего трейдера
+    // есть метод который обновляет текущего трейдера
+    // в любом случае трейдер существует и без обновления он меняться не будет
+    // трейдер не обязательно хранится в базе данных, хотя наверное сейчас хранится
+
+
 
     const { canCancel, toCancel, canBuy, toBuy, canSell, toSell, asset, currency, accountId } = await TraderEngine.getTrader(key);
     const keyId = new ObjectID(accountId);
