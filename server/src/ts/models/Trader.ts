@@ -136,9 +136,7 @@ export class Trader {
     const db = await connect();
     // const keyId = _id;
     const trader = new Trader(await db.collection("trader").findOne({ _id }));
-    const { currency, asset } = trader;
-    console.log("typeof trader.accountId", typeof trader.accountId);
-    const accountId = typeof trader.accountId === "string" ? new ObjectID(trader.accountId) : trader.accountId;
+    const { currency, asset, accountId } = trader;
     const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
     const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
 
@@ -165,11 +163,24 @@ export class Trader {
     trader.available = balance ? balance.available : 0;
     trader.availableAsset = balanceAsset ? balanceAsset.available : 0
 
-    const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    let expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    await expert.update(expert);
+    // expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
     trader.canBuy = !trader.hasOrders && trader.available > 0;
+    const prevToBuy = trader.toBuy;
     trader.toBuy = expert.advice === 1;
     trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
     trader.toSell = expert.advice === -1;
+
+    if (expert.advice === 1) trader.positionMode = 'long';
+    if (expert.advice === -1) trader.positionMode = 'short';
+    // если ни то ни другое, то не меняется
+    // если режим стоп-лосс, и цена ниже предельной, тогда short
+    // если toBuy, а предыдущий нет
+    if (trader.stoplossEnabled) {
+      if (!prevToBuy && trader.toBuy) trader.stoplossPrice = expert.lastCLose * (1 - trader.stoplossLimit);
+      if (bid <= trader.stoplossPrice) trader.positionMode = 'short';
+    }
 
     // positionMode
     // stoploss...
