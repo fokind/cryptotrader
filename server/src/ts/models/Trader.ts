@@ -24,6 +24,18 @@ export class Trader {
   @Edm.Double
   public buyQuantity: number
 
+  @Edm.Double
+  public stoplossLimit: number // доля от цены открытия, на которую рыночная цена может упасть
+
+  @Edm.Double
+  public stoplossPrice: number
+
+  @Edm.String
+  public positionMode: string // принимает значения только long или short
+
+  @Edm.Boolean
+  public stoplossEnabled: boolean
+
   @Edm.Boolean
   public active: boolean
 

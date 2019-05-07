@@ -24,6 +24,9 @@
             selectedKey="{draft>/accountId}">
             <core:Item key="{data>_id}" text="{data>name}"/>
           </Select>
+          <CheckBox text="Stop-loss enabled" selected="{data>stoplossEnabled}"/>
+          <Label text="Stop-loss limit"/>
+          <Input value="{data>stoplossLimit}"/>
         </form:content>
       </form:SimpleForm>
     </content>
