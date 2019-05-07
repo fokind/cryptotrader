@@ -123,12 +123,58 @@ export class Trader {
   // }
 
   @Edm.Action
-  async update(@odata.result result: any): Promise<void> {
+  async update(@odata.result result: any): Promise<number> {
     const { _id } = this;
-    const trader = await TraderEngine.getTrader(_id.toHexString());
+    // const trader = await TraderEngine.getTrader(_id.toHexString());
+    // проапдейтить из биржи
+    // выполнить вычисления
     // сохранить
-    // модель ордеров? тикера? сохранить непосредственно в бд?
-    return;
+    // модель действительно должна уметь это делать?
+    // после апдейта можно выполнять действия
+    // рекомендации уже получены здесь
+
+    const db = await connect();
+    // const keyId = _id;
+    const trader = new Trader(await db.collection("trader").findOne({ _id }));
+    const { currency, asset } = trader;
+    console.log("typeof trader.accountId", typeof trader.accountId);
+    const accountId = typeof trader.accountId === "string" ? new ObjectID(trader.accountId) : trader.accountId;
+    const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
+
+    const orders = await ExchangeEngine.getOrders({ currency, asset, user, pass });
+    trader.hasOrders = !!orders.length;
+    if (orders.length) {
+      const { price: orderPrice } = orders[0];
+      trader.orderPrice = orderPrice;
+    }
+
+    const ticker = await ExchangeEngine.getTicker({ currency, asset });
+    const { ask, bid } = ticker;
+    trader.ask = ask;
+    trader.bid = bid;
+    trader.inSpread = trader.hasOrders
+      && trader.orderPrice <= ticker.ask
+      && trader.orderPrice >= ticker.bid;
+    trader.canCancel = !!trader.hasOrders;
+    trader.toCancel = trader.canCancel && !trader.inSpread; // TODO если не совпадает направление, то тоже отмена
+    
+    const portfolio = await ExchangeEngine.getPortfolio({ user, pass });
+    const balance = portfolio.find(e => e.currency === trader.currency);
+    const balanceAsset = portfolio.find(e => e.currency === trader.asset);
+    trader.available = balance ? balance.available : 0;
+    trader.availableAsset = balanceAsset ? balanceAsset.available : 0
+
+    const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    trader.canBuy = !trader.hasOrders && trader.available > 0;
+    trader.toBuy = expert.advice === 1;
+    trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
+    trader.toSell = expert.advice === -1;
+
+    // positionMode
+    // stoploss...
+
+    return db.collection("trader").updateOne({ _id }, { $set: trader }).then(result => result.modifiedCount);
   }
 
   @Edm.Action

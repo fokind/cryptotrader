@@ -38,71 +38,80 @@ export class TraderController extends ODataController {
   }
 
   @odata.GET
-  async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Trader> {
+  public async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Trader> {
     const db = await connect();
-    const mongodbQuery = createQuery(query);
-    // на самом деле обращение должно происходить к движку
-    // этот движок должен кэшировать сохраненный объект, ловить все изменения к нему
-    // этот движок должен самостоятельно взаимодействовать с другими API
-    // движок сам понимает в каком состоянии он находится и какие данные возвращать
-    // самы выбирает способ получения данных, кэшировать их или нет и т.п.
-    // движок снимет проблему синхорнизации запросов
-    const keyId = new ObjectID(key);
-    const { projection } = mongodbQuery;
-    projection.currency = 1;
-    projection.asset = 1;
-    projection.accountId = 1;
-    const trader = new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
-    const { currency, asset, accountId } = trader;
-    const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
-    const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
-    await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
-      // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
-      ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
-        trader.hasOrders = !!orders.length;
-        if (orders.length) {
-          const { orderPrice, orderSide } = orders[0];
-          trader.orderPrice = orderPrice;
-          trader.orderSide = orderSide;
-        }
-        resolve();
-      });
-    });
-
-    await new Promise(resolve => {
-      ExchangeEngine.getTicker({ currency, asset }).then(ticker => {
-        const { ask, bid } = ticker;
-        trader.ask = ask;
-        trader.bid = bid;
-        trader.inSpread = trader.hasOrders
-          && trader.orderPrice <= ticker.ask
-          && trader.orderPrice >= ticker.bid;
-        trader.canCancel = !!trader.hasOrders;
-        trader.toCancel = trader.canCancel && !trader.inSpread;
-        resolve();
-      });
-    });
-
-    await new Promise(resolve => {
-      ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
-        const balance = portfolio.find(e => e.currency === trader.currency);
-        const balanceAsset = portfolio.find(e => e.currency === trader.asset);
-        trader.available = balance ? balance.available : 0;
-        trader.availableAsset = balanceAsset ? balanceAsset.available : 0;
-
-        resolve();
-      });
-    });
-
-    const decimals = 6;
-    trader.buyQuantity = +((Math.floor((trader.available / trader.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));
-    const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
-    trader.canBuy = !trader.hasOrders && trader.available > 0;
-    trader.toBuy = expert.advice === 1;
-    trader.canSell = !trader.hasOrders && trader.availableAsset > 0; 
-    trader.toSell = expert.advice === -1;
-    return trader;
+    const { projection } = createQuery(query);
+    let keyId;
+    try { keyId = new ObjectID(key); } catch (err) { keyId = key; }
+    return new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
   }
+
+  // @odata.GET
+  // async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Trader> {
+  //   const db = await connect();
+  //   const mongodbQuery = createQuery(query);
+  //   // на самом деле обращение должно происходить к движку
+  //   // этот движок должен кэшировать сохраненный объект, ловить все изменения к нему
+  //   // этот движок должен самостоятельно взаимодействовать с другими API
+  //   // движок сам понимает в каком состоянии он находится и какие данные возвращать
+  //   // самы выбирает способ получения данных, кэшировать их или нет и т.п.
+  //   // движок снимет проблему синхорнизации запросов
+  //   const keyId = new ObjectID(key);
+  //   const { projection } = mongodbQuery;
+  //   projection.currency = 1;
+  //   projection.asset = 1;
+  //   projection.accountId = 1;
+  //   const trader = new Trader(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
+  //   const { currency, asset, accountId } = trader;
+  //   const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
+  //   const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
+  //   await new Promise(resolve => { // TODO эти данные сервер может обновлять по расписанию, результат помещать во временное хранилище
+  //     // в активном состоянии обращение будет происходить к кэшу, в неактивном как сейчас
+  //     ExchangeEngine.getOrders({ currency, asset, user, pass }).then((orders: any[]) => {
+  //       trader.hasOrders = !!orders.length;
+  //       if (orders.length) {
+  //         const { orderPrice, orderSide } = orders[0];
+  //         trader.orderPrice = orderPrice;
+  //         trader.orderSide = orderSide;
+  //       }
+  //       resolve();
+  //     });
+  //   });
+
+  //   await new Promise(resolve => {
+  //     ExchangeEngine.getTicker({ currency, asset }).then(ticker => {
+  //       const { ask, bid } = ticker;
+  //       trader.ask = ask;
+  //       trader.bid = bid;
+  //       trader.inSpread = trader.hasOrders
+  //         && trader.orderPrice <= ticker.ask
+  //         && trader.orderPrice >= ticker.bid;
+  //       trader.canCancel = !!trader.hasOrders;
+  //       trader.toCancel = trader.canCancel && !trader.inSpread;
+  //       resolve();
+  //     });
+  //   });
+
+  //   await new Promise(resolve => {
+  //     ExchangeEngine.getPortfolio({ user, pass }).then((portfolio: Portfolio[]) => {
+  //       const balance = portfolio.find(e => e.currency === trader.currency);
+  //       const balanceAsset = portfolio.find(e => e.currency === trader.asset);
+  //       trader.available = balance ? balance.available : 0;
+  //       trader.availableAsset = balanceAsset ? balanceAsset.available : 0;
+
+  //       resolve();
+  //     });
+  //   });
+
+  //   const decimals = 6;
+  //   trader.buyQuantity = +((Math.floor((trader.available / trader.bid) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals));
+  //   const expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+  //   trader.canBuy = !trader.hasOrders && trader.available > 0;
+  //   trader.toBuy = expert.advice === 1;
+  //   trader.canSell = !trader.hasOrders && trader.availableAsset > 0; 
+  //   trader.toSell = expert.advice === -1;
+  //   return trader;
+  // }
 
   @odata.POST
   async post(@odata.body data: any): Promise<Trader> {
