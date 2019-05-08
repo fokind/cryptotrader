@@ -1,9 +1,9 @@
 import { ObjectID } from "mongodb";
 import { Edm, odata } from "odata-v4-server";
-import { Ticker } from "./Ticker";
-import { Balance } from "./Balance";
+// import { Ticker } from "./Ticker";
+// import { Balance } from "./Balance";
 import { Expert } from "./Expert";
-import { Order } from "./Order";
+// import { Order } from "./Order";
 import connect from "../connect";
 import { TraderEngine } from "../engine/Trader";
 import { Account } from "./Account";
@@ -23,6 +23,18 @@ export class Trader {
 
   @Edm.Double
   public buyQuantity: number
+
+  @Edm.Double
+  public stoplossLimit: number // доля от цены открытия, на которую рыночная цена может упасть
+
+  @Edm.Double
+  public stoplossPrice: number
+
+  @Edm.String
+  public positionMode: string // принимает значения только long или short
+
+  @Edm.Boolean
+  public stoplossEnabled: boolean
 
   @Edm.Boolean
   public active: boolean
@@ -57,11 +69,24 @@ export class Trader {
   @Edm.String
   public accountId: ObjectID
 
-  @Edm.ComplexType(Edm.ForwardRef(() => Ticker))
-  public Ticker: Ticker
+  // @Edm.ComplexType(Edm.ForwardRef(() => Ticker))
+  // public Ticker: Ticker
 
-  @Edm.ComplexType(Edm.ForwardRef(() => Balance))
-  public Balance: Balance
+  @Edm.Double
+  public ask: number;
+
+  @Edm.Double
+  public bid: number;
+
+  // @Edm.ComplexType(Edm.ForwardRef(() => Balance))
+  // public Balance: Balance
+
+  @Edm.Double
+  public available: number;
+
+  @Edm.Double
+  public availableAsset: number;
+
 
   @Edm.EntityType(Edm.ForwardRef(() => Expert))
   public Expert: Expert
@@ -69,8 +94,14 @@ export class Trader {
   @Edm.EntityType(Edm.ForwardRef(() => Account))
   public Account: Account
 
-  @Edm.ComplexType(Edm.ForwardRef(() => Order))
-  public Order: Order // не нашел возможности пользоваться асинхронными свойствами
+  // @Edm.ComplexType(Edm.ForwardRef(() => Order))
+  // public Order: Order // не нашел возможности пользоваться асинхронными свойствами
+
+  @Edm.Double
+  public orderPrice: number;
+
+  @Edm.String
+  public orderSide: string;
 
   // TODO разобраться как использовать
   // @Edm.Function
@@ -82,13 +113,79 @@ export class Trader {
   //   });
   // }
 
+  // @Edm.Action
+  // async update(@odata.result result: any): Promise<number> {
+  //   const { _id } = this;
+  //   const db = await connect();
+  //   const { expertId } = await db.collection("trader").findOne({ _id });
+  //   const expert = new Expert(await db.collection("expert").findOne({ _id: expertId }));
+  //   return expert.update(expert);
+  // }
+
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
     const { _id } = this;
+    // const trader = await TraderEngine.getTrader(_id.toHexString());
+    // проапдейтить из биржи
+    // выполнить вычисления
+    // сохранить
+    // модель действительно должна уметь это делать?
+    // после апдейта можно выполнять действия
+    // рекомендации уже получены здесь
+
     const db = await connect();
-    const { expertId } = await db.collection("trader").findOne({ _id });
-    const expert = new Expert(await db.collection("expert").findOne({ _id: expertId }));
-    return expert.update(expert);
+    // const keyId = _id;
+    const trader = new Trader(await db.collection("trader").findOne({ _id }));
+    const { currency, asset, accountId } = trader;
+    const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
+    const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
+
+    const orders = await ExchangeEngine.getOrders({ currency, asset, user, pass });
+    trader.hasOrders = !!orders.length;
+    if (orders.length) {
+      const { price: orderPrice } = orders[0];
+      trader.orderPrice = orderPrice;
+    }
+
+    const ticker = await ExchangeEngine.getTicker({ currency, asset });
+    const { ask, bid } = ticker;
+    trader.ask = ask;
+    trader.bid = bid;
+    trader.inSpread = trader.hasOrders
+      && trader.orderPrice <= ticker.ask
+      && trader.orderPrice >= ticker.bid;
+    trader.canCancel = !!trader.hasOrders;
+    trader.toCancel = trader.canCancel && !trader.inSpread; // TODO если не совпадает направление, то тоже отмена
+    
+    const portfolio = await ExchangeEngine.getPortfolio({ user, pass });
+    const balance = portfolio.find(e => e.currency === trader.currency);
+    const balanceAsset = portfolio.find(e => e.currency === trader.asset);
+    trader.available = balance ? balance.available : 0;
+    trader.availableAsset = balanceAsset ? balanceAsset.available : 0
+
+    let expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    await expert.update(expert);
+    // expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    trader.canBuy = !trader.hasOrders && trader.available > 0;
+    const prevToBuy = trader.toBuy;
+    trader.toBuy = expert.advice === 1;
+    trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
+    trader.toSell = expert.advice === -1;
+
+    if (expert.advice === 1) trader.positionMode = 'long';
+    if (expert.advice === -1) trader.positionMode = 'short';
+    // если ни то ни другое, то не меняется
+    // если режим стоп-лосс, и цена ниже предельной, тогда short
+    // если toBuy, а предыдущий нет
+    if (trader.stoplossEnabled) {
+      if (!prevToBuy && trader.toBuy) trader.stoplossPrice = expert.lastCLose * (1 - trader.stoplossLimit);
+      if (bid <= trader.stoplossPrice) trader.positionMode = 'short';
+    }
+
+    // positionMode
+    // stoploss...
+
+    return db.collection("trader").updateOne({ _id }, { $set: trader }).then(result => result.modifiedCount);
   }
 
   @Edm.Action

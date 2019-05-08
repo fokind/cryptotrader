@@ -3,10 +3,10 @@ import { Edm, odata } from "odata-v4-server";
 import { Strategy } from "./Strategy";
 import { MarketData } from "./MarketData";
 
-const tulind = require('tulind');
 import connect from "../connect";
 import { ExpertEngine } from "../engine/Expert";
 import { Indicator } from "./Indicator";
+import { Candle } from "./Candle";
 
 export class Expert {
   @Edm.Key
@@ -25,6 +25,9 @@ export class Expert {
 
   @Edm.Int32
   public advice: number
+
+  @Edm.Double
+  public lastCLose: number
 
   @Edm.Int32
   public delay: number
@@ -59,12 +62,9 @@ export class Expert {
     const marketData = new MarketData(await db.collection("marketData").findOne({ _id: marketDataId }));
     if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
       const candles = await db.collection("candle").find({ marketDataId })
-        .sort({ time: -1 }).limit(28).toArray(); // свечи отранжированы?
+        .sort({ time: -1 }).limit(28).map(e => new Candle(e)).toArray(); // свечи отранжированы?
       // console.log(candles);
       // UNDONE 28 заменить на параметр из стратегии warmupPeriod
-
-
-
 
       // в бэктест добавить индикатор
       // нужно только заданное число свечей
@@ -87,15 +87,15 @@ export class Expert {
       return await new Promise<number>(resolve => {
         // свечи отранжированы?
         // strategyFunction(candles, tulind, (err, advice) => {
-          if (lastUpdate !== marketData.end || expert.advice !== advice) {
-            const delta = { advice, lastUpdate: marketData.end };
-            db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
-              Object.assign(expert, delta);
-              resolve(result.modifiedCount);
-            });
-          } else {
-            resolve(0);
-          }
+        if (lastUpdate !== marketData.end || expert.advice !== advice) {
+          const delta = { advice, lastUpdate: marketData.end, lastCLose: candles[candles.length - 1].close };
+          db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
+            Object.assign(expert, delta);
+            resolve(result.modifiedCount);
+          });
+        } else {
+          resolve(0);
+        }
         // });
       });
     } else {

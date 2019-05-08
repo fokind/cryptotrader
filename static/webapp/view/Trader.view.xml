@@ -41,6 +41,33 @@
 				<form:formContainers>
 					<form:FormContainer>
 						<form:title>
+							<core:Title text="Trader"/>
+						</form:title>
+						<form:formElements>
+							<form:FormElement label="Stop-loss enabled">
+								<form:fields>
+									<Text text="{data>stoplossEnabled}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Stop-loss limit">
+								<form:fields>
+									<Text text="{data>stoplossLimit}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Positon mode">
+								<form:fields>
+									<Text text="{data>positionMode}"/>
+								</form:fields>
+							</form:FormElement>
+							<form:FormElement label="Stop-loss price">
+								<form:fields>
+									<Text text="{data>stoplossPrice}"/>
+								</form:fields>
+							</form:FormElement>
+						</form:formElements>
+					</form:FormContainer>
+					<form:FormContainer>
+						<form:title>
 							<core:Title text="Expert"/>
 						</form:title>
 						<form:formElements>
@@ -78,12 +105,12 @@
 						<form:formElements>
 							<form:FormElement label="Ask">
 								<form:fields>
-									<Text text="{data>Ticker/ask}"/>
+									<Text text="{data>ask}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="Bid">
 								<form:fields>
-									<Text text="{data>Ticker/bid}"/>
+									<Text text="{data>bid}"/>
 								</form:fields>
 							</form:FormElement>
 						</form:formElements>
@@ -95,7 +122,7 @@
 						<form:formElements>
 							<form:FormElement label="Price">
 								<form:fields>
-									<Text text="{data>Order/price}"/>
+									<Text text="{data>orderPrice}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="In spread">
@@ -112,12 +139,12 @@
 						<form:formElements>
 							<form:FormElement label="{data>currency}">
 								<form:fields>
-									<Text text="{data>Balance/available}"/>
+									<Text text="{data>available}"/>
 								</form:fields>
 							</form:FormElement>
 							<form:FormElement label="{data>asset}">
 								<form:fields>
-									<Text text="{data>Balance/availableAsset}"/>
+									<Text text="{data>availableAsset}"/>
 								</form:fields>
 							</form:FormElement>
 						</form:formElements>
@@ -142,6 +169,7 @@
 				<Button icon="sap-icon://media-play" text="Start" enabled="{= !${data>active}}" press=".onStartPress"/>
 				<Button icon="sap-icon://media-pause" text="Stop" enabled="{= !!${data>active}}" press=".onStopPress"/>
 				<ToolbarSpacer/>
+				<!-- UNDONE булевый тип данных некорректно работает в локализации -->
 				<Button text="Cancel" type="{= ${data>toCancel} === 'Да' ? 'Emphasized' : 'Default'}" enabled="{= !!${data>canCancel}}" press=".onCancelPress"/>
 				<Button text="Buy" type="{= ${data>toBuy} === 'Да' ? 'Emphasized' : 'Default'}" enabled="{= !!${data>canBuy}}" press=".onBuyPress"/>
 				<Button text="Sell" type="{= ${data>toSell} === 'Да' ? 'Emphasized' : 'Default'}"  enabled="{= !!${data>canSell}}" press=".onSellPress"/>
