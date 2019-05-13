@@ -82,7 +82,7 @@ export class BacktestController extends ODataController {
         const indicatorsPromise = <Promise<Indicator[]>>db.collection("indicator").find({ strategyId: data.strategyId }).toArray();
         Promise.all([candlesPromise, strategyPromise, indicatorsPromise]).then((result) => {
           const candles = result[0].filter(e => moment(e.time).isBetween(begin, end, 'd', "[]"));
-          console.log(candles.length);
+          // console.log(candles.length);
 
           const { code } = result[1];
           const indicators = result[2];

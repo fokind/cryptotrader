@@ -70,9 +70,9 @@ export class Hitbtc implements IExchange, IMarketDataSource {
         callback => request.get({
           baseUrl: BASE_URL,
           url: 'order',
-          qs: {
+         /* qs: {
             symbol: asset + currency
-          },
+          },*/
           auth: {
             user,
             pass
@@ -80,6 +80,7 @@ export class Hitbtc implements IExchange, IMarketDataSource {
         }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
+            // console.log(body);
             orders = JSON.parse(body).map(e => ({
               _id: e.clientOrderId,
               // createdAt: e.createdAt,

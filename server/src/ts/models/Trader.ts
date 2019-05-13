@@ -125,6 +125,7 @@ export class Trader {
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
     const { _id } = this;
+    // console.log(this);
     // const trader = await TraderEngine.getTrader(_id.toHexString());
     // проапдейтить из биржи
     // выполнить вычисления
@@ -136,11 +137,13 @@ export class Trader {
     const db = await connect();
     // const keyId = _id;
     const trader = new Trader(await db.collection("trader").findOne({ _id }));
+    // console.log(trader);
     const { currency, asset, accountId } = trader;
     const { value: user } = await db.collection("credential").findOne({ accountId, name: "API" });
     const { value: pass } = await db.collection("credential").findOne({ accountId, name: "SECRET" });
 
     const orders = await ExchangeEngine.getOrders({ currency, asset, user, pass });
+    // console.log(orders);
     trader.hasOrders = !!orders.length;
     if (orders.length) {
       const { price: orderPrice } = orders[0];
@@ -148,6 +151,7 @@ export class Trader {
     }
 
     const ticker = await ExchangeEngine.getTicker({ currency, asset });
+    // console.log(ticker);
     const { ask, bid } = ticker;
     trader.ask = ask;
     trader.bid = bid;
@@ -158,14 +162,18 @@ export class Trader {
     trader.toCancel = trader.canCancel && !trader.inSpread; // TODO если не совпадает направление, то тоже отмена
     
     const portfolio = await ExchangeEngine.getPortfolio({ user, pass });
+    // console.log(portfolio);
     const balance = portfolio.find(e => e.currency === trader.currency);
     const balanceAsset = portfolio.find(e => e.currency === trader.asset);
     trader.available = balance ? balance.available : 0;
     trader.availableAsset = balanceAsset ? balanceAsset.available : 0
 
     let expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    // console.log(expert);
     await expert.update(expert);
-    // expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    // console.log(1);
+    expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
+    // console.log(expert);
     trader.canBuy = !trader.hasOrders && trader.available > 0;
     const prevToBuy = trader.toBuy;
     trader.toBuy = expert.advice === 1;
@@ -185,6 +193,7 @@ export class Trader {
     // positionMode
     // stoploss...
 
+    // console.log(trader);
     return db.collection("trader").updateOne({ _id }, { $set: trader }).then(result => result.modifiedCount);
   }
 

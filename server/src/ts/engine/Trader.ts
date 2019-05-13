@@ -123,14 +123,14 @@ export class TraderEngine {
 
   static async update(key: string): Promise<void> {
     const trader = await TraderEngine.getTrader(key); // FIXME дважды выполняется запрос к бирже из-за эксперта
-    const { expertId } = trader; // FIXME дважды выполняется запрос к бирже из-за эксперта
+    // const { expertId } = trader; // FIXME дважды выполняется запрос к бирже из-за эксперта
     // чтобы не запрашивать собранного трейдера дважды
     // TODO например, назвать TraderData то, что хранится в базе данных
 
-    const expert = await TraderEngine.getExpert(expertId);
+    // const expert = await TraderEngine.getExpert(expertId);
     // если эксперт находится в активном состоянии, то его обновлять не надо
     // если в пассивном, то надо
-    await expert.update(expert); // зачем-то каждый раз выполняется обновление, эксперт активируется и обновляется самостоятельно
+    // await expert.update(expert); // зачем-то каждый раз выполняется обновление, эксперт активируется и обновляется самостоятельно
     // к запущенному эксперту можно обратиться, он без выполнения запроса предоставит нужные данные
     // на запущенного эксперта можно подписаться, он в нужный момент сгенерирует событие
 
