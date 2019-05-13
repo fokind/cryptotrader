@@ -112,7 +112,8 @@ export class TraderEngine {
 
   static async getTrader(key: string): Promise<Trader> {
     const db = await connect();
-    return new Trader(await db.collection("trader").findOne({ _id: key }));
+    const keyId = new ObjectID(key);
+    return new Trader(await db.collection("trader").findOne({ _id: keyId }));
   }
 
   static async getExpert(key: ObjectID): Promise<Expert> {
