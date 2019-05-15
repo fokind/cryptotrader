@@ -56,13 +56,14 @@ export class Expert {
     // если кэш устарел, тогда проделать обновление
     
     const expert = this;
+    // console.log(expert);
     const { marketDataId, _id, strategyId, lastUpdate } = this;
 
     const db = await connect();
     const marketData = new MarketData(await db.collection("marketData").findOne({ _id: marketDataId }));
     if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
       const candles = await db.collection("candle").find({ marketDataId })
-        .sort({ time: -1 }).limit(28).map(e => new Candle(e)).toArray(); // свечи отранжированы?
+        .sort({ time: -1 }).limit(29).map(e => new Candle(e)).toArray(); // свечи отранжированы?
       // console.log(candles);
       // UNDONE 28 заменить на параметр из стратегии warmupPeriod
 
@@ -70,8 +71,11 @@ export class Expert {
       // нужно только заданное число свечей
       // они должны быть по возрастанию
       const { code } = await db.collection("strategy").findOne({ _id: strategyId });
+      // console.log(code);
       const indicators = await db.collection("indicator").find({ strategyId }).map(e => new Indicator(e)).toArray();
 
+      // console.log(indicators);
+      // FIXME  здесь вычисленные индикаторы?
       const strategyFunction = new Function(
         'reversedIndicators',
         code,
@@ -89,6 +93,7 @@ export class Expert {
         // strategyFunction(candles, tulind, (err, advice) => {
         if (lastUpdate !== marketData.end || expert.advice !== advice) {
           const delta = { advice, lastUpdate: marketData.end, lastCLose: candles[candles.length - 1].close };
+          // console.log(delta);
           db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
             Object.assign(expert, delta);
             resolve(result.modifiedCount);
