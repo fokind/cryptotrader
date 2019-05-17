@@ -30,8 +30,8 @@ export class Trader {
   @Edm.Double
   public stoplossPrice: number
 
-  @Edm.String
-  public positionMode: string // принимает значения только long или short
+  @Edm.Int32
+  public positionMode: number // принимает значения только long или short
 
   @Edm.Boolean
   public stoplossEnabled: boolean
@@ -176,22 +176,39 @@ export class Trader {
     // console.log(expert);
     trader.canBuy = !trader.hasOrders && trader.available > 0;
     const prevToBuy = trader.toBuy;
-    trader.toBuy = expert.advice === 1;
-    trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
-    trader.toSell = expert.advice === -1;
 
-    if (expert.advice === 1) trader.positionMode = 'long';
-    if (expert.advice === -1) trader.positionMode = 'short';
+    if (expert.advice !== 0) {
+      trader.toBuy = expert.advice === 1;
+      trader.toSell = expert.advice === -1;
+    }
+
+    trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
+
+    // if (expert.advice === 1) trader.positionMode = 1; // TODO заменить на числа
+    // if (expert.advice === -1) trader.positionMode = 0;
     // если ни то ни другое, то не меняется
     // если режим стоп-лосс, и цена ниже предельной, тогда short
     // если toBuy, а предыдущий нет
     if (trader.stoplossEnabled) {
-      if (!prevToBuy && trader.toBuy) trader.stoplossPrice = expert.lastCLose * (1 - trader.stoplossLimit);
-      if (bid <= trader.stoplossPrice) trader.positionMode = 'short';
+      if (!prevToBuy && expert.advice === 1) trader.stoplossPrice = expert.lastCLose * (1 - trader.stoplossLimit);
+      if (bid <= trader.stoplossPrice) {
+        trader.toBuy = false;
+        trader.toSell = true;
+      }
+      // if (trader.positionMode && trader.bid < trader.stoplossPrice)
     }
+
+    // лонг если последний совет был купить
+    // шот если продать
+    // если сработал стоп-лосс - то продать
+    // купить или продать - это то же самое что шот и лонг? разницы не нахожу вообще
+    // одно понятно, что есть момент изменения сигнала и его нужно обрабатывать независимо
 
     // positionMode
     // stoploss...
+
+    // короче режим лонг открывается в момент поступления сигнала
+    // закрывается в момент другого сигнала или стопа
 
     // console.log(trader);
     return db.collection("trader").updateOne({ _id }, { $set: trader }).then(result => result.modifiedCount);

@@ -17,7 +17,10 @@ sap.ui.define([
 			this.getView().getModel("view").setProperty("/tab", "strategies");
 			var mArguments = oEvent.getParameter("arguments");
 			var sId = mArguments.id;
-			this.getView().bindElement("data>/Strategies(\'" + sId + "\')");
+			this.getView().bindElement({
+				model: "data",
+				path: "/Strategies(\'" + sId + "\')"
+			});
 		},
 
 		onAddBacktestPress: function() {

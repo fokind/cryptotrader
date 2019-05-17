@@ -8,8 +8,8 @@ const exchanges = {
 };
 
 export enum SideEnum {
-  sell,
-  buy
+  Sell,
+  Buy
 };
 
 // export enum IntervalEnum {
@@ -108,7 +108,7 @@ export class ExchangeEngine {
     pass: string
   }): Promise<void> {
     const { user, pass, asset, currency, quantity, price } = options;
-    return exchanges.hitbtc.createOrder({ user, pass, asset, currency, quantity, price, side: SideEnum.buy });
+    return exchanges.hitbtc.createOrder({ user, pass, asset, currency, quantity, price, side: SideEnum.Buy });
   };
 
   static async sell(options: {
@@ -120,7 +120,7 @@ export class ExchangeEngine {
     pass: string
   }): Promise<void> {
     const { user, pass, asset, currency, quantity, price } = options;
-    return exchanges.hitbtc.createOrder({ user, pass, asset, currency, quantity, price, side: SideEnum.sell });
+    return exchanges.hitbtc.createOrder({ user, pass, asset, currency, quantity, price, side: SideEnum.Sell });
   };
 
   static async getSymbol(options: {
