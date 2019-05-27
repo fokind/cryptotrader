@@ -126,7 +126,7 @@ export class ExchangeEngine {
   static async getSymbol(options: {
     currency: string,
     asset: string,
-  }): Promise<{ quantityIncrement: number, takeLiquidityRate: number }> {
+  }): Promise<{ quantityIncrement: number, takeLiquidityRate: number, tickSize: number }> {
     return exchanges.hitbtc.getSymbol(options);
   };
 

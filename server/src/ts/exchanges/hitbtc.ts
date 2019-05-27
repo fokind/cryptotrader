@@ -133,9 +133,9 @@ export class Hitbtc implements IExchange, IMarketDataSource {
   async getSymbol(options: {
     currency: string,
     asset: string,
-  }): Promise<{ quantityIncrement: number, takeLiquidityRate: number }> {
+  }): Promise<{ quantityIncrement: number, takeLiquidityRate: number, tickSize: number }> {
     const { currency, asset } = options;
-    return new Promise<{ quantityIncrement: number, takeLiquidityRate: number }>((resolve, reject) => {
+    return new Promise<{ quantityIncrement: number, takeLiquidityRate: number, tickSize: number }>((resolve, reject) => {
       const TIMEOUT = 100;
       let symbol;
       // TODO добавить счетчик, ограничивающий число попыток
@@ -146,10 +146,11 @@ export class Hitbtc implements IExchange, IMarketDataSource {
         }, (err, res, body) => callback(undefined, res ? res.statusCode : undefined, body)),
         (statusCode, body, callback) => {
           if (statusCode === 200) {
-            const { quantityIncrement, takeLiquidityRate } = JSON.parse(body);
+            const { quantityIncrement, takeLiquidityRate, tickSize } = JSON.parse(body);
             symbol = {
               quantityIncrement: +quantityIncrement,
-              takeLiquidityRate: +takeLiquidityRate
+              takeLiquidityRate: +takeLiquidityRate,
+              tickSize: +tickSize
             };
             callback(undefined, false);
           } else setTimeout(() => { callback(undefined, true); }, TIMEOUT);

@@ -9,7 +9,7 @@ import { Expert } from "../models/Expert";
 import { ExchangeEngine } from "./Exchange";
 
 export class TraderEngine {
-  static async getSymbol({ currency, asset }): Promise<any> {
+  static async getSymbol({ currency, asset }): Promise<{ quantityIncrement: number, takeLiquidityRate: number, tickSize: number }> {
     return ExchangeEngine.getSymbol({ currency, asset });
   };
 
@@ -35,8 +35,9 @@ export class TraderEngine {
   };
 
   static async buy({ currency, asset, user, pass }): Promise<void> {
-    const { quantityIncrement, takeLiquidityRate } = await TraderEngine.getSymbol({ currency, asset });
-    const { bid: price } = await TraderEngine.getTicker({ currency, asset });
+    const { quantityIncrement, takeLiquidityRate, tickSize } = await TraderEngine.getSymbol({ currency, asset });
+    const { bid, ask } = await TraderEngine.getTicker({ currency, asset });
+    const price = +((ask + bid) / 2).toFixed(-Math.log10(tickSize));
     const { available } = await TraderEngine.getBalance({ currency, asset, user, pass });
     const quantity = +((Math.floor(available / quantityIncrement / price / (1 + takeLiquidityRate)) * quantityIncrement).toFixed(-Math.log10(quantityIncrement)));
     // console.log({ user, pass, asset, currency, quantity, price });
@@ -44,10 +45,11 @@ export class TraderEngine {
   }
 
   static async sell({ currency, asset, market, user, pass }: { currency: string, asset: string, market?: boolean, user: string, pass: string }): Promise<void> {
+    const { tickSize } = await TraderEngine.getSymbol({ currency, asset });
     let price;
     if (!market) {
-      const { ask } = await TraderEngine.getTicker({ currency, asset });
-      price = ask;
+      const { ask, bid } = await TraderEngine.getTicker({ currency, asset });
+      const price = +((ask + bid) / 2).toFixed(-Math.log10(tickSize));
     }
     
     const { availableAsset: quantity } = await TraderEngine.getBalance({ currency, asset, user, pass });
