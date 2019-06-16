@@ -3,7 +3,6 @@ import { createQuery } from "odata-v4-mongodb";
 import { ODataController, Edm, odata, ODataQuery } from "odata-v4-server";
 import { Expert } from "../models/Expert";
 import { Strategy } from "../models/Strategy";
-import { MarketData } from "../models/MarketData";
 import connect from "../connect";
 
 const collectionName = "expert";
@@ -33,27 +32,26 @@ export class ExpertController extends ODataController {
 
   @odata.GET
   async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Expert> {
+    const { projection } = createQuery(query);
+    const _id = new ObjectID(key);
     const db = await connect();
-    const mongodbQuery = createQuery(query);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return db.collection(collectionName).findOne({_id: keyId}, {
-      fields: mongodbQuery.projection // TODO заменить
-    });
+    return new Expert(await db.collection(collectionName).findOne({ _id }, { projection }));
   }
 
   @odata.POST
   async post(@odata.body data: any): Promise<Expert> {
+    const { strategyId, currency, asset, timeframe, exchangeKey } = data;
+    const expert: any = {
+      currency,
+      asset,
+      timeframe,
+      exchangeKey,
+      strategyId: new ObjectID(strategyId),
+    };
+
     const db = await connect();
-    const expert = new Expert(data); // добавить проверку входящих данных на соответствие типам
-    // никогда не доверяй внешним входящим данным!!!
-    expert.marketDataId = new ObjectID(data.marketDataId);
-    expert.strategyId = new ObjectID(data.strategyId);
-  
-    return await db.collection(collectionName).insertOne(expert).then((result) => {
-      expert._id = result.insertedId;
-      return expert;
-    });
+    expert._id = (await db.collection(collectionName).insertOne(expert)).insertedId;
+    return new Expert(expert); // UNDONE поменять в UI
   }
 
   @odata.DELETE
@@ -62,16 +60,6 @@ export class ExpertController extends ODataController {
     let keyId;
     try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
-  }
-
-  @odata.GET("MarketData")
-  async getMarketData(@odata.result result: any, @odata.query query: ODataQuery): Promise<MarketData> {
-    const db = await connect();
-    const mongodbQuery = createQuery(query);
-    const marketDataId = new ObjectID(result.marketDataId);
-    return db.collection("marketData").findOne({ _id: marketDataId }, {
-      fields: mongodbQuery.projection
-    });
   }
 
   @odata.GET("Strategy")

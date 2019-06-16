@@ -7,7 +7,7 @@ export default async function(): Promise<Db>{
     "mongodb://localhost:27017/crypto" :
     "mongodb://localhost:27017/crypto";
 
-    if (!connect) connect = await MongoClient.connect(uri);
+    if (!connect) connect = await MongoClient.connect(uri, { useNewUrlParser: true });
     if (!connect.isConnected()) await connect.connect();
     
     return connect.db('crypto');

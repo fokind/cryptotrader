@@ -170,7 +170,7 @@ export class Trader {
 
     let expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
     // console.log(expert);
-    await expert.update(expert);
+    // await expert.update(expert);
     // console.log(1);
     expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
     // console.log(expert);

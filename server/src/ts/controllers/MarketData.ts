@@ -15,14 +15,15 @@ export class MarketDataController extends ODataController {
   async get(@odata.query query: ODataQuery): Promise<MarketData[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
-    if (typeof mongodbQuery.query._id == "string") mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
-    let result = typeof mongodbQuery.limit == "number" && mongodbQuery.limit === 0 ? [] : await db.collection(collectionName)
+    if (mongodbQuery.query._id) mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
+    const result = typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0 ? [] : await db.collection(collectionName)
       .find(mongodbQuery.query)
       .project(mongodbQuery.projection)
       .skip(mongodbQuery.skip || 0)
       .limit(mongodbQuery.limit || 0)
       .sort(mongodbQuery.sort)
-      .toArray();//TODO заменить на поток
+      .map(e => new MarketData(e))
+      .toArray();
     if (mongodbQuery.inlinecount) {
       (<any>result).inlinecount = await db.collection(collectionName)
         .find(mongodbQuery.query)
@@ -34,11 +35,10 @@ export class MarketDataController extends ODataController {
 
   @odata.GET
   async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<MarketData> {
-    const db = await connect();
     const { projection } = createQuery(query);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return db.collection(collectionName).findOne({ _id: keyId }, { projection });
+    const _id = new ObjectID(key);
+    const db = await connect();
+    return new MarketData(await db.collection(collectionName).findOne({ _id }, { projection }));
   }
 
   @odata.POST
