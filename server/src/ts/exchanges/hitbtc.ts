@@ -287,24 +287,32 @@ export class Hitbtc implements IExchange, IMarketDataSource {
   };
 
   // TODO перенести логику работы с лимитом в обобщающий класс
-  async getCandles({ currency, asset, timeframe, start, end }: {
+  async getCandles({ currency, asset, timeframe, start, end, limit }: {
     currency: string,
     asset: string,
     timeframe: string,
     start?: string,
-    end?: string
+    end?: string,
+    limit?: number,
   }): Promise<ICandle[]> {
     const url = `public/candles/${asset}${currency}`;
     // console.log({ currency, asset, timeframe, start, end });
 
-    const startMoment = moment.utc(start);
-    // console.log(startMoment.toISOString());
     const endMoment = moment.utc(end);
     // console.log(endMoment.toISOString());
 
+    // console.log(startMoment.toISOString());
+    // UNDONE limit если указан лимит вместо старта - необходимо вычислить старт соответствующим образом
+
     const timeframeMinutes = Hitbtc.timeframeToMinutes(timeframe);
-    const rangeMinutes = endMoment.diff(startMoment, 'm');
-    const ticks = rangeMinutes / timeframeMinutes;
+    
+    const startMoment = moment.utc(start);
+    if (!start) {
+      startMoment.add(-limit * timeframeMinutes, 'm');
+    }
+    // console.log(startMoment);
+
+    const ticks = endMoment.diff(startMoment, 'm') / timeframeMinutes;
     const iterations = ticks / CANDLES_LIMIT;
     
     // console.log(rangeMinutes, timeframeMinutes, ticks, iterations);

@@ -1,39 +1,30 @@
 import * as tulind from 'tulind';
-import * as moment from 'moment';
-import { Indicator } from '../models/Indicator';
 import { ObjectID } from "mongodb";
 import connect from "../connect";
-import { Expert } from '../models/Expert';
+import { ExchangeEngine, ICandle } from './Exchange';
 
 export class ExpertEngine {
-  // static calculateIndicator(name, candles, options): Promise<number[][]> {
-  //   return tulind.indicators[name].indicator(tulind.indicators[name].input_names.map(e => candles.map(c => c[e])), options);
-  // };
-
-  // static async calculateAdvice({ // UNDONE должен всегда выполняться по живым данным, можно кэшировать
-  //   candles,
-  //   strategyFunction,
-  //   indicators,
-  // }: {
-  //   candles: { time: string, close: number }[], // UNDONE переделать на строку!!!!!
-  //   strategyFunction: Function,
-  //   indicators: Indicator[],
-  // }): Promise<number> {
-  //   const sorted = candles.sort((a, b) => moment(a.time).isAfter(b.time) ? 1 : -1);
-  //   const { name: indicatorName, options } = indicators[0]; // UNDONE сделать произвольное число индикаторов
-  //   const reversedIndicators0 = (await ExpertEngine.calculateIndicator(indicatorName, sorted, JSON.parse(options)))[0].reverse(); // UNDONE заменить на пользовательский индикатор
-  //   const advice = strategyFunction(reversedIndicators0);
-
-  //   return new Promise<number>(resolve => resolve(advice));
-  // };
+  static calculateIndicator(name: string, candles: ICandle[], options: any): Promise<number[][]> {
+    return tulind.indicators[name].indicator(tulind.indicators[name].input_names.map(e => candles.map(c => c[e])), options);
+  };
 
   static async getAdvice(expertId: ObjectID): Promise<number> {
     // запросить свечи
     // нужна заданная длина ряда
+
+    // console.log(typeof expertId);
     const db = await connect();
-    var { strategyId } = (await db.collection("expert").findOne({ _id: expertId }))
-    const { code } = await db.collection("strategy").findOne({ _id: strategyId });
-    const indicators = [ 1 ]; // UNDONE доделать индикаторы!!!!
+    var { strategyId, currency, asset, timeframe, exchangeKey } = (await db.collection("expert").findOne({ _id: expertId }))
+    // console.log({ strategyId, currency, asset, timeframe, exchangeKey });
+
+    const { code, indicatorKey, indicatorOptions, warmup } = await db.collection("strategy").findOne({ _id: strategyId });
+    // console.log({ code, indicatorKey, indicatorOptions, warmup });
+
+    var candles = await ExchangeEngine.getCandles(exchangeKey, { currency, asset, timeframe, limit: warmup });
+
+    const indicators = (await ExpertEngine.calculateIndicator(indicatorKey, candles, JSON.parse(indicatorOptions)))[0].reverse();
+    // console.log(indicators);
+
     const strategyFunction = new Function(
       'indicators',
       code,

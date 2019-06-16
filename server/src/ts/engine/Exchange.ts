@@ -1,22 +1,13 @@
-// import { Order } from '../models/Order';
 import { Hitbtc } from '../exchanges/hitbtc';
-// import { Cryptocompare } from '../exchanges/cryptocompare';
 
 const exchanges = {
   hitbtc: new Hitbtc(),
-  // cryptocompare: new Cryptocompare(),
 };
 
 export enum SideEnum {
   Sell,
   Buy
 };
-
-// export enum IntervalEnum {
-//   "M1",
-//   "H1",
-//   "D1"
-// };
 
 export interface IExchange {
   createOrder(options: {
@@ -158,9 +149,10 @@ export class ExchangeEngine {
   static async getCandles(exchange: string, options: {
     currency: string,
     asset: string,
-    period: string,
+    timeframe: string,
     begin?: string,
-    end?: string
+    end?: string,
+    limit?: number,
   }): Promise<ICandle[]> {
     return exchanges[exchange].getCandles(options); // UNDONE удалять последний элемент
   };

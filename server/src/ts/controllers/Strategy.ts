@@ -39,32 +39,41 @@ export class StrategyController extends ODataController {
 
   @odata.GET
   public async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Strategy> {
-    const db = await connect();
     const { projection } = createQuery(query);
-    let keyId;
-    try { keyId = new ObjectID(key); } catch (err) { keyId = key; }
-    return new Strategy(await db.collection(collectionName).findOne({ _id: keyId }, { projection }));
+    const _id = new ObjectID(key);
+    const db = await connect();
+    return new Strategy(await db.collection(collectionName).findOne({ _id }, { projection }));
   }
 
   @odata.POST
   async post(@odata.body data: any): Promise<Strategy> {
-    const db = await connect();
-    const { name = '', code = '', version = 0, Indicator } = data; // TODO сделать везде по этому образцу
-    // создание индикатора
-    const { name: indicatorName, options } = Indicator;
+    const { name, warmup, code, indicatorKey, indicatorOptions } = data;
+    const strategy: any = {
+      name,
+      warmup,
+      code,
+      indicatorKey,
+      indicatorOptions,
+    };
 
-    const result = await db.collection(collectionName).insertOne({ name, code, version });
-    await db.collection('indicator').insertOne({ name: indicatorName, options, strategyId: result.insertedId });
-    return new Strategy({ _id: result.insertedId, name, code, version });
+    const db = await connect();
+    strategy._id = (await db.collection(collectionName).insertOne(strategy)).insertedId;
+    return new Strategy(strategy);
   }
 
   @odata.PATCH
   async patch(@odata.key key: string, @odata.body delta: any): Promise<number> {
     const db = await connect();
-    if (delta._id) delete delta._id;
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return await db.collection(collectionName).updateOne({_id: keyId}, {$set: delta}).then(result => result.modifiedCount);
+    const { name, warmup, code, indicatorKey, indicatorOptions } = delta;
+    const strategy: any = {};
+    if (name) strategy.name = name;
+    if (warmup) strategy.warmup = warmup;
+    if (code) strategy.code = code;
+    if (indicatorKey) strategy.indicatorKey = indicatorKey;
+    if (indicatorOptions) strategy.indicatorOptions = indicatorOptions;
+
+    const _id = new ObjectID(key);
+    return await db.collection(collectionName).updateOne({ _id }, { $set: delta }).then(result => result.modifiedCount);
   }
 
   @odata.GET("Backtests")
