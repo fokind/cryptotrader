@@ -1,13 +1,11 @@
 import { ObjectID } from "mongodb";
 import { Edm, odata } from "odata-v4-server";
-// import { Ticker } from "./Ticker";
-// import { Balance } from "./Balance";
 import { Expert } from "./Expert";
-// import { Order } from "./Order";
 import connect from "../connect";
 import { TraderEngine } from "../engine/Trader";
 import { Account } from "./Account";
 import { ExchangeEngine } from "../engine/Exchange";
+import { ExpertEngine } from "../engine/Expert";
 
 export class Trader {
   @Edm.Key
@@ -69,17 +67,11 @@ export class Trader {
   @Edm.String
   public accountId: ObjectID
 
-  // @Edm.ComplexType(Edm.ForwardRef(() => Ticker))
-  // public Ticker: Ticker
-
   @Edm.Double
   public ask: number;
 
   @Edm.Double
   public bid: number;
-
-  // @Edm.ComplexType(Edm.ForwardRef(() => Balance))
-  // public Balance: Balance
 
   @Edm.Double
   public available: number;
@@ -94,33 +86,11 @@ export class Trader {
   @Edm.EntityType(Edm.ForwardRef(() => Account))
   public Account: Account
 
-  // @Edm.ComplexType(Edm.ForwardRef(() => Order))
-  // public Order: Order // не нашел возможности пользоваться асинхронными свойствами
-
   @Edm.Double
   public orderPrice: number;
 
   @Edm.String
   public orderSide: string;
-
-  // TODO разобраться как использовать
-  // @Edm.Function
-  // public async getTicker(@odata.result result: any): Promise<Ticker> {
-  //   return await new Promise<Ticker>(resolve => {
-  //     exchange.getTicker(result, (err, ticker) => {
-  //       resolve(new Ticker(ticker));
-  //     });
-  //   });
-  // }
-
-  // @Edm.Action
-  // async update(@odata.result result: any): Promise<number> {
-  //   const { _id } = this;
-  //   const db = await connect();
-  //   const { expertId } = await db.collection("trader").findOne({ _id });
-  //   const expert = new Expert(await db.collection("expert").findOne({ _id: expertId }));
-  //   return expert.update(expert);
-  // }
 
   @Edm.Action
   async update(@odata.result result: any): Promise<number> {
@@ -168,29 +138,23 @@ export class Trader {
     trader.available = balance ? balance.available : 0;
     trader.availableAsset = balanceAsset ? balanceAsset.available : 0
 
-    let expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
-    // console.log(expert);
-    // await expert.update(expert);
-    // console.log(1);
-    expert = new Expert(await db.collection("expert").findOne({ _id: trader.expertId }));
-    // console.log(expert);
+    const advice = await ExpertEngine.getAdvice(trader.expertId);
+    
     trader.canBuy = !trader.hasOrders && trader.available > 0;
     const prevToBuy = trader.toBuy;
 
-    if (expert.advice !== 0) {
-      trader.toBuy = expert.advice === 1;
-      trader.toSell = expert.advice === -1;
+    if (advice !== 0) {
+      trader.toBuy = advice === 1;
+      trader.toSell = advice === -1;
     }
 
     trader.canSell = !trader.hasOrders && trader.availableAsset > 0;
 
-    // if (expert.advice === 1) trader.positionMode = 1; // TODO заменить на числа
-    // if (expert.advice === -1) trader.positionMode = 0;
     // если ни то ни другое, то не меняется
     // если режим стоп-лосс, и цена ниже предельной, тогда short
     // если toBuy, а предыдущий нет
     if (trader.stoplossEnabled) {
-      if (!prevToBuy && expert.advice === 1) trader.stoplossPrice = expert.lastCLose * (1 - trader.stoplossLimit);
+      if (!prevToBuy && advice === 1) trader.stoplossPrice = ((ask + bid) / 2) * (1 - trader.stoplossLimit); // UNDONE улучшить определение цены
       if (bid <= trader.stoplossPrice) {
         trader.toBuy = false;
         trader.toSell = true;

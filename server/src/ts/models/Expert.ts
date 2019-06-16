@@ -9,19 +9,6 @@ export class Expert {
   @Edm.String
   public _id: ObjectID
 
-  @Edm.Computed
-  @Edm.Int32
-  // public advice: number // TODO сделать вычисляемым
-  // для получения совета достаточно запросить небольшое количество свечей
-  // количество свечей определяется стратегией
-  get advice(): number { // UNDONE временно, чтобы компилировалось
-    return 0;
-  }
-
-  @Edm.Computed
-  @Edm.Double
-  public lastCLose: number // TODO сделать вычисляемым
-
   @Edm.String
   public strategyId: ObjectID
 
@@ -42,9 +29,7 @@ export class Expert {
 
   @Edm.Function
   @Edm.Int32
-  public async getAdvice(
-    @odata.result result: any
-  ): Promise<number> {
+  public async getAdvice(@odata.result result: any): Promise<number> {
     return ExpertEngine.getAdvice(result._id);
   }
 
