@@ -1,10 +1,10 @@
 // import { Order } from '../models/Order';
 import { Hitbtc } from '../exchanges/hitbtc';
-import { Cryptocompare } from '../exchanges/cryptocompare';
+// import { Cryptocompare } from '../exchanges/cryptocompare';
 
 const exchanges = {
   hitbtc: new Hitbtc(),
-  cryptocompare: new Cryptocompare(),
+  // cryptocompare: new Cryptocompare(),
 };
 
 export enum SideEnum {
@@ -68,19 +68,30 @@ export interface IMarketDataSource {
   getCandles(options: {
     currency: string,
     asset: string,
-    period: string,
-    begin?: Date,
-    end?: Date
-  }): Promise<Array<{
-    time: Date,
-    open: number,
-    high: number,
-    low: number,
-    close: number
-  }>>;
+    timeframe: string,
+    start?: string,
+    end?: string
+  }): Promise<ICandle[]>;
+};
+
+export interface ICandle {
+  time: string,
+  open: number,
+  high: number,
+  low: number,
+  close: number,
+  volume?: number
 };
 
 export class ExchangeEngine {
+  static getExchangeKeys(): string[] {
+    return Object.keys(exchanges);
+  };
+
+  static getExchange(exchange: string): IMarketDataSource {
+    return exchanges[exchange];
+  };
+
   static async getOrders(options: {
     currency: string,
     asset: string,
@@ -148,15 +159,9 @@ export class ExchangeEngine {
     currency: string,
     asset: string,
     period: string,
-    begin?: Date,
-    end?: Date
-  }): Promise<Array<{
-    time: Date,
-    open: number,
-    high: number,
-    low: number,
-    close: number
-  }>> {
-    return exchanges[exchange].getCandles(options);
+    begin?: string,
+    end?: string
+  }): Promise<ICandle[]> {
+    return exchanges[exchange].getCandles(options); // UNDONE удалять последний элемент
   };
 };

@@ -44,7 +44,7 @@ export class BacktestEngine {
     balanceInitial,
     indicators,
   }: {
-    candles: { time: Date, close: number }[],
+    candles: { time: string, close: number }[], // FIXME перевести в дату
     strategyFunction: Function,
     balanceInitial: number,
     indicators: Indicator[],
@@ -54,7 +54,7 @@ export class BacktestEngine {
     const reversedIndicators0 = (await BacktestEngine.calculateIndicator(indicatorName, sorted, JSON.parse(options)))[0].reverse(); // UNDONE заменить на пользовательский индикатор
     const candlesLength = candles.length;
     const buffer = sorted.map((candle, index) => ({
-      time: candle.time,
+      time: candle.time, // UNDONE формат??
       close: candle.close,
       indicator: reversedIndicators0[candlesLength - index - 1],
       advice: strategyFunction(reversedIndicators0.slice(candlesLength - index - 1)), // UNDONE заменить на пользовательскую функцию

@@ -7,6 +7,7 @@ import connect from "../connect";
 import { ExpertEngine } from "../engine/Expert";
 import { Indicator } from "./Indicator";
 import { Candle } from "./Candle";
+import { ExchangeEngine } from "../engine/Exchange";
 
 export class Expert {
   @Edm.Key
@@ -61,9 +62,21 @@ export class Expert {
 
     const db = await connect();
     const marketData = new MarketData(await db.collection("marketData").findOne({ _id: marketDataId }));
-    if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
-      const candles = await db.collection("candle").find({ marketDataId })
-        .sort({ time: -1 }).limit(29).map(e => new Candle(e)).toArray(); // свечи отранжированы?
+    // if (await marketData.update(marketData) || lastUpdate !== marketData.end) {
+      // const candles = await db.collection("candle").find({ marketDataId })
+        // .sort({ time: -1 }).limit(29).map(e => new Candle(e)).toArray(); // свечи отранжированы?
+
+      const exchangeKey = 'hitbtc';
+      // UNDONE заменить получение свечей в нужном количестве
+      const candles = (await ExchangeEngine.getExchange(exchangeKey).getCandles(marketData))
+        .slice(-29).map(e => new Candle(e));
+
+      console.log(candles.length, candles);
+
+      // UNDONE !!!!!!!!!!! оптимизировать запросы свечей
+      // либо по лимиту, либо задавать диапазон
+
+
       // console.log(candles);
       // UNDONE 28 заменить на параметр из стратегии warmupPeriod
 
@@ -91,21 +104,21 @@ export class Expert {
       return await new Promise<number>(resolve => {
         // свечи отранжированы?
         // strategyFunction(candles, tulind, (err, advice) => {
-        if (lastUpdate !== marketData.end || expert.advice !== advice) {
+        // if (lastUpdate !== marketData.end || expert.advice !== advice) {
           const delta = { advice, lastUpdate: marketData.end, lastCLose: candles[candles.length - 1].close };
           // console.log(delta);
           db.collection("expert").updateOne({ _id }, { $set: delta }).then(result => {
             Object.assign(expert, delta);
             resolve(result.modifiedCount);
           });
-        } else {
-          resolve(0);
-        }
+        // } else {
+        //   resolve(0);
+        // }
         // });
       });
-    } else {
-      return 0;
-    }
+    // } else {
+    //   return 0;
+    // }
   }
 
   @Edm.Action

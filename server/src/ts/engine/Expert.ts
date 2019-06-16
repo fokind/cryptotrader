@@ -12,7 +12,7 @@ export class ExpertEngine {
     strategyFunction,
     indicators,
   }: {
-    candles: { time: Date, close: number }[],
+    candles: { time: string, close: number }[], // UNDONE переделать на строку!!!!!
     strategyFunction: Function,
     indicators: Indicator[],
   }): Promise<number> {
