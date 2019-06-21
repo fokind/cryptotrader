@@ -150,7 +150,7 @@ export class ExchangeEngine {
     currency: string,
     asset: string,
     timeframe: string,
-    begin?: string,
+    start?: string,
     end?: string,
     limit?: number,
   }): Promise<ICandle[]> {
