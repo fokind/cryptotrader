@@ -69,13 +69,21 @@ export class BufferController extends ODataController {
     return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
   }
 
-  @odata.GET("Rows")
-  async getRows(@odata.result result: any, @odata.query query: ODataQuery): Promise<BufferRow[]> {
-    // return [];
-    // const db = await connect();
-    const _id = new ObjectID(result._id);
-    // const { currency, asset, timeframe, exchangeKey, start, end } = <MarketData>(await db.collection(collectionName).findOne({ _id }));
-    // console.log({ currency, asset, timeframe, exchangeKey, start, end });
-    return await BufferEngine.getRows(_id);
+  // @odata.GET("Rows")
+  // async getRows(@odata.result result: any, @odata.query query: ODataQuery): Promise<BufferRow[]> {
+  //   const _id = new ObjectID(result._id);
+  //   const db = await connect();
+  //   const { currency, asset, timeframe, exchangeKey, start, end, indicatorKey, indicatorOptions } = await db.collection("buffer").findOne({ _id });
+  //   return await BufferEngine.getRows({ currency, asset, timeframe, exchangeKey, start, end, indicatorKey, indicatorOptions });
+  // }
+
+  @Edm.Function
+  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
+  public async getRows(@Edm.String exchangeKey: string, @Edm.String currency: string,
+    @Edm.String asset: string, @Edm.String timeframe: string,
+    @Edm.String indicatorKey: string, @Edm.String indicatorOptions: string,
+    @Edm.String start?: string, @Edm.String end?: string): Promise<BufferRow[]> {
+    console.log({ currency, asset, timeframe, exchangeKey, indicatorKey, indicatorOptions, start, end });
+    return await BufferEngine.getRows({ currency, asset, timeframe, exchangeKey, indicatorKey, indicatorOptions, start, end });
   }
 }

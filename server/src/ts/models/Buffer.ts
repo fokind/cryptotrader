@@ -46,8 +46,8 @@ export class Buffer {
   @Edm.String
   public indicatorOptions: string // дополнительные поля
 
-  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
-  public Rows: BufferRow[]
+  // @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
+  // public Rows: BufferRow[]
 
   constructor(data) {
     Object.assign(this, data);
