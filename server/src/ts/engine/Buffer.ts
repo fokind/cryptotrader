@@ -4,6 +4,7 @@ import connect from "../connect";
 import { ExchangeEngine, ICandle } from "./Exchange";
 import { BufferRow } from "../models/BufferRow";
 import { Buffer } from "../models/Buffer";
+import { Indicator } from "../models/Indicator";
 
 export class BufferEngine {
   static calculateIndicator(
@@ -32,6 +33,8 @@ export class BufferEngine {
       await db.collection("buffer").findOne({ _id: bufferId })
     );
 
+    // console.log({ currency, asset, timeframe, exchangeKey, start, end });
+
     const candles = await ExchangeEngine.getCandles(exchangeKey, {
       currency,
       asset,
@@ -40,16 +43,22 @@ export class BufferEngine {
       end
     });
 
-    const {
-      key: indicatorKey,
-      options: indicatorOptions
-    } = (await db.collection("indicator").find({ bufferId }))[0];
+    const indicators = (await db
+      .collection("indicator")
+      .find<Indicator>({ bufferId })
+      .toArray()
+      .then(inds => {
+        return Promise.all(
+          inds.map(({ key: indicatorKey, options: indicatorOptions }) =>
+            BufferEngine.calculateIndicator(
+              indicatorKey,
+              candles,
+              JSON.parse(indicatorOptions)
+            )
+          )
+        );
+      }))[0][0];
 
-    const indicators = (await BufferEngine.calculateIndicator(
-      indicatorKey,
-      candles,
-      JSON.parse(indicatorOptions)
-    ))[0];
     const warmup = candles.length - indicators.length;
 
     const rows = [];

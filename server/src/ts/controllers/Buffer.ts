@@ -56,23 +56,12 @@ export class BufferController extends ODataController {
   @odata.POST
   async post(@odata.body data: any): Promise<Buffer> {
     const db = await connect();
-    const {
-      currency,
-      asset,
-      timeframe,
-      exchangeKey,
-      indicatorKey,
-      indicatorOptions,
-      start,
-      end
-    } = data; // TODO сделать везде по этому образцу
+    const { currency, asset, timeframe, exchangeKey, start, end } = data; // TODO сделать везде по этому образцу
     const buffer: any = {
       currency,
       asset,
       timeframe,
-      exchangeKey,
-      indicatorKey,
-      indicatorOptions
+      exchangeKey
     };
     if (start) buffer.start = start;
     if (end) buffer.start = end;
@@ -102,7 +91,7 @@ export class BufferController extends ODataController {
   // }
 
   @odata.GET("Rows")
-  async getRows(@odata.result result: any): Promise<BufferRow[]> {
+  async getRows(@odata.result result: any, @odata.query query: ODataQuery): Promise<BufferRow[]> {
     const _id = new ObjectID(result._id);
     // const db = await connect();
     // const {
@@ -115,7 +104,7 @@ export class BufferController extends ODataController {
     //   start,
     //   end
     // } = <Buffer>await db.collection(collectionName).findOne({ _id });
-    return await BufferEngine.getRows(_id);
+    return BufferEngine.getRows(_id);
   }
 
   // @Edm.Function

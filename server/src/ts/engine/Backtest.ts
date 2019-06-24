@@ -50,7 +50,7 @@ export class BacktestEngine {
     indicators: Indicator[],
   }): Promise<BacktestRow[]> {
     const sorted = candles.sort((a, b) => moment(a.time).isAfter(b.time) ? 1 : -1);
-    const { name: indicatorName, options } = indicators[0]; // UNDONE сделать произвольное число индикаторов
+    const { key: indicatorName, options } = indicators[0]; // UNDONE сделать произвольное число индикаторов
     const reversedIndicators0 = (await BacktestEngine.calculateIndicator(indicatorName, sorted, JSON.parse(options)))[0].reverse(); // UNDONE заменить на пользовательский индикатор
     const candlesLength = candles.length;
     const buffer = sorted.map((candle, index) => ({
