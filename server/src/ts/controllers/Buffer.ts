@@ -18,17 +18,23 @@ export class BufferController extends ODataController {
   async get(@odata.query query: ODataQuery): Promise<Buffer[]> {
     const db = await connect();
     const mongodbQuery = createQuery(query);
-    if (mongodbQuery.query._id) mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
-    const result = typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0 ? [] : await db.collection(collectionName)
-      .find(mongodbQuery.query)
-      .project(mongodbQuery.projection)
-      .skip(mongodbQuery.skip || 0)
-      .limit(mongodbQuery.limit || 0)
-      .sort(mongodbQuery.sort)
-      .map(e => new Buffer(e))
-      .toArray();
+    if (mongodbQuery.query._id)
+      mongodbQuery.query._id = new ObjectID(mongodbQuery.query._id);
+    const result =
+      typeof mongodbQuery.limit === "number" && mongodbQuery.limit === 0
+        ? []
+        : await db
+            .collection(collectionName)
+            .find(mongodbQuery.query)
+            .project(mongodbQuery.projection)
+            .skip(mongodbQuery.skip || 0)
+            .limit(mongodbQuery.limit || 0)
+            .sort(mongodbQuery.sort)
+            .map(e => new Buffer(e))
+            .toArray();
     if (mongodbQuery.inlinecount) {
-      (<any>result).inlinecount = await db.collection(collectionName)
+      (<any>result).inlinecount = await db
+        .collection(collectionName)
         .find(mongodbQuery.query)
         .project(mongodbQuery.projection)
         .count(false);
@@ -37,7 +43,10 @@ export class BufferController extends ODataController {
   }
 
   @odata.GET
-  async getById(@odata.key key: string, @odata.query query: ODataQuery): Promise<Buffer> {
+  async getById(
+    @odata.key key: string,
+    @odata.query query: ODataQuery
+  ): Promise<Buffer> {
     const { projection } = createQuery(query);
     const _id = new ObjectID(key);
     const db = await connect();
@@ -47,8 +56,24 @@ export class BufferController extends ODataController {
   @odata.POST
   async post(@odata.body data: any): Promise<Buffer> {
     const db = await connect();
-    const { currency, asset, timeframe, exchangeKey, indicatorKey, indicatorOptions, start, end } = data; // TODO сделать везде по этому образцу
-    const buffer: any = { currency, asset, timeframe, exchangeKey, indicatorKey, indicatorOptions };
+    const {
+      currency,
+      asset,
+      timeframe,
+      exchangeKey,
+      indicatorKey,
+      indicatorOptions,
+      start,
+      end
+    } = data; // TODO сделать везде по этому образцу
+    const buffer: any = {
+      currency,
+      asset,
+      timeframe,
+      exchangeKey,
+      indicatorKey,
+      indicatorOptions
+    };
     if (start) buffer.start = start;
     if (end) buffer.start = end;
 
@@ -61,29 +86,43 @@ export class BufferController extends ODataController {
     return new Buffer(buffer); // UNDONE поменять в UI
   }
 
-  @odata.DELETE
-  async delete(@odata.key key: string): Promise<number> {
-    const db = await connect();
-    let keyId;
-    try { keyId = new ObjectID(key); } catch(err) { keyId = key; }
-    return await db.collection(collectionName).deleteOne({_id: keyId}).then(result => result.deletedCount);
-  }
-
-  // @odata.GET("Rows")
-  // async getRows(@odata.result result: any, @odata.query query: ODataQuery): Promise<BufferRow[]> {
-  //   const _id = new ObjectID(result._id);
+  // @odata.DELETE
+  // async delete(@odata.key key: string): Promise<number> {
   //   const db = await connect();
-  //   const { currency, asset, timeframe, exchangeKey, start, end, indicatorKey, indicatorOptions } = await db.collection("buffer").findOne({ _id });
-  //   return await BufferEngine.getRows({ currency, asset, timeframe, exchangeKey, start, end, indicatorKey, indicatorOptions });
+  //   let keyId;
+  //   try {
+  //     keyId = new ObjectID(key);
+  //   } catch (err) {
+  //     keyId = key;
+  //   }
+  //   return await db
+  //     .collection(collectionName)
+  //     .deleteOne({ _id: keyId })
+  //     .then(result => result.deletedCount);
   // }
 
   @Edm.Function
   @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
-  public async getRows(@Edm.String exchangeKey: string, @Edm.String currency: string,
-    @Edm.String asset: string, @Edm.String timeframe: string,
-    @Edm.String indicatorKey: string, @Edm.String indicatorOptions: string,
-    @Edm.String start?: string, @Edm.String end?: string): Promise<BufferRow[]> {
-    console.log({ currency, asset, timeframe, exchangeKey, indicatorKey, indicatorOptions, start, end });
-    return await BufferEngine.getRows({ currency, asset, timeframe, exchangeKey, indicatorKey, indicatorOptions, start, end });
+  public async getRows(@odata.body options: any): Promise<BufferRow[]> {
+    const {
+      currency,
+      asset,
+      timeframe,
+      exchangeKey,
+      indicatorKey,
+      indicatorOptions,
+      start,
+      end
+    } = options;
+    return await BufferEngine.getRows({
+      currency,
+      asset,
+      timeframe,
+      exchangeKey,
+      indicatorKey,
+      indicatorOptions,
+      start,
+      end
+    });
   }
 }
