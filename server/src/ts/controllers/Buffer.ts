@@ -101,28 +101,45 @@ export class BufferController extends ODataController {
   //     .then(result => result.deletedCount);
   // }
 
-  @Edm.Function
-  @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
-  public async getRows(@odata.body options: any): Promise<BufferRow[]> {
-    const {
-      currency,
-      asset,
-      timeframe,
-      exchangeKey,
-      indicatorKey,
-      indicatorOptions,
-      start,
-      end
-    } = options;
-    return await BufferEngine.getRows({
-      currency,
-      asset,
-      timeframe,
-      exchangeKey,
-      indicatorKey,
-      indicatorOptions,
-      start,
-      end
-    });
+  @odata.GET("Rows")
+  async getRows(@odata.result result: any): Promise<BufferRow[]> {
+    const _id = new ObjectID(result._id);
+    // const db = await connect();
+    // const {
+    //   currency,
+    //   asset,
+    //   timeframe,
+    //   exchangeKey,
+    //   indicatorKey,
+    //   indicatorOptions,
+    //   start,
+    //   end
+    // } = <Buffer>await db.collection(collectionName).findOne({ _id });
+    return await BufferEngine.getRows(_id);
   }
+
+  // @Edm.Function
+  // @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
+  // public async getRows(@odata.body options: any): Promise<BufferRow[]> {
+  //   const {
+  //     currency,
+  //     asset,
+  //     timeframe,
+  //     exchangeKey,
+  //     indicatorKey,
+  //     indicatorOptions,
+  //     start,
+  //     end
+  //   } = options;
+  //   return await BufferEngine.getRows({
+  //     currency,
+  //     asset,
+  //     timeframe,
+  //     exchangeKey,
+  //     indicatorKey,
+  //     indicatorOptions,
+  //     start,
+  //     end
+  //   });
+  // }
 }

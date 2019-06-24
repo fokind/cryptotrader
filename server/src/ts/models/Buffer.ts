@@ -7,19 +7,19 @@ export class Buffer {
   @Edm.Key
   @Edm.Computed
   @Edm.String
-  public _id: ObjectID
+  public _id: ObjectID;
 
   @Edm.String
-  public exchangeKey: string
+  public exchangeKey: string;
 
   @Edm.String
-  public currency: string
+  public currency: string;
 
   @Edm.String
-  public asset: string
+  public asset: string;
 
   @Edm.String
-  public timeframe: string // https://ru.wikipedia.org/wiki/%D0%A2%D0%B0%D0%B9%D0%BC%D1%84%D1%80%D0%B5%D0%B9%D0%BC
+  public timeframe: string; // https://ru.wikipedia.org/wiki/%D0%A2%D0%B0%D0%B9%D0%BC%D1%84%D1%80%D0%B5%D0%B9%D0%BC
   // moment.duration('P1Y2M3DT4H5M6S');
 
   @Edm.String
@@ -40,11 +40,11 @@ export class Buffer {
   // @Edm.String
   // public strategyId: ObjectID
 
-  @Edm.String
-  public indicatorKey: string // пока только с одним индикатором
+  // @Edm.String
+  // public indicatorKey: string // пока только с одним индикатором
 
-  @Edm.String
-  public indicatorOptions: string // дополнительные поля
+  // @Edm.String
+  // public indicatorOptions: string // дополнительные поля
 
   // @Edm.Collection(Edm.EntityType(Edm.ForwardRef(() => BufferRow)))
   // public Rows: BufferRow[]
